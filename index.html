@@ -119,6 +119,16 @@ button{cursor:pointer}
 .st-Frei{background:var(--ok-bg);color:var(--ok)}
 .st-Reinigen{background:var(--warn-bg);color:var(--warn)}
 .st-Reserviert{background:var(--info-bg);color:var(--info)}
+.st-Nicht{background:var(--neutral-bg);color:var(--neutral);white-space:nowrap}
+.rm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,128px),1fr));gap:8px}
+.rm-cell{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:1px solid var(--line-2);background:var(--surface);color:inherit;border-radius:10px;padding:10px 12px;font:inherit;cursor:pointer;min-height:64px}
+.rm-cell b{font-size:16px}.rm-cell span{font-size:13px;color:var(--muted)}.rm-cell .pill{font-size:11px}
+.rm-cell:hover{border-color:var(--accent)}.rm-cell.locked{background:var(--surface-2)}
+.rm-acts{display:flex;gap:8px;flex-wrap:wrap}
+.rm-box{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line-2);border-radius:12px;padding:12px 14px}
+.danger-zone{border-color:var(--bad)}
+.radio{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:15px}.radio input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--accent)}
+.warnbox{background:var(--surface-2);border-radius:8px;padding:10px}
 .st-Gesperrt,.st-Lager{background:var(--neutral-bg);color:var(--neutral)}
 .ok{background:var(--ok-bg);color:var(--ok)} .warn{background:var(--warn-bg);color:var(--warn)} .bad{background:var(--bad-bg);color:var(--bad)} .info{background:var(--info-bg);color:var(--info)}
 .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px;align-items:start}
@@ -317,10 +327,11 @@ const AREA_DEF=[
   {id:'F4', rooms:Array.from({length:12},(_,i)=>'A'+pad(i+1)), beds:2},
   {id:'F5', rooms:Array.from({length:8},(_,i)=>'B'+pad(i+1)), beds:2}
 ];
-const STATUSES=['Frei','Belegt','Reinigen','Reserviert','Gesperrt','Lager'];
+const STATUSES=['Frei','Belegt','Reinigen','Reserviert','Gesperrt','Nicht frei','Lager'];
 const NATS=['Afghanistan','Syrien','Irak','Türkei','Eritrea','Iran','Algerien','Georgien','Somalia','Ukraine'];
 const LANGS={Afghanistan:'Dari',Syrien:'Arabisch',Irak:'Arabisch','Türkei':'Türkisch',Eritrea:'Tigrinya',Iran:'Persisch',Algerien:'Arabisch',Georgien:'Georgisch',Somalia:'Somali',Ukraine:'Ukrainisch'};
-const KEY='hero-bms-demo-v5';
+const KEY='hero-bms-demo-v6';
+const REAL=false, REAL_STRUCT=null;
 function pad(n){return String(n).padStart(2,'0')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function rnd(seed){let s=seed;return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
@@ -330,7 +341,10 @@ function fmt(d){return new Date(d).toLocaleDateString('de-DE',{day:'2-digit',mon
 function fmtT(d){const x=new Date(d);return x.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+' · '+x.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
 function iso(d){const x=new Date(d);return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate())}
 
+function realSeed(){const beds=[],areas=[];Object.entries(REAL_STRUCT).forEach(([an,list])=>{const rooms=[];list.forEach(([bn,st])=>{const rm=bn.replace(/\.[^.]*$/,'');if(!rooms.includes(rm))rooms.push(rm);beds.push({id:an+'|'+bn,area:an,room:bn,status:st,qmm:null,note:''})});areas.push({id:an,camp:'c1',name:an,rooms})});
+  return {beds,people:{},log:[],att:{},defects:[],nextDefect:1,checks:{},camps:[{id:'c1',name:'LUK Bad Segeberg',ort:'Bad Segeberg'}],areas,camp:'c1',nextId:100,attHist:{},reports:[],things:[],queue:[],offline:false}}
 function seed(){
+  if(REAL)return realSeed();
   const r=rnd(42); const beds=[]; const people={}; const log=[]; let q=2600001;
   AREA_DEF.forEach(a=>a.rooms.forEach(room=>{for(let b=1;b<=a.beds;b++){
     const x=r(); let st= x<.70?'Belegt': x<.85?'Frei': x<.93?'Reinigen': x<.96?'Reserviert':'Gesperrt';
@@ -389,7 +403,7 @@ function bedLabel(beds,id){const b=beds.find(x=>x.id===id);if(!b)return '–';co
 let S=load()||seed();
 function load(){try{const j=localStorage.getItem(KEY);return j?JSON.parse(j):null}catch(e){return null}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-let UI={logged:false, view:'uebersicht', area:'F2', stFilter:'Alle', q:'', attArea:'F2', attFilter:'alle', akte:null, na:{}};
+let UI={logged:false, view:'uebersicht', area:REAL?'H12':'F2', stFilter:'Alle', q:'', attArea:REAL?'H12':'F2', attFilter:'alle', akte:null, na:{}};
 try{UI.logged=sessionStorage.getItem(KEY+'-in')==='1'}catch(e){}
 
 const bed=id=>S.beds.find(b=>b.id===id);
@@ -827,7 +841,7 @@ function incDoc(x){const t=S.templates.find(y=>y.id===x.tpl);const rows=t.fields
    <tr><th>Bericht erstellt</th><td>${fmtT(x.created)} · ${esc(x.by)}</td></tr>${rows}</table></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" data-act="incPdf">Als PDF</button><button type="button" class="btn" data-act="incMail">An Leitung senden</button></div>
   <p class="hint">Demo: PDF und Versand sind in der echten Version aktiv.</p>`}
-function seedIncidents(){const now=Date.now();const P=Object.values(S.people).filter(p=>p.active);const pick=i=>{const p=P[i%P.length];return {qmm:p.qmm,name:p.name,vorname:p.vorname,room:bedLabel(S.beds,p.bed),geb:p.geb,nat:p.nat,lang:p.lang}};
+function seedIncidents(){if(REAL)return [];const now=Date.now();const P=Object.values(S.people).filter(p=>p.active);const pick=i=>{const p=P[i%P.length];return {qmm:p.qmm,name:p.name,vorname:p.vorname,room:bedLabel(S.beds,p.bed),geb:p.geb,nat:p.nat,lang:p.lang}};
   return [
    {id:'i1',tpl:'t1',resList:[pick(10),pick(11)],res:pick(10),when:now-30*3600e3,created:now-28*3600e3,shift:'Nachtschicht',by:'M. Schmidt',camp:'c1',vals:{melder:'M. Schmidt',team:['SB'],art:['Beleidigung','Bedrohung'],desc:'Lautstarker Streit zwischen zwei Bewohnern in der Küche. Die Situation wurde beruhigt.',mass:'Gespräch mit beiden Bewohnern geführt.',info:['Security'],wie:['per Telefon']}},
    {id:'i2',tpl:'t1',resList:[pick(33)],res:pick(33),when:now-6*3600e3,created:now-5.5*3600e3,shift:'Frühschicht',by:'Verwaltung',camp:'c1',vals:{melder:'Verwaltung',team:['HB'],art:['gesundheitlicher Notfall'],desc:'Bewohner klagte über starke Bauchschmerzen.',mass:'Über die Wache ein Taxi ins Krankenhaus veranlasst.',info:['Security','HERO Rufbereitschaft'],wie:['per Telefon']}},
@@ -908,8 +922,157 @@ function verwaltungView(){
    </div>
    <div class="card" style="background:var(--surface-2);border:0;padding:14px;margin-top:12px;font-size:15px">${okRange?`Erzeugt Zimmer <b>${esc(nm(from))}</b> bis <b>${esc(nm(to))}</b> · ${to-from+1} Zimmer · ${(to-from+1)*bpr} Betten (Status „Frei“). Bereits vorhandene Zimmer werden übersprungen.`:'Bitte gültige Nummern angeben (Von ≤ Bis, höchstens 200 Zimmer, 1–12 Betten).'}</div>
    <button type="button" class="btn primary" style="margin-top:10px;align-self:flex-start" data-act="addrooms" ${okRange?'':'disabled'}>Zimmer anlegen</button>`:'<p class="empty">Legen Sie zuerst ein Gebäude an.</p>'}
-  </section>`;
+  </section>
+  ${roomsPanel(ar)}
+  ${importPanel()}`;
 }
+
+/* ---------- Zimmer verwalten und Import ---------- */
+function roomOf(b){return b.room.replace(/\.[^.]*$/,'')}
+function roomBeds(areaId,room){return S.beds.filter(b=>b.area===areaId&&roomOf(b)===room).sort((x,y)=>x.room.localeCompare(y.room,'de',{numeric:true}))}
+function bedBusy(b){return !!b.qmm||b.status==='Belegt'}
+function roomsPanel(ar){
+  const R=UI.rm||(UI.rm={area:'',q:''});
+  if(!ar.find(a=>a.id===R.area))R.area=(ar[0]||{}).id||'';
+  const a=S.areas.find(x=>x.id===R.area); if(!a)return '';
+  const q=(R.q||'').trim().toLowerCase();
+  let rooms=a.rooms.slice().sort((x,y)=>x.localeCompare(y,'de',{numeric:true}));
+  if(q)rooms=rooms.filter(r=>r.toLowerCase().includes(q));
+  const shown=rooms.slice(0,60);
+  return `<section class="card panel" id="rm-panel"><div class="panel-h"><h2>Zimmer und Betten verwalten</h2><span class="pill st-Belegt">${a.rooms.length} Zimmer</span></div>
+   <div class="toolbar" style="align-items:flex-end;margin-bottom:12px"><label class="f" style="flex:0 1 180px">Gebäude<select id="rm-area">${ar.map(x=>`<option value="${x.id}" ${x.id===a.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+    <label class="search">${IC.search}<input id="rm-q" type="search" placeholder="Zimmer suchen, z. B. 07" value="${esc(R.q||'')}" aria-label="Zimmer suchen"></label>
+    <button type="button" class="btn" data-act="areaEdit" data-area="${a.id}">Gebäude umbenennen oder löschen</button></div>
+   <div class="rm-grid">${shown.map(r=>{const bs=roomBeds(a.id,r);const busy=bs.filter(bedBusy).length;const lock=bs.some(b=>b.status==='Gesperrt');
+     return `<button type="button" class="rm-cell${lock?' locked':''}" data-act="roomEdit" data-area="${a.id}" data-room="${esc(r)}"><b>${esc(r)}</b><span>${bs.length} ${bs.length===1?'Bett':'Betten'} · ${busy} belegt</span>${lock?'<span class="pill st-Gesperrt">gesperrt</span>':''}</button>`}).join('')||'<p class="empty">Kein Zimmer gefunden.</p>'}</div>
+   ${rooms.length>shown.length?`<p class="hint" style="margin-top:8px">${rooms.length-shown.length} weitere Zimmer – bitte die Suche nutzen.</p>`:''}
+   <p class="hint" style="margin-top:8px">Zimmer antippen: Betten hinzufügen oder entfernen, sperren, umbenennen oder löschen.</p>
+  </section>`}
+function roomSheet(){const E=UI.rmE;const a=S.areas.find(x=>x.id===E.area);const bs=roomBeds(E.area,E.room);
+  const free=bs.filter(b=>!bedBusy(b));const canLock=free.some(b=>b.status!=='Gesperrt');const isLocked=free.some(b=>b.status==='Gesperrt');const busy=bs.some(bedBusy);
+  return `<div class="sheet-h"><div><h2>Zimmer ${esc(E.room)}</h2><p class="hint">${esc(campName(a.camp))} · ${esc(a.name)} · ${bs.length} ${bs.length===1?'Bett':'Betten'}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <div class="table-wrap"><table class="rep-table"><thead><tr><th>Bett</th><th>Status</th><th>Bewohner</th></tr></thead><tbody>${bs.map(b=>{const p=b.qmm&&person(b.qmm);return `<tr><td><b>${esc(b.room)}</b></td><td><span class="pill st-${b.status}">${b.status}</span></td><td>${p?esc(p.name+' '+p.vorname)+' · QMM '+p.qmm:(b.status==='Belegt'?'<span style="color:var(--muted)">Bewohnerdaten folgen</span>':'–')}</td></tr>`}).join('')||'<tr><td colspan="3">Keine Betten</td></tr>'}</tbody></table></div>
+  <div class="rm-acts"><button type="button" class="btn" data-act="bedAdd">${IC.plus}Bett hinzufügen</button><button type="button" class="btn" data-act="bedDel" ${free.length&&bs.length>1?'':'disabled'}>Freies Bett entfernen</button></div>
+  ${(!free.length&&bs.length)?'<p class="hint">Alle Betten sind belegt. Zum Entfernen eines Betts den Bewohner vorher umbuchen.</p>':''}
+  ${canLock||isLocked?`<div class="rm-box"><b>Zimmer sperren</b><span class="hint">Freie Betten werden gesperrt und können nicht belegt werden, z. B. bei Reparatur.</span>
+    ${canLock?`<label class="f">Grund (optional)<input id="rm-note" type="text" placeholder="z. B. Wasserschaden" value="${esc(E.note||'')}"></label>`:''}
+    <div class="rm-acts">${canLock?'<button type="button" class="btn" data-act="roomLock" data-v="1">Freie Betten sperren</button>':''}${isLocked?'<button type="button" class="btn soft" data-act="roomLock" data-v="0">Sperre aufheben</button>':''}</div></div>`:''}
+  <div class="rm-box"><b>Umbenennen</b><div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap"><label class="f" style="flex:1 1 160px">Neue Zimmernummer<input id="rm-name" type="text" value="${esc(E.name)}"></label><button type="button" class="btn" data-act="roomRename">Speichern</button></div><span class="hint">Die Betten werden automatisch mit umbenannt, die Bewohner bleiben zugeordnet.</span></div>
+  <div class="rm-box danger-zone">${busy?'<span class="hint">Löschen ist erst möglich, wenn alle Betten frei sind. Belegte Betten bitte vorher umbuchen.</span>':E.confirm?`<b>Zimmer ${esc(E.room)} mit ${bs.length} Betten wirklich löschen?</b><div class="rm-acts"><button type="button" class="btn danger" data-act="roomDel" data-ok="1">Ja, löschen</button><button type="button" class="btn" data-act="roomDelNo">Abbrechen</button></div>`:'<button type="button" class="btn danger" data-act="roomDel" style="align-self:flex-start">Zimmer löschen</button>'}</div>`}
+function rmRedraw(){const sh=document.querySelector('.sheet');if(sh)sh.innerHTML=roomSheet()}
+function areaSheet(){const E=UI.arE;const a=S.areas.find(x=>x.id===E.id);const bs=S.beds.filter(b=>b.area===a.id);const busy=bs.filter(bedBusy).length;
+  return `<div class="sheet-h"><div><h2>Gebäude ${esc(a.name)}</h2><p class="hint">${a.rooms.length} Zimmer · ${bs.length} Betten · ${busy} belegt</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <div class="rm-box"><b>Umbenennen</b><div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap"><label class="f" style="flex:1 1 160px">Neuer Name<input id="ar-name" type="text" value="${esc(E.name)}"></label><button type="button" class="btn" data-act="areaRename">Speichern</button></div></div>
+  <div class="rm-box danger-zone">${busy?'<span class="hint">Löschen ist erst möglich, wenn im Gebäude niemand mehr wohnt.</span>':E.confirm?`<b>Gebäude ${esc(a.name)} mit ${a.rooms.length} Zimmern und ${bs.length} Betten wirklich löschen?</b><div class="rm-acts"><button type="button" class="btn danger" data-act="areaDel" data-ok="1">Ja, löschen</button><button type="button" class="btn" data-act="areaDelNo">Abbrechen</button></div>`:'<button type="button" class="btn danger" data-act="areaDel" style="align-self:flex-start">Gebäude löschen</button>'}</div>`}
+function arRedraw(){const sh=document.querySelector('.sheet');if(sh)sh.innerHTML=areaSheet()}
+function roomAction(a,t){const E=UI.rmE;const ar=S.areas.find(x=>x.id===E.area);const bs=roomBeds(E.area,E.room);const lg=txt=>{addLog('ZIMMER',null,ar.name+' · '+txt);S.log[S.log.length-1].camp=ar.camp};
+  if(a==='bedAdd'){let n=Math.max(0,...bs.map(b=>parseInt(b.room.slice(E.room.length+1),10)||0))+1;while(S.beds.some(b=>b.id===ar.id+'|'+E.room+'.'+n))n++;S.beds.push({id:ar.id+'|'+E.room+'.'+n,area:ar.id,room:E.room+'.'+n,status:'Frei',qmm:null,note:''});lg('Bett '+E.room+'.'+n+' hinzugefügt');toast('Bett '+E.room+'.'+n+' hinzugefügt')}
+  if(a==='bedDel'){const f=bs.filter(b=>!bedBusy(b));const x=f[f.length-1];if(!x||bs.length<2)return;S.beds=S.beds.filter(b=>b!==x);lg('Bett '+x.room+' entfernt');toast('Bett '+x.room+' entfernt')}
+  if(a==='roomLock'){const on=t.dataset.v==='1';let n=0;bs.forEach(b=>{if(bedBusy(b))return;if(on&&b.status!=='Gesperrt'){b.status='Gesperrt';b.note=(E.note||'').trim()||'Zimmer gesperrt';n++}if(!on&&b.status==='Gesperrt'){b.status='Frei';b.note='';n++}});lg('Zimmer '+E.room+(on?' gesperrt':' freigegeben')+(on&&E.note?' ('+E.note.trim()+')':''));toast(on?n+' Betten gesperrt':'Sperre aufgehoben')}
+  if(a==='roomRename'){const nn=(E.name||'').trim();if(!nn||nn===E.room){toast('Bitte eine neue Zimmernummer eingeben');return}if(/[.|]/.test(nn)){toast('Punkt und | sind im Zimmernamen nicht erlaubt');return}if(ar.rooms.some(r=>r.toLowerCase()===nn.toLowerCase())){toast('Zimmer '+nn+' gibt es schon');return}
+    ar.rooms[ar.rooms.indexOf(E.room)]=nn;bs.forEach(b=>{b.room=nn+b.room.slice(E.room.length);b.id=ar.id+'|'+b.room;if(b.qmm&&S.people[b.qmm])S.people[b.qmm].bed=b.id});lg('Zimmer '+E.room+' → '+nn);toast('Zimmer umbenannt in '+nn);E.room=nn}
+  if(a==='roomDel'){if(bs.some(bedBusy))return;if(!t.dataset.ok){E.confirm=true;rmRedraw();return}S.beds=S.beds.filter(b=>!bs.includes(b));ar.rooms=ar.rooms.filter(r=>r!==E.room);lg('Zimmer '+E.room+' gelöscht');save();closeSheet();render();toast('Zimmer '+E.room+' gelöscht');return}
+  if(a==='roomDelNo'){E.confirm=false;rmRedraw();return}
+  save();render();rmRedraw()}
+function areaAction(a,t){const E=UI.arE;const ar=S.areas.find(x=>x.id===E.id);
+  if(a==='areaRename'){const nn=(E.name||'').trim();if(!nn||nn===ar.name){toast('Bitte einen neuen Namen eingeben');return}if(S.areas.some(x=>x.camp===ar.camp&&x!==ar&&x.name.toLowerCase()===nn.toLowerCase())){toast('Diesen Namen gibt es schon');return}addLog('ZIMMER',null,'Gebäude '+ar.name+' → '+nn);ar.name=nn;save();render();arRedraw();toast('Gebäude umbenannt');return}
+  if(a==='areaDel'){if(S.beds.some(b=>b.area===ar.id&&bedBusy(b)))return;if(!t.dataset.ok){E.confirm=true;arRedraw();return}S.beds=S.beds.filter(b=>b.area!==ar.id);S.areas=S.areas.filter(x=>x!==ar);addLog('ZIMMER',null,'Gebäude '+ar.name+' gelöscht');if(UI.area===ar.id)UI.area=(areasCur()[0]||{}).id;if(UI.attArea===ar.id)UI.attArea=(areasCur()[0]||{}).id;save();closeSheet();render();toast('Gebäude gelöscht');return}
+  if(a==='areaDelNo'){E.confirm=false;arRedraw()}}
+
+/* Import aus Excel / CSV */
+/* Excel (.xlsx) und CSV ohne externe Bibliothek lesen */
+async function unzip(buf){const dv=new DataView(buf),u8=new Uint8Array(buf);let e=-1;for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-66000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}if(e<0)throw new Error('zip');
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const files={};const td=new TextDecoder();
+  for(let k=0;k<n;k++){const m=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),fl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);const name=td.decode(u8.subarray(p+46,p+46+fl));
+    files[name]={m,cs,lo};p+=46+fl+xl+cl}
+  return async name=>{const f=files[name];if(!f)return null;const lf=dv.getUint16(f.lo+26,true),lx=dv.getUint16(f.lo+28,true);const data=u8.subarray(f.lo+30+lf+lx,f.lo+30+lf+lx+f.cs);
+    if(f.m===0)return td.decode(data);const ds=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(ds).text()}}
+function xdoc(t){return new DOMParser().parseFromString(t,'application/xml')}
+function colIdx(ref){let n=0;for(const ch of ref.replace(/\d+/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1}
+async function readXlsx(buf){const get=await unzip(buf);const wbx=xdoc(await get('xl/workbook.xml'));const rels=xdoc(await get('xl/_rels/workbook.xml.rels')||'<r/>');
+  const tgt={};[...rels.getElementsByTagName('Relationship')].forEach(r=>tgt[r.getAttribute('Id')]=r.getAttribute('Target'));
+  const ssT=await get('xl/sharedStrings.xml');const ss=ssT?[...xdoc(ssT).getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join('')):[];
+  const stT=await get('xl/styles.xml');let dateXf=[];
+  if(stT){const sd=xdoc(stT);const custom={};[...sd.getElementsByTagName('numFmt')].forEach(f=>custom[f.getAttribute('numFmtId')]=f.getAttribute('formatCode')||'');
+    const cx=sd.getElementsByTagName('cellXfs')[0];if(cx)dateXf=[...cx.getElementsByTagName('xf')].map(x=>{const id=+x.getAttribute('numFmtId');return (id>=14&&id<=22)||(id>=45&&id<=47)||(custom[id]!=null&&/[dmy]/i.test(custom[id].replace(/\[[^\]]*\]|"[^"]*"/g,'')))})}
+  const sheets=[];
+  for(const s of wbx.getElementsByTagName('sheet')){const rid=s.getAttribute('r:id')||s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');let t=tgt[rid]||'';t=t.startsWith('/')?t.slice(1):'xl/'+t.replace(/^\.\//,'');
+    const x=await get(t);if(!x)continue;const d=xdoc(x);const rows=[];
+    for(const r of d.getElementsByTagName('row')){const ri=(+r.getAttribute('r')||rows.length+1)-1;const row=rows[ri]=[];
+      for(const c of r.getElementsByTagName('c')){const ty=c.getAttribute('t');const vEl=c.getElementsByTagName('v')[0];let v=null;
+        if(ty==='s')v=vEl?ss[+vEl.textContent]:null;else if(ty==='inlineStr')v=[...c.getElementsByTagName('t')].map(t=>t.textContent).join('');else if(ty==='b')v=vEl?vEl.textContent==='1':null;else if(ty==='str'||ty==='e')v=vEl?vEl.textContent:null;
+        else if(vEl){v=+vEl.textContent;if(dateXf[+c.getAttribute('s')||0]&&v>0&&v<100000){const d0=new Date(Math.round((v-25569)*864e5));v=new Date(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())}}
+        row[colIdx(c.getAttribute('r')||'')]=v}}
+    for(let i=0;i<rows.length;i++)if(!rows[i])rows[i]=[];
+    sheets.push({name:s.getAttribute('name'),rows})}
+  return sheets}
+function readCsv(text){text=text.replace(/^﻿/,'');const first=text.split(/\r?\n/)[0]||'';const sep=(first.match(/;/g)||[]).length>=(first.match(/,/g)||[]).length?';':',';
+  const rows=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const ch=text[i];if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}else if(ch==='"')q=true;else if(ch===sep){row.push(cur);cur=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cur);rows.push(row.map(v=>v===''?null:v));row=[];cur=''}else cur+=ch}
+  if(cur||row.length){row.push(cur);rows.push(row.map(v=>v===''?null:v))}return [{name:'CSV',rows}]}
+async function readTable(f){const buf=await f.arrayBuffer();if(/\.csv$/i.test(f.name)){let t=new TextDecoder('utf-8').decode(buf);if(t.includes('\ufffd'))t=new TextDecoder('windows-1252').decode(buf);return readCsv(t)}return readXlsx(buf)}
+const IMP_COLS={qmm:/^qmm(\s*-?nr\.?)?$/i,area:/^(bereich|feld|haus|gebäude|gebaeude)$/i,room:/^(raum\s*-?nr\.?|zimmer(\s*-?nr\.?)?|bett(\s*-?nr\.?)?)$/i,status:/^(raum\s*status|zimmer\s*status|bett\s*status)$/i,name:/^(nach)?name$/i,vorname:/^vorname$/i,geb:/^(geb\.?\s*datum|gebdatum|geburtsdatum)$/i,nat:/^nationalit(ä|ae)t$/i,lang:/^mutter\s*sprache$/i,g:/^geschlecht$/i};
+const ST_NORM={'frei':'Frei','belegt':'Belegt','reinigen':'Reinigen','gesperrt':'Gesperrt','reserviert':'Reserviert','nicht frei':'Nicht frei','lager':'Lager'};
+function impCell(v){if(v==null)return '';if(v instanceof Date)return iso(v);if(typeof v==='number')return Number.isInteger(v)?String(v):v.toFixed(1);return String(v).trim()}
+function impDate(v){if(v instanceof Date)return iso(v);const s=String(v||'').trim();let m=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);if(m)return m[3]+'-'+pad(+m[2])+'-'+pad(+m[1]);m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
+function impParse(sheets){let best=null;
+  sheets.forEach(({name:sn,rows})=>{
+    for(let i=0;i<Math.min(rows.length,40);i++){const r=rows[i]||[];const map={};r.forEach((c,j)=>{if(c==null)return;const h=String(c).trim();for(const k in IMP_COLS){if(map[k]==null&&IMP_COLS[k].test(h)){map[k]=j;break}}});
+      if(map.area==null||map.room==null)continue;
+      const data=rows.slice(i+1).filter(x=>x&&impCell(x[map.room])&&impCell(x[map.area]));
+      if(!best||data.length>best.data.length)best={sheet:sn,map,data}}});
+  if(!best||!best.data.length)return null;
+  const M=best.map,areas={},seen=new Set();let dup=0,resRows=0;const rows=[];
+  best.data.forEach(x=>{const an=impCell(x[M.area]),bn=impCell(x[M.room]);const k=an.toLowerCase()+'|'+bn.toLowerCase();if(seen.has(k)){dup++;return}seen.add(k);
+    const st=ST_NORM[impCell(M.status!=null?x[M.status]:'').toLowerCase()]||'Frei';
+    const res=(M.qmm!=null&&M.name!=null&&impCell(x[M.qmm])&&impCell(x[M.name]))?{qmm:impCell(x[M.qmm]),name:impCell(x[M.name]),vorname:M.vorname!=null?impCell(x[M.vorname]):'',geb:M.geb!=null?impDate(x[M.geb]):'',nat:M.nat!=null?impCell(x[M.nat]):'',lang:M.lang!=null?impCell(x[M.lang]):'',g:M.g!=null?impCell(x[M.g]):''}:null;
+    if(res)resRows++;
+    const A=areas[an]||(areas[an]={rooms:new Set(),beds:0,st:{}});A.rooms.add(bn.includes('.')?bn.replace(/\.[^.]*$/,''):bn);A.beds++;A.st[st]=(A.st[st]||0)+1;
+    rows.push({an,bn,st,res})});
+  return {sheet:best.sheet,rows,areas,dup,resRows,cols:Object.keys(M)}}
+function impSheet(){const I=UI.imp;const cid=UI.admCamp||S.camp;const hasPeople=Object.values(S.people).some(p=>p.active&&campOf((bed(p.bed)||{}).area)===cid);
+  const head=`<div class="sheet-h"><div><h2>Import aus Excel oder CSV</h2><p class="hint">Ziel: ${esc(campName(cid))}${I.file?' · Datei: '+esc(I.file):''}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>`;
+  if(I.step==='loading')return head+'<p>Datei wird gelesen …</p>';
+  if(I.step==='error')return head+`<p class="okmsg" style="color:var(--bad)">${I.err==='old'?'':'In der Datei wurde keine passende Tabelle gefunden. Benötigt werden mindestens die Spalten „Bereich“ und „Raum Nr“ (Format .xlsx oder .csv).'}</p><button type="button" class="btn" data-act="close">Schließen</button>`;
+  if(I.step==='done')return head+`<div class="okmsg">Import abgeschlossen.</div><table class="rep-table doc-table"><tr><th>Neue Gebäude</th><td>${I.out.na}</td></tr><tr><th>Neue Zimmer</th><td>${I.out.nr}</td></tr><tr><th>Neue Betten</th><td>${I.out.nb}</td></tr>${I.out.up?`<tr><th>Status aktualisiert</th><td>${I.out.up}</td></tr>`:''}${I.withRes?`<tr><th>Bewohner übernommen</th><td>${I.out.np}</td></tr>`:''}${I.out.skip?`<tr><th>Übersprungen</th><td>${I.out.skip}</td></tr>`:''}</table><button type="button" class="btn primary" data-act="close">Fertig</button>`;
+  const R=I.r;const an=Object.keys(R.areas);const tb=an.reduce((s,a)=>s+R.areas[a].beds,0),tr=an.reduce((s,a)=>s+R.areas[a].rooms.size,0);
+  const canGo=!I.withRes||I.dsgvo;
+  return head+`<div class="okmsg">Erkannt: Tabellenblatt „${esc(R.sheet)}“ · ${an.length} Gebäude · ${tr} Zimmer · ${tb} Betten</div>
+  <div class="table-wrap"><table class="rep-table"><thead><tr><th>Gebäude</th><th>Zimmer</th><th>Betten</th><th>Belegt</th><th>Frei</th></tr></thead><tbody>${an.map(a=>{const x=R.areas[a];return `<tr><td><b>${esc(a)}</b></td><td class="num">${x.rooms.size}</td><td class="num">${x.beds}</td><td class="num">${x.st.Belegt||0}</td><td class="num">${x.st.Frei||0}</td></tr>`}).join('')}</tbody></table></div>
+  ${R.dup?`<p class="hint">${R.dup} doppelte Bettnummern in der Datei – jeweils nur der erste Eintrag wird übernommen.</p>`:''}
+  <fieldset class="rm-box" style="margin:0"><legend style="font-weight:700;padding:0 4px">Art des Imports</legend>
+   <label class="radio"><input type="radio" name="imp-mode" value="add" ${I.mode==='add'?'checked':''}><span><b>Ergänzen</b><br><span class="hint">Neue Gebäude, Zimmer und Betten werden hinzugefügt, der Status vorhandener freier Betten wird aktualisiert. Nichts wird gelöscht.</span></span></label>
+   <label class="radio"><input type="radio" name="imp-mode" value="replace" ${I.mode==='replace'?'checked':''} ${hasPeople?'disabled':''}><span><b>Neu aufbauen</b><br><span class="hint">${hasPeople?'Nicht möglich, solange in dieser Einrichtung Bewohner erfasst sind.':'Alle Gebäude, Zimmer und Betten dieser Einrichtung werden durch die Datei ersetzt.'}</span></span></label>
+  </fieldset>
+  <fieldset class="rm-box" style="margin:0"><legend style="font-weight:700;padding:0 4px">Bewohnerdaten</legend>
+   ${R.resRows?`<label class="radio"><input type="checkbox" id="imp-res" ${I.withRes?'checked':''}><span><b>Bewohnerdaten mit übernehmen</b> (${R.resRows} Personen erkannt)<br><span class="hint">QMM, Name, Vorname, Geburtsdatum, Nationalität, Sprache und Geschlecht.</span></span></label>
+   ${I.withRes?`<label class="radio warnbox"><input type="checkbox" id="imp-dsgvo" ${I.dsgvo?'checked':''}><span>Ich bestätige: Die Freigabe für die Verarbeitung der Bewohnerdaten in diesem System (Datenschutz / DSGVO) liegt vor.</span></label>`:''}`:'<span class="hint">In der Datei wurden keine Bewohnerdaten erkannt – es werden nur Gebäude, Zimmer und Betten übernommen.</span>'}
+   ${!I.withRes&&R.resRows?'<span class="hint">Ohne Bewohnerdaten bleibt der Status „Belegt“ erhalten, die Namen werden nicht übernommen.</span>':''}
+  </fieldset>
+  <button type="button" class="btn primary block" data-act="impRun" ${canGo?'':'disabled'}>Import starten</button>`}
+function impRedraw(){const sh=document.querySelector('.sheet');if(sh)sh.innerHTML=impSheet()}
+function impFile(f){UI.imp={step:'loading',file:f.name,mode:'add',withRes:false,dsgvo:false};openSheet(impSheet());
+  readTable(f).then(sheets=>{const r=impParse(sheets);if(!r){UI.imp.step='error';UI.imp.err='format'}else{UI.imp.r=r;UI.imp.step='preview';if(!areasCur().length)UI.imp.mode='replace'}impRedraw()})
+  .catch(e=>{UI.imp.step='error';UI.imp.err='format';impRedraw()})}
+function impRun(){const I=UI.imp,R=I.r,cid=UI.admCamp||S.camp;const out={na:0,nr:0,nb:0,np:0,up:0,skip:0};
+  if(I.mode==='replace'){const ids=S.areas.filter(a=>a.camp===cid).map(a=>a.id);S.beds=S.beds.filter(b=>!ids.includes(b.area));S.areas=S.areas.filter(a=>a.camp!==cid)}
+  const byName={};S.areas.filter(a=>a.camp===cid).forEach(a=>byName[a.name.toLowerCase()]=a);
+  R.rows.forEach(r=>{let a=byName[r.an.toLowerCase()];if(!a){a={id:'a'+(S.nextId++),camp:cid,name:r.an,rooms:[]};S.areas.push(a);byName[r.an.toLowerCase()]=a;out.na++}
+    const bn=r.bn.includes('.')?r.bn:r.bn+'.1';const room=bn.replace(/\.[^.]*$/,'');if(!a.rooms.includes(room)){a.rooms.push(room);out.nr++}
+    let b=S.beds.find(x=>x.area===a.id&&x.room===bn);
+    if(!b){b={id:a.id+'|'+bn,area:a.id,room:bn,status:r.st,qmm:null,note:''};S.beds.push(b);out.nb++}
+    else if(!b.qmm&&b.status!==r.st){b.status=r.st;out.up++}
+    if(I.withRes&&r.res){const p0=S.people[r.res.qmm];if(b.qmm&&b.qmm!==r.res.qmm||(p0&&p0.active&&p0.bed!==b.id)){out.skip++;return}
+      S.people[r.res.qmm]=Object.assign(p0||{},r.res,{active:true,bed:b.id,since:(p0&&p0.since)||iso(today),lastSeen:0});b.qmm=r.res.qmm;b.status='Belegt';out.np++}});
+  S.areas.filter(a=>a.camp===cid).forEach(a=>a.rooms.sort((x,y)=>x.localeCompare(y,'de',{numeric:true})));
+  addLog('IMPORT',null,'Import „'+I.file+'“: '+out.nr+' Zimmer, '+out.nb+' Betten'+(I.withRes?', '+out.np+' Bewohner':''));S.log[S.log.length-1].camp=cid;
+  if(!UI.area||!S.areas.some(a=>a.id===UI.area&&a.camp===S.camp))UI.area=(areasCur()[0]||{}).id;if(!S.areas.some(a=>a.id===UI.attArea&&a.camp===S.camp))UI.attArea=(areasCur()[0]||{}).id;
+  UI.rm=null;I.out=out;I.step='done';save();render();impRedraw()}
+function impTemplate(){const rows=[['Bereich','Raum Nr','Raum Status','QMM','Name','Vorname','Geb Datum','Nationalität','Mutter Sprache','Geschlecht'],['Haus A','101.1','Frei','','','','','','',''],['Haus A','101.2','Frei','','','','','','',''],['Haus A','102.1','Gesperrt','','','','','','','']];
+  const csv='\ufeff'+rows.map(r=>r.join(';')).join('\r\n');const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const l=document.createElement('a');l.href=u;l.download='Vorlage_Zimmer_Import.csv';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+function importPanel(){return `<section class="card panel"><div class="panel-h"><h2>Import aus Excel oder CSV</h2></div>
+  <p style="margin:0 0 10px">Gebäude, Zimmer und Betten direkt aus einer Datei übernehmen – z. B. aus der bisherigen Belegungsliste. Die Spalten werden automatisch erkannt (mindestens „Bereich“ und „Raum Nr“, optional „Raum Status“ und Bewohnerdaten).</p>
+  <div class="rm-acts"><label class="btn primary" style="cursor:pointer">${IC.plus}Datei auswählen<input id="imp-file" type="file" accept=".xlsx,.xlsm,.csv" style="position:absolute;width:1px;height:1px;opacity:0"></label><button type="button" class="btn" data-act="impTpl">Vorlage (CSV) herunterladen</button></div>
+  <p class="hint" style="margin-top:8px">Vor dem Import wird eine Vorschau angezeigt. Bewohnerdaten werden nur übernommen, wenn dies ausdrücklich gewählt und die Datenschutz-Freigabe bestätigt wird.</p></section>`}
 
 /* ---------- sheets ---------- */
 function openSheet(html){document.getElementById('sheet-root').innerHTML=`<div class="scrim" data-act="closeScrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;const f=document.querySelector('.sheet button, .sheet select');if(f)f.focus()}
@@ -1022,10 +1185,20 @@ document.addEventListener('click',e=>{
    case 'addrooms':{const F=UI.adm;const a=S.areas.find(x=>x.id===F.area);const from=parseInt(F.from,10),to=parseInt(F.to,10),bpr=parseInt(F.beds,10);let nr=0,nb=0;
       for(let i=from;i<=to;i++){const rn=F.prefix+(F.prefix?pad(i):String(i));if(a.rooms.includes(rn))continue;a.rooms.push(rn);nr++;for(let k=1;k<=bpr;k++){S.beds.push({id:a.id+'|'+rn+'.'+k,area:a.id,room:rn+'.'+k,status:'Frei',qmm:null,note:''});nb++}}
       addLog('ZIMMER',null,a.name+': '+nr+' Zimmer mit '+nb+' Betten angelegt');S.log[S.log.length-1].camp=a.camp;save();render();toast(nr?nr+' Zimmer · '+nb+' Betten angelegt':'Alle Zimmer gab es schon');break}
+   case 'roomEdit':UI.rmE={area:t.dataset.area,room:t.dataset.room,name:t.dataset.room,note:'',confirm:false};openSheet(roomSheet());break;
+   case 'bedAdd':case 'bedDel':case 'roomLock':case 'roomRename':case 'roomDel':case 'roomDelNo':roomAction(a,t);break;
+   case 'areaEdit':{const x=S.areas.find(y=>y.id===t.dataset.area);UI.arE={id:x.id,name:x.name,confirm:false};openSheet(areaSheet());break}
+   case 'areaRename':case 'areaDel':case 'areaDelNo':areaAction(a,t);break;
+   case 'impTpl':impTemplate();break;
+   case 'impRun':impRun();break;
    case 'close':case 'closeScrim':closeSheet();break;
   }
 });
 document.addEventListener('input',e=>{const id=e.target.id;
+  if(id==='rm-q'){UI.rm.q=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById('rm-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
+  if(id==='rm-name'&&UI.rmE)UI.rmE.name=e.target.value;
+  if(id==='rm-note'&&UI.rmE)UI.rmE.note=e.target.value;
+  if(id==='ar-name'&&UI.arE)UI.arE.name=e.target.value;
   if(id==='bq'){UI.q=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById('bq');el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
   if(id&&id.startsWith('na-')&&e.target.tagName==='INPUT'&&e.target.type==='text'){UI.na[id.slice(3)]=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById(id);el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
   if(id==='t-text'){UI.tech.text=e.target.value;const btn=document.querySelector('[data-act="tsave"]');if(btn)btn.disabled=!(UI.tech.place&&UI.tech.text.trim())}
@@ -1041,6 +1214,11 @@ document.addEventListener('input',e=>{const id=e.target.id;
   if(['adm-prefix','adm-from','adm-to','adm-beds'].includes(id)){UI.adm[id.slice(4)]=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById(id);el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
 });
 document.addEventListener('change',e=>{const id=e.target.id;
+  if(id==='rm-area'){UI.rm={area:e.target.value,q:''};render()}
+  if(id==='imp-file'&&e.target.files[0]){impFile(e.target.files[0]);e.target.value=''}
+  if(e.target.name==='imp-mode'){UI.imp.mode=e.target.value}
+  if(id==='imp-res'){UI.imp.withRes=e.target.checked;if(!UI.imp.withRes)UI.imp.dsgvo=false;impRedraw()}
+  if(id==='imp-dsgvo'){UI.imp.dsgvo=e.target.checked;impRedraw()}
   if(id==='bst'){UI.stFilter=e.target.value;render()}
   if(id==='mv-area'){MV.area=e.target.value;MV.bed=null;drawMove()}
   if(id&&id.startsWith('na-')&&e.target.type!=='text'){UI.na[id.slice(3)]=e.target.value;if(id==='na-area')UI.na.bed=null;render()}
