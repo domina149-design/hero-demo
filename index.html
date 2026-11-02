@@ -244,6 +244,47 @@ tr.alert-row{background:var(--bad-bg)}
 .rep-table{width:100%;border-collapse:collapse;font-size:14px}
 .rep-table td,.rep-table th{padding:8px;border-top:1px solid var(--line);text-align:left}
 .admin-camp{padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.net{display:inline-flex;align-items:center;gap:8px;color:var(--ok);border-color:var(--ok)}
+.net.off{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
+.net[aria-pressed="true"]{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
+.offbar{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:12px 14px;font-size:15px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hero-ov{background:var(--accent);color:var(--on-accent);border-radius:18px;padding:26px 28px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.hero-ov::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;border:40px solid rgba(255,255,255,.07);pointer-events:none}
+.ho-text{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.ho-date{font-size:14px;font-weight:600;opacity:.85}
+.hero-ov h1{font-size:clamp(26px,3.4vw,36px);font-weight:800}
+.hero-ov p{margin:0;font-size:17px;opacity:.95}
+.ho-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ho-btn{background:var(--surface);color:var(--accent-strong);border-color:transparent}
+.ho-btn.ghost{background:transparent;color:var(--on-accent);border-color:rgba(255,255,255,.55)}
+.ho-rings{display:flex;gap:20px;align-items:center;position:relative;z-index:1;flex-wrap:wrap}
+.ho-ring{color:var(--on-accent)}
+.ho-legend{display:flex;flex-direction:column;gap:8px;font-size:14px}
+.ho-legend > span{display:flex;align-items:center;gap:8px}
+.ho-legend .mk{width:22px;height:22px}
+.spk .row0{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;min-width:0}
+.spk .row0 svg{flex:0 1 120px;min-width:0;max-width:55%;height:auto}
+.kpis > *{min-width:0}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px;align-items:start}
+.todo-i{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;text-decoration:none;color:var(--fg);border:1px solid var(--line);margin-top:8px}
+.todo-i:hover{border-color:var(--accent)}
+.todo-i .grow{flex:1;min-width:0;display:flex;flex-direction:column}
+.todo-i .grow span{font-size:13px;color:var(--muted)}
+.ti-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.todo-i.bad .ti-ic{background:var(--bad-bg);color:var(--bad)} .todo-i.warn .ti-ic{background:var(--warn-bg);color:var(--warn)} .todo-i.info .ti-ic{background:var(--info-bg);color:var(--info)}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px}
+.hcard{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);text-align:left}
+.hcard:hover{border-color:var(--accent)}
+.hc-top{display:flex;gap:14px;align-items:center}
+.hc-ring{position:relative;width:64px;height:64px;flex:none;color:var(--fg)}
+.hc-ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+.hc-name{display:flex;flex-direction:column;font-size:13px;color:var(--muted)}
+.hc-name b{font-size:22px;color:var(--fg);font-weight:800}
+.hc-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--surface-2);gap:2px}
+.hc-bar i{display:block;height:100%}
+.hc-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px;font-weight:700}
+.hc-foot .mk{width:20px;height:20px}
+.hc-foot .mk svg{width:12px;height:12px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 
@@ -266,7 +307,7 @@ const AREA_DEF=[
 const STATUSES=['Frei','Belegt','Reinigen','Reserviert','Gesperrt','Lager'];
 const NATS=['Afghanistan','Syrien','Irak','Türkei','Eritrea','Iran','Algerien','Georgien','Somalia','Ukraine'];
 const LANGS={Afghanistan:'Dari',Syrien:'Arabisch',Irak:'Arabisch','Türkei':'Türkisch',Eritrea:'Tigrinya',Iran:'Persisch',Algerien:'Arabisch',Georgien:'Georgisch',Somalia:'Somali',Ukraine:'Ukrainisch'};
-const KEY='hero-bms-demo-v2';
+const KEY='hero-bms-demo-v3';
 function pad(n){return String(n).padStart(2,'0')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function rnd(seed){let s=seed;return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
@@ -317,7 +358,13 @@ function seed(){
   const camps=[{id:'c1',name:'LUK Bad Segeberg',ort:'Bad Segeberg'}];
   const areas=AREA_DEF.map(a=>({id:a.id,camp:'c1',name:a.id,rooms:a.rooms.map(x=>x)}));
   const reports=[{id:1,type:'Tagesbericht Anwesenheit',to:'Einrichtungsleitung',plan:'täglich 08:00',t:now-20*3600e3}];
-  return {beds,people,log,att,defects,nextDefect:4,checks:{},camps,areas,camp:'c1',nextId:100,attHist,reports};
+  const things=[
+    {id:1,name:'Testperson 211',qmm:'2600211',area:'F1',room:'L17.1',reason:'JVA',items:'1 Koffer, private Unterlagen',store:'Lager F1',t:+dAgo(9),state:'eingelagert',photo:null,camp:'c1'},
+    {id:2,name:'Testperson 214',qmm:'2600214',area:'F1',room:'F18.1',reason:'Untergetaucht (UG)',items:'2 Kochplatten',store:'Lager F1',t:+dAgo(26),state:'eingelagert',photo:null,camp:'c1'},
+    {id:3,name:'Testperson 219',qmm:'2600219',area:'F4',room:'A11.1',reason:'Kreisverteilung (KV)',items:'1 Kochplatte, 1 Topf',store:'Lager F4',t:+dAgo(34),state:'eingelagert',photo:null,camp:'c1'},
+    {id:4,name:'Testperson 225',qmm:'2600225',area:'F2',room:'G07.1',reason:'Kreisverteilung (KV)',items:'1 Tüte Kleidung',store:'Lager F2',t:+dAgo(12),state:'abgeholt',photo:null,camp:'c1'}
+  ];
+  return {beds,people,log,att,defects,nextDefect:4,checks:{},camps,areas,camp:'c1',nextId:100,attHist,reports,things,queue:[],offline:false};
 }
 function areaName(id){const a=S.areas.find(x=>x.id===id);return a?a.name:id}
 function campOf(areaId){const a=S.areas.find(x=>x.id===areaId);return a?a.camp:null}
@@ -355,7 +402,9 @@ const IC={
 IC.chart='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>';
 IC.cog='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 IC.more='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
-const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Berichte',IC.chart],['verwaltung','Einrichtungen',IC.cog]];
+IC.box='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>';
+IC.wifi='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/></svg>';
+const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['berichte','Berichte',IC.chart],['verwaltung','Einrichtungen',IC.cog]];
 const TABS=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['berichte','Berichte',IC.chart]];
 
 /* ---------- render ---------- */
@@ -365,7 +414,7 @@ function render(){
   ensureArea();
   const v=UI.view;
   const navLinks=NAV.map(([id,l,ic])=>`<a class="nav-a" href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}${l}</a>`).join('');
-  const inMore=['technik','neuaufnahme','verwaltung'].includes(v);
+  const inMore=['technik','neuaufnahme','verwaltung','sachen'].includes(v);
   const tabs=TABS.map(([id,l,ic])=>`<a href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}<span>${l}</span></a>`).join('')+`<a href="#mehr" data-act="more" ${inMore?'aria-current="page"':''}>${IC.more}<span>Mehr</span></a>`;
   app.innerHTML=`<div class="app">
    <nav class="side" aria-label="Hauptnavigation">
@@ -389,11 +438,12 @@ function viewHTML(v){
   if(v==='akte')return akteView();
   if(v==='berichte')return berichteView();
   if(v==='verwaltung')return verwaltungView();
+  if(v==='sachen')return sachenView();
   return overviewView();
 }
 
 function loginView(){return `<div class="login">
-  <section class="login-hero"><span class="eyebrow">LUK Bad Segeberg · Demo</span><h1>Belegung und Anwesenheit digital steuern</h1><p>Umbuchungen, Zimmerstatus, tägliche Kontrolle und Mängel – für alle Bereiche, auf Computer, Tablet und Handy.</p></section>
+  <section class="login-hero"><span class="eyebrow">LUK Bad Segeberg · Demo</span><h1>Belegung und Anwesenheit digital steuern</h1><p>Umbuchungen, Zimmerstatus, tägliche Kontrolle und Mängel – für alle Bereiche, auf Computer, Tablet und Handy.</p><p style="font-size:15px;font-weight:700;border-top:1px solid rgba(255,255,255,.35);padding-top:14px;margin-top:6px">Eine eigene Lösung von HERO – entwickelt im Haus, ohne Bindung an einen externen Anbieter.</p></section>
   <section class="login-form"><div class="login-box">
     <img class="logo-light" src="${LOGO_L}" alt="HERO – Eine neue Zukunft möglich machen"><img class="logo-dark" src="${LOGO_D}" alt="HERO – Eine neue Zukunft möglich machen">
     <h2 style="font-size:26px">Anmelden</h2>
@@ -406,32 +456,75 @@ function stats(a){const bs=a?areaBeds(a):campBeds();const c=s=>bs.filter(b=>b.st
 function activePeople(area){const ids=areasCur().map(a=>a.id);return Object.values(S.people).filter(p=>p.active&&(area?bed(p.bed).area===area:ids.includes(bed(p.bed).area)))}
 function ensureArea(){const ids=areasCur().map(a=>a.id);const f=ids[0]||'';if(!ids.includes(UI.area))UI.area=f;if(!ids.includes(UI.attArea))UI.attArea=f;if(UI.na.area&&!ids.includes(UI.na.area)){UI.na.area=f;UI.na.bed=null}if(UI.tech&&!ids.includes(UI.tech.area))UI.tech=null}
 function campSelect(id){return `<label class="campsel"><span class="sr">Einrichtung</span><select id="${id}">${S.camps.map(c=>`<option value="${c.id}" ${c.id===S.camp?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>`}
+function ring(pct,size,stroke,col,track,label,sub){const r=(size-stroke)/2,c=2*Math.PI*r,len=Math.max(0,Math.min(1,pct))*c;
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="${esc(label)} ${Math.round(pct*100)} %"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${track}" stroke-width="${stroke}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${len} ${c-len}" transform="rotate(-90 ${size/2} ${size/2})"/>${sub!==undefined?`<text x="50%" y="48%" text-anchor="middle" dominant-baseline="middle" font-size="${size*0.22}" font-weight="800" fill="currentColor">${Math.round(pct*100)}%</text><text x="50%" y="68%" text-anchor="middle" font-size="${size*0.09}" fill="currentColor" opacity=".8">${esc(sub)}</text>`:''}</svg>`}
+function spark(vals,col){const v=vals.filter(x=>x!=null);if(v.length<2)return '';const mn=Math.min(...v),mx=Math.max(...v),rg=mx-mn||1;const W=120,H=36;
+  const pts=vals.map((x,i)=>x==null?null:[i*(W/(vals.length-1)),H-4-((x-mn)/rg)*(H-10)]).filter(Boolean);
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');const last=pts[pts.length-1];
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true" style="overflow:visible"><path d="${d} L${last[0]} ${H} L0 ${H} Z" fill="${col}" opacity=".12"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="3.5" fill="${col}"/></svg>`}
+function greet(){const h=new Date().getHours();return h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend'}
 function overviewView(){
-  const s=stats(); const pct=s.total?Math.round(s.belegt/s.total*100):0;
-  const absent=activePeople().filter(p=>daysAway(p)>3).sort((a,b)=>daysAway(b)-daysAway(a));
-  const openD=S.defects.filter(d=>d.state!=='erledigt'&&campOf(d.area)===S.camp); const urgent=openD.filter(d=>d.prio==='Dringend').length;
-  const houses=areasCur().map(a=>{const st=stats(a.id);const p=st.total?Math.round(st.belegt/st.total*100):0;
-    const ap=activePeople(a.id); const done=ap.filter(x=>S.att[x.qmm]).length; const all=ap.length&&done===ap.length;
-    return `<button type="button" class="house" data-act="goArea" data-area="${a.id}"><span class="top"><span class="n">${esc(a.name)}</span><span class="pill ${all?'ok':'warn'}">${all?'Kontrolle erledigt':'Kontrolle '+done+'/'+ap.length}</span></span>
-      <span class="meta" style="justify-content:space-between;width:100%"><span>${st.belegt} / ${st.total} belegt</span><b style="color:var(--fg)">${p} %</b></span>
-      <span class="bar" style="width:100%"><i style="width:${p}%"></i></span>
-      <span class="meta"><span>Frei ${st.frei}</span><span>Reinigen ${st.rein}</span><span>Gesperrt ${st.gesp}</span></span></button>`}).join('');
-  const logs=S.log.filter(l=>logCamp(l)===S.camp).sort((a,b)=>b.t-a.t).slice(0,6).map(l=>`<div class="row"><span class="pill ${l.type==='AUSZUG'?'bad':l.type==='NEUAUFNAHME'?'info':'st-Belegt'}" style="min-width:110px;justify-content:center">${l.type}</span><span class="grow"><span class="t">${esc(l.text)}</span><span class="d">${fmtT(l.t)} · ${esc(l.by)}</span></span></div>`).join('');
-  return `<div class="page-head"><div><div class="sub">${today.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div><h1>Übersicht</h1></div><a class="btn primary" href="#neuaufnahme">${IC.plus}Neuaufnahme</a></div>
-  <section class="kpis" aria-label="Kennzahlen">
-    <div class="card kpi"><span class="l">Belegte Betten</span><span class="v">${s.belegt} <small style="font-size:16px;color:var(--muted)">/ ${s.total}</small></span><span class="s" style="color:var(--accent-strong)">${pct} % Auslastung</span></div>
-    <div class="card kpi"><span class="l">Freie Betten</span><span class="v">${s.frei}</span><span class="s" style="color:var(--muted)">+ ${s.rein} in Reinigung</span></div>
-    <a class="card kpi ${absent.length?'alert':''}" href="#anwesenheit" style="text-decoration:none;color:inherit"><span class="l">Abwesend &gt; 3 Tage</span><span class="v">${absent.length}</span><span class="s">${absent.length?'Prüfung erforderlich':'Alles in Ordnung'}</span></a>
-    <a class="card kpi" href="#technik" style="text-decoration:none;color:inherit"><span class="l">Offene Mängel</span><span class="v">${openD.length}</span><span class="s" style="color:var(--warn)">${urgent} dringend</span></a>
+  const s=stats(); const occ=s.total?s.belegt/s.total:0;
+  const ap=activePeople(); const cnt=k=>ap.filter(p=>S.att[p.qmm]===k).length;
+  const A=cnt('a'),B=cnt('b'),C=cnt('c'),done=A+B+C,openN=ap.length-done;
+  const absent=ap.filter(p=>daysAway(p)>3).sort((a,b)=>daysAway(b)-daysAway(a));
+  const openD=S.defects.filter(d=>d.state!=='erledigt'&&campOf(d.area)===S.camp); const urgent=openD.filter(d=>d.prio==='Dringend');
+  const things=(S.things||[]).filter(x=>(x.camp||'c1')===S.camp&&x.state==='eingelagert'&&(Date.now()-x.t)/864e5>FRIST);
+  const openAreas=areasCur().filter(a=>{const xp=activePeople(a.id);return xp.length&&xp.some(p=>!S.att[p.qmm])});
+  // 7-day series
+  const days=[...Array(7)].map((_,i)=>dAgo(6-i));
+  const attSeries=days.map((d,i)=>i===6?(done?Math.round((A+C)/done*100):null):(S.camp==='c1'?S.attHist[iso(d)]:null));
+  const moveSeries=days.map(d=>{const a=+d,b=a+864e5;return S.log.filter(l=>l.t>=a&&l.t<b&&logCamp(l)===S.camp&&['NEUAUFNAHME','AUSZUG','UMBUCHUNG'].includes(l.type)).length});
+  const occSeries=days.map((d,i)=>i===6?Math.round(occ*100):Math.max(0,Math.round(occ*100)+[-3,-2,-2,-1,0,1,0][i]));
+  const todo=[
+    openAreas.length?{c:'warn',ic:IC.check,t:`Kontrolle offen in ${openAreas.map(a=>a.name).join(', ')}`,d:`${openN} Personen noch nicht erfasst`,href:'#anwesenheit',act:openAreas[0].id}:null,
+    absent.length?{c:'bad',ic:IC.check,t:`${absent.length} Personen länger als 3 Tage abwesend`,d:'Klären und dokumentieren',href:'#anwesenheit',f:'lang'}:null,
+    urgent.length?{c:'bad',ic:IC.tool,t:`${urgent.length} dringende${urgent.length>1?'':'r'} Mangel`,d:urgent.map(d=>areaName(d.area)+' · '+d.place).join(', '),href:'#technik'}:null,
+    things.length?{c:'warn',ic:IC.box,t:`${things.length}× Aufbewahrungsfrist abgelaufen`,d:'Bewohnersachen: Abholung oder Entsorgung',href:'#sachen'}:null,
+    s.rein?{c:'info',ic:IC.bed,t:`${s.rein} Betten warten auf Reinigung`,d:'Danach wieder belegbar',href:'#belegung'}:null
+  ].filter(Boolean);
+  const houses=areasCur().map(a=>{const st=stats(a.id);const xp=activePeople(a.id);const c=k=>xp.filter(p=>S.att[p.qmm]===k).length;const a1=c('a'),b1=c('b'),c1=c('c'),o1=xp.length-a1-b1-c1;const t=xp.length||1;
+    const al=xp.filter(p=>daysAway(p)>3).length; const df=openD.filter(d=>d.area===a.id).length;
+    return `<button type="button" class="hcard" data-act="goArea" data-area="${a.id}">
+      <span class="hc-top"><span class="hc-ring">${ring(st.total?st.belegt/st.total:0,64,7,'var(--accent)','var(--surface-2)','Auslastung')}<b>${st.total?Math.round(st.belegt/st.total*100):0}%</b></span>
+        <span class="hc-name"><b>${esc(a.name)}</b><span>${st.belegt} / ${st.total} Betten</span><span>${st.frei} frei · ${st.rein} Reinigung</span></span></span>
+      <span class="hc-bar" aria-label="Kontrolle: ${a1} anwesend, ${b1} abwesend, ${o1} offen">${[[a1,'var(--ok)'],[b1,'var(--bad)'],[c1,'var(--warn)'],[o1,'var(--line-2)']].map(([v,col])=>v?`<i style="flex:${v};background:${col}"></i>`:'').join('')}</span>
+      <span class="hc-foot"><span class="pres"><span class="mk a">${CK}</span>${a1}</span><span class="pres"><span class="mk b">${XX}</span>${b1}</span><span style="color:var(--muted)">${o1} offen</span>${al?`<span class="pill bad">${al}× &gt;3 T</span>`:''}${df?`<span class="pill warn">${df} Mangel</span>`:''}</span>
+    </button>`}).join('');
+  const logs=S.log.filter(l=>logCamp(l)===S.camp).sort((a,b)=>b.t-a.t).slice(0,6);
+  const dot={NEUAUFNAHME:'var(--info)',AUSZUG:'var(--bad)',UMBUCHUNG:'var(--accent)',KONTROLLE:'var(--ok)',MANGEL:'var(--warn)',SACHEN:'var(--warn)'};
+  return `
+  <section class="hero-ov">
+    <div class="ho-text">
+      <span class="ho-date">${today.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})} · ${esc(campName(S.camp))}</span>
+      <h1>${greet()}, ${esc(ME.name.split(' ')[0])}</h1>
+      <p>${done} von ${ap.length} Bewohnern sind heute kontrolliert${absent.length?` · <b>${absent.length} brauchen Aufmerksamkeit</b>`:''}.</p>
+      <div class="ho-actions"><a class="btn ho-btn" href="#anwesenheit">${IC.check}Kontrolle starten</a><a class="btn ho-btn ghost" href="#neuaufnahme">${IC.plus}Neuaufnahme</a><a class="btn ho-btn ghost" href="#technik">${IC.tool}Mangel melden</a></div>
+    </div>
+    <div class="ho-rings">
+      <div class="ho-ring">${ring(ap.length?done/ap.length:0,128,12,'#FFFFFF','rgba(255,255,255,.22)','Kontrolle','kontrolliert')}</div>
+      <div class="ho-legend"><span><span class="mk a">${CK}</span><b>${A}</b> anwesend</span><span><span class="mk b">${XX}</span><b>${B}</b> abwesend</span><span><span class="mk c">…</span><b>${C}</b> sonstiges</span><span><span class="mk n" style="border-color:rgba(255,255,255,.6)"></span><b>${openN}</b> offen</span></div>
+    </div>
   </section>
-  ${attSummary()}
-  <section style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:20px">Gebäude</h2><div class="grid-h">${houses||`<div class="card empty" style="grid-column:1/-1">Diese Einrichtung hat noch keine Gebäude. <a href="#verwaltung">Gebäude und Zimmer anlegen</a></div>`}</div></section>
-  <div class="two">
-    <section class="card panel"><div class="panel-h"><h2>Abwesend länger als 3 Tage</h2></div>
-      ${absent.length?absent.slice(0,6).map(p=>`<div class="row"><span class="pill bad" style="min-width:72px;justify-content:center">${daysAway(p)} Tage</span><span class="grow"><button type="button" class="linkish" data-act="akte" data-q="${p.qmm}">${esc(p.name)} ${esc(p.vorname)}</button><span class="d">QMM ${p.qmm} · ${bedLabel(S.beds,p.bed)}</span></span></div>`).join(''):'<p class="empty">Niemand ist länger als drei Tage abwesend.</p>'}
+
+  <section class="kpis">
+    <div class="card kpi spk"><span class="l">Auslastung</span><span class="row0"><span class="v">${Math.round(occ*100)}%</span>${spark(occSeries,'var(--accent)')}</span><span class="s" style="color:var(--muted)">${s.belegt} von ${s.total} Betten belegt</span></div>
+    <div class="card kpi spk"><span class="l">Anwesenheitsquote</span><span class="row0"><span class="v">${attSeries[6]==null?'–':attSeries[6]+'%'}</span>${spark(attSeries,'var(--ok)')}</span><span class="s" style="color:var(--muted)">letzte 7 Tage</span></div>
+    <div class="card kpi spk"><span class="l">Bewegungen</span><span class="row0"><span class="v">${moveSeries.reduce((a,b)=>a+b,0)}</span>${spark(moveSeries,'var(--info)')}</span><span class="s" style="color:var(--muted)">Aufnahmen, Auszüge, Umbuchungen · 7 Tage</span></div>
+    <a class="card kpi ${urgent.length?'alert':''}" href="#technik" style="text-decoration:none;color:inherit"><span class="l">Offene Mängel</span><span class="v">${openD.length}</span><span class="s">${urgent.length} dringend</span></a>
+  </section>
+
+  <div class="ov-grid">
+    <section class="card panel todo" aria-labelledby="todo-h"><div class="panel-h"><h2 id="todo-h">Heute zu tun</h2><span class="pill st-Belegt">${todo.length}</span></div>
+      ${todo.length?todo.map(x=>`<a class="todo-i ${x.c}" href="${x.href}" ${x.act?`data-act="todoArea" data-area="${x.act}"`:x.f?`data-act="todoF" data-f="${x.f}"`:''}><span class="ti-ic">${x.ic}</span><span class="grow"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></span><span aria-hidden="true">›</span></a>`).join(''):'<p class="empty">Alles erledigt. Gute Arbeit!</p>'}
     </section>
-    <section class="card panel"><div class="panel-h"><h2>Letzte Bewegungen</h2></div>${logs}</section>
-  </div>`;
+    <section class="card panel" aria-labelledby="tl-h"><div class="panel-h"><h2 id="tl-h">Was zuletzt passiert ist</h2></div>
+      <ol class="timeline">${logs.map(h=>`<li><span class="ln"><span class="dot" style="background:${dot[h.type]||'var(--accent)'}"></span></span><span class="tx"><span class="ty">${h.type}</span><b>${esc(h.text)}</b><span style="font-size:13px;color:var(--muted)">${fmtT(h.t)} · ${esc(h.by)}</span></span></li>`).join('')}</ol>
+    </section>
+  </div>
+
+  <section style="display:flex;flex-direction:column;gap:12px"><div class="panel-h" style="margin:0"><h2 style="font-size:20px">Gebäude</h2><span class="legend"><span><i class="d-a"></i>anwesend</span><span><i class="d-b"></i>abwesend</span><span><i class="d-n"></i>offen</span></span></div>
+    <div class="hgrid">${houses||`<div class="card empty">Diese Einrichtung hat noch keine Gebäude. <a href="#verwaltung">Gebäude und Zimmer anlegen</a></div>`}</div></section>`;
 }
 
 function attSummary(){
@@ -467,7 +560,8 @@ function attView(){
   const long=ap.filter(p=>daysAway(p)>3);
   let list=ap; if(UI.attFilter==='offen')list=ap.filter(p=>!S.att[p.qmm]); if(UI.attFilter==='lang')list=long;
   const checked=S.checks[a+'|'+iso(today)];
-  return `<div class="page-head"><div><div class="sub">${today.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})} · Tägliche Kontrolle</div><h1>Anwesenheit · ${esc(areaName(a))}</h1></div></div>
+  return `<div class="page-head"><div><div class="sub">${today.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})} · Tägliche Kontrolle</div><h1>Anwesenheit · ${esc(areaName(a))}</h1></div><button type="button" class="chip net ${S.offline?'off':''}" aria-pressed="${S.offline}" data-act="net">${IC.wifi}${S.offline?'Offline (Demo)':'Online'}</button></div>
+  ${S.offline?`<div class="offbar" role="status"><b>Kein Netz – die Kontrolle läuft trotzdem weiter.</b> Einträge werden auf dem Gerät gespeichert und automatisch übertragen, sobald wieder Netz da ist.${S.queue.length?` <span class="pill warn">${S.queue.length} warten auf Übertragung</span>`:''}</div>`:''}
   <div class="chips" role="group" aria-label="Bereich">${areasCur().map(x=>`<button type="button" class="chip" aria-pressed="${x.id===a}" data-act="attArea" data-area="${x.id}">${esc(x.name)}</button>`).join('')}</div>
   <div class="card panel progress"><div style="display:flex;justify-content:space-between;font-weight:700"><span>${done} von ${ap.length} erfasst</span><span>${pct} %</span></div><span class="bar"><i style="width:${pct}%"></i></span>${checked?`<span class="okmsg" style="margin-top:6px">Kontrolle abgeschlossen um ${new Date(checked).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} – archiviert.</span>`:''}</div>
   <div class="chips" role="group" aria-label="Filter">
@@ -476,7 +570,7 @@ function attView(){
     <button type="button" class="chip alertchip" aria-pressed="${UI.attFilter==='lang'}" data-act="attF" data-f="lang">&gt; 3 Tage ${long.length}</button>
   </div>
   <ul class="att-list">${list.map(p=>{const d=daysAway(p);const s=S.att[p.qmm];return `<li class="card att ${d>3?'alert':''} ${s?'m-'+s:''}">
-    <div class="head"><span class="roomtag">${bed(p.bed).room}</span><span style="flex:1;min-width:0;display:flex;flex-direction:column"><button type="button" class="linkish" data-act="akte" data-q="${p.qmm}">${esc(p.name)} ${esc(p.vorname)}</button><span style="font-size:13px;color:var(--muted)">QMM ${p.qmm}${s==='c'&&p.other?' · '+esc(p.other):''}</span></span>${d>3?`<span class="pill bad">${d} Tage weg</span>`:''}</div>
+    <div class="head"><span class="roomtag">${bed(p.bed).room}</span><span style="flex:1;min-width:0;display:flex;flex-direction:column"><button type="button" class="linkish" data-act="akte" data-q="${p.qmm}">${esc(p.name)} ${esc(p.vorname)}</button><span style="font-size:13px;color:var(--muted)">QMM ${p.qmm}${s==='c'&&p.other?' · '+esc(p.other):''}</span></span>${d>3?`<span class="pill bad">${d} Tage weg</span>`:''}${S.queue.some(x=>x.q===p.qmm)?'<span class="pill warn">wartet auf Netz</span>':''}</div>
     <div class="seg" role="group" aria-label="Status für ${esc(p.vorname)}"><button type="button" class="a" aria-pressed="${s==='a'}" data-act="mark" data-q="${p.qmm}" data-m="a" aria-label="Anwesend">${CK}<span>Da</span></button><button type="button" class="b" aria-pressed="${s==='b'}" data-act="mark" data-q="${p.qmm}" data-m="b" aria-label="Abwesend">${XX}<span>Nicht da</span></button><button type="button" class="c" aria-pressed="${s==='c'}" data-act="other" data-q="${p.qmm}" aria-label="Sonstiges">${IC.more}</button></div></li>`}).join('')||'<li class="empty">Für diesen Filter ist niemand offen.</li>'}</ul>
   <div class="sticky-foot"><span style="color:var(--muted)">${ap.length-done} Personen noch offen</span><button type="button" class="btn primary" data-act="finish">Kontrolle abschließen</button></div>`;
 }
@@ -648,6 +742,47 @@ function reportPreview(type){
   const D=S.defects.filter(d=>campOf(d.area)===S.camp);return head+`<div class="table-wrap"><table class="rep-table"><tr><th>Ort</th><th>Kategorie</th><th>Dringlichkeit</th><th>Status</th></tr>${D.map(d=>`<tr><td>${esc(areaName(d.area))} · ${esc(d.place)}</td><td>${esc(d.cat)}</td><td>${d.prio}</td><td>${d.state}</td></tr>`).join('')}</table></div>`;
 }
 
+/* ---------- Bewohnersachen ---------- */
+const FRIST=30;
+function sachenView(){
+  const f=UI.thF||'eingelagert';
+  const all=S.things.filter(x=>(x.camp||'c1')===S.camp);
+  const list=all.filter(x=>f==='alle'||x.state===f).sort((a,b)=>a.t-b.t);
+  const left=x=>FRIST-Math.floor((Date.now()-x.t)/864e5);
+  const over=all.filter(x=>x.state==='eingelagert'&&left(x)<0).length;
+  const N=UI.thNew||(UI.thNew={name:'',items:'',reason:'Kreisverteilung (KV)',store:'',room:''});
+  return `<div class="page-head"><div><div class="sub">Zurückgelassene Sachen nach Auszug · Aufbewahrung ${FRIST} Tage</div><h1>Bewohnersachen</h1></div></div>
+  <section class="kpis">
+   <div class="card kpi"><span class="l">Eingelagert</span><span class="v">${all.filter(x=>x.state==='eingelagert').length}</span></div>
+   <div class="card kpi ${over?'alert':''}"><span class="l">Frist abgelaufen</span><span class="v">${over}</span><span class="s">${over?'Abholung oder Entsorgung klären':'Alles im Rahmen'}</span></div>
+   <div class="card kpi"><span class="l">Abgeholt</span><span class="v">${all.filter(x=>x.state==='abgeholt').length}</span></div>
+  </section>
+  <div class="chips" role="group" aria-label="Filter">${[['eingelagert','Eingelagert'],['abgeholt','Abgeholt'],['entsorgt','Entsorgt'],['alle','Alle']].map(([k,l])=>`<button type="button" class="chip" aria-pressed="${f===k}" data-act="thF" data-f="${k}">${l}</button>`).join('')}</div>
+  <div class="two">
+   <section class="card panel"><div class="panel-h"><h2>Liste</h2></div>
+    ${list.map(x=>{const l=left(x);return `<div class="row" style="align-items:flex-start">
+      ${x.photo?`<img src="${x.photo}" alt="Foto der Sachen" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none">`:`<span class="mk n" style="width:56px;height:56px;border-radius:8px">${IC.box}</span>`}
+      <span class="grow"><span class="t">${esc(x.name)}${x.qmm?' · QMM '+x.qmm:''}</span><span style="font-size:15px">${esc(x.items)}</span><span class="d">${esc(x.reason)} · ${esc(areaName(x.area))} · ${esc(x.room)} · ${esc(x.store)} · seit ${fmt(x.t)}</span>
+       ${x.state==='eingelagert'?`<span style="margin-top:6px">${l<0?`<span class="pill bad">Frist seit ${-l} Tagen abgelaufen</span>`:l<=7?`<span class="pill warn">noch ${l} Tage</span>`:`<span class="pill st-Lager">noch ${l} Tage</span>`}</span>`:`<span style="margin-top:6px"><span class="pill ${x.state==='abgeholt'?'ok':'st-Lager'}">${x.state}</span></span>`}</span>
+      ${x.state==='eingelagert'?`<span style="display:flex;flex-direction:column;gap:6px"><button type="button" class="btn soft" style="min-height:38px" data-act="thSet" data-id="${x.id}" data-s="abgeholt">Abgeholt</button><button type="button" class="btn" style="min-height:38px" data-act="thSet" data-id="${x.id}" data-s="entsorgt">Entsorgt</button></span>`:''}
+     </div>`}).join('')||'<p class="empty">Keine Einträge für diesen Filter.</p>'}
+   </section>
+   <section class="card panel"><div class="panel-h"><h2>Sachen erfassen</h2></div>
+    <p class="hint">Wird beim Auszug automatisch angeboten. Hier für Nachträge.</p>
+    <label class="f" style="margin-top:8px">Name<input id="th-name" type="text" value="${esc(N.name)}" placeholder="Name, Vorname"></label>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px">
+     <label class="f">Grund<select id="th-reason">${['Kreisverteilung (KV)','Untergetaucht (UG)','JVA','Transfer','Quartierentlassung','Krankenhaus'].map(r=>`<option ${r===N.reason?'selected':''}>${r}</option>`).join('')}</select></label>
+     <label class="f">Zimmer<input id="th-room" type="text" value="${esc(N.room)}" placeholder="z. B. B05.1"></label>
+    </div>
+    <label class="f" style="margin-top:8px">Sachen<input id="th-items" type="text" value="${esc(N.items)}" placeholder="z. B. 1 Koffer, 2 Taschen"></label>
+    <label class="f" style="margin-top:8px">Lagerort<select id="th-store">${areasCur().map(a=>`<option ${('Lager '+a.name)===N.store?'selected':''}>Lager ${esc(a.name)}</option>`).join('')}<option ${N.store==='Zentrallager'?'selected':''}>Zentrallager</option></select></label>
+    <label class="f" style="margin-top:8px">Foto (optional)<input id="th-photo" type="file" accept="image/*"></label>
+    ${N.photo?`<img class="photo-prev" src="${N.photo}" alt="Foto der Sachen">`:''}
+    <button type="button" class="btn primary block" style="margin-top:10px" data-act="thAdd">Einlagern</button>
+   </section>
+  </div>`;
+}
+
 /* ---------- Einrichtungen verwalten ---------- */
 function verwaltungView(){
   const ac=UI.admCamp&&S.camps.find(c=>c.id===UI.admCamp)?UI.admCamp:S.camp; UI.admCamp=ac;
@@ -700,6 +835,12 @@ function drawMove(){const p=person(MV.q);const free=areaBeds(MV.area).filter(b=>
 function outSheet(q){const p=person(q);openSheet(`<div class="sheet-h"><div><h2>Auszug erfassen</h2><p class="hint">${esc(p.name)} ${esc(p.vorname)} · ${bedLabel(S.beds,p.bed)}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
   <label class="f">Grund<select id="out-r"><option>Quartierentlassung</option><option>Untergetaucht (UG)</option><option>Transfer</option><option>Kreisverteilung (KV)</option></select></label>
   <label class="f">Datum<input id="out-d" type="date" value="${iso(today)}"></label>
+  <label style="display:flex;gap:10px;align-items:center;font-weight:700"><input id="out-has" type="checkbox" style="width:22px;height:22px;accent-color:var(--accent)"> Sachen im Zimmer zurückgelassen</label>
+  <div id="out-things" hidden style="display:flex;flex-direction:column;gap:10px">
+    <label class="f">Was wurde eingelagert?<input id="out-items" type="text" placeholder="z. B. 1 Koffer, 2 Taschen"></label>
+    <label class="f">Lagerort<select id="out-store">${areasCur().map(a=>`<option ${a.id===bed(p.bed).area?'selected':''}>Lager ${esc(a.name)}</option>`).join('')}<option>Zentrallager</option></select></label>
+    <label class="f">Foto (optional)<input id="out-photo" type="file" accept="image/*"></label>
+  </div>
   <button type="button" class="btn danger block" data-act="outsave" data-q="${q}">Auszug bestätigen</button>
   <p class="hint">Die Person wird archiviert, das Bett geht auf „Reinigen“.</p>`)}
 function statusSheet(id){const b=bed(id);openSheet(`<div class="sheet-h"><div><h2>Zimmerstatus ändern</h2><p class="hint">${b.area} · ${b.room} · aktuell „${b.status}“</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
@@ -715,7 +856,7 @@ function otherSheet(q){const p=person(q);openSheet(`<div class="sheet-h"><div><h
 
 function toast(t){const r=document.getElementById('toast-root');r.innerHTML=`<div class="toast">${esc(t)}</div>`;clearTimeout(toast.h);toast.h=setTimeout(()=>{r.innerHTML=''},2600)}
 function go(v){if(location.hash==='#'+v)route();else location.hash=v}
-function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
+function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -740,12 +881,13 @@ document.addEventListener('click',e=>{
       save();closeSheet();render();toast('Umgebucht auf '+bedLabel(S.beds,nb.id));break}
    case 'out':closeSheet();outSheet(t.dataset.q);break;
    case 'outsave':{const p=person(t.dataset.q);const r=document.getElementById('out-r').value;const b=bed(p.bed);
+      if(document.getElementById('out-has').checked){const it=document.getElementById('out-items').value.trim()||'Ohne Beschreibung';S.things.push({id:S.nextId++,name:p.name+' '+p.vorname,qmm:p.qmm,area:b.area,room:b.room,reason:r.replace(/ \(.*\)/,m=>m),items:it,store:document.getElementById('out-store').value,t:Date.now(),state:'eingelagert',photo:UI.outPhoto||null,camp:S.camp});UI.outPhoto=null;addLog('SACHEN',p.qmm,'Sachen eingelagert: '+it)}
       b.status='Reinigen';b.qmm=null;p.active=false;addLog('AUSZUG',p.qmm,r+' · Bett '+bedLabel(S.beds,b.id)+' frei');delete S.att[p.qmm];
       save();closeSheet();render();toast('Auszug gespeichert – Bett auf „Reinigen“');break}
    case 'status':statusSheet(t.dataset.b);break;
    case 'bedmenu':bedMenu(t.dataset.b);break;
    case 'setst':{const b=bed(t.dataset.b);const old=b.status;b.status=t.dataset.s;if(b.status!=='Gesperrt')b.note='';addLog('ZIMMER',null,bedLabel(S.beds,b.id)+': '+old+' → '+b.status);save();closeSheet();render();toast('Status: '+b.status);break}
-   case 'mark':{const q=t.dataset.q,m=t.dataset.m;S.att[q]=(S.att[q]===m)?undefined:m;if(S.att[q]===undefined)delete S.att[q];if(m==='a'&&S.att[q]==='a'){person(q).lastSeen=0;person(q).other=null}save();render();break}
+   case 'mark':{const q=t.dataset.q,m=t.dataset.m;if(S.offline){S.queue=S.queue.filter(x=>x.q!==q);S.queue.push({q,m,t:Date.now()})}S.att[q]=(S.att[q]===m)?undefined:m;if(S.att[q]===undefined)delete S.att[q];if(m==='a'&&S.att[q]==='a'){person(q).lastSeen=0;person(q).other=null}save();render();break}
    case 'other':otherSheet(t.dataset.q);break;
    case 'setother':{const p=person(t.dataset.q);p.other=t.dataset.s;S.att[p.qmm]='c';save();closeSheet();render();break}
    case 'finish':{const a=UI.attArea;const open=activePeople(a).filter(p=>!S.att[p.qmm]).length;S.checks[a+'|'+iso(today)]=Date.now();addLog('KONTROLLE',null,'Anwesenheit '+a+' abgeschlossen'+(open?' ('+open+' offen)':''));save();render();toast('Kontrolle '+a+' abgeschlossen und archiviert');break}
@@ -759,8 +901,14 @@ document.addEventListener('click',e=>{
    case 'nasave':{const n=UI.na;const b=bed(n.bed);const q=n.qmm.trim();
       S.people[q]={qmm:q,name:n.name.trim(),vorname:n.vorname.trim(),geb:n.geb||'2000-01-01',nat:n.nat||NATS[0],lang:n.lang||LANGS[NATS[0]],g:n.g||'Männlich',since:iso(today),active:true,bed:b.id,lastSeen:0,other:null};
       b.status='Belegt';b.qmm=q;addLog('NEUAUFNAHME',q,'Aufgenommen in '+bedLabel(S.beds,b.id));UI.na={};save();UI.akte=q;toast('Aufgenommen – Bett '+bedLabel(S.beds,b.id));go('akte');break}
-   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
+   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['neuaufnahme','Neuaufnahme',IC.plus],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
    case 'per':UI.per=+t.dataset.d;render();break;
+   case 'todoArea':UI.attArea=t.dataset.area;UI.attFilter='offen';break;
+   case 'todoF':UI.attFilter=t.dataset.f;break;
+   case 'net':setNet(!S.offline);break;
+   case 'thF':UI.thF=t.dataset.f;render();break;
+   case 'thSet':{const x=S.things.find(y=>y.id==t.dataset.id);x.state=t.dataset.s;addLog('SACHEN',x.qmm,'Sachen '+x.state+': '+x.items);save();render();toast('Als „'+x.state+'“ markiert');break}
+   case 'thAdd':{const N=UI.thNew;if(!N.name.trim()||!N.items.trim()){toast('Bitte Name und Sachen angeben');break}const ar=areasCur()[0];S.things.push({id:S.nextId++,name:N.name.trim(),qmm:'',area:ar?ar.id:'',room:N.room.trim()||'–',reason:N.reason,items:N.items.trim(),store:N.store||('Lager '+(ar?ar.name:'')),t:Date.now(),state:'eingelagert',photo:N.photo||null,camp:S.camp});UI.thNew=null;UI.thF='eingelagert';save();render();toast('Sachen eingelagert');break}
    case 'attOpen':UI.attArea=t.dataset.area;UI.attFilter='alle';go('anwesenheit');break;
    case 'repto':{const m=t.dataset.m;const cur=UI.rep.to.split(',').map(x=>x.trim()).filter(Boolean);if(!cur.includes(m))cur.push(m);UI.rep.to=cur.join(', ');render();break}
    case 'repprev':openSheet(`<div class="sheet-h"><div><h2>${esc(UI.rep.type)}</h2><p class="hint">Vorschau · ${esc(UI.rep.fmt)}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${reportPreview(UI.rep.type)}`);break;
@@ -781,6 +929,9 @@ document.addEventListener('input',e=>{const id=e.target.id;
   if(id&&id.startsWith('na-')&&e.target.tagName==='INPUT'&&e.target.type==='text'){UI.na[id.slice(3)]=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById(id);el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
   if(id==='t-text'){UI.tech.text=e.target.value;const btn=document.querySelector('[data-act="tsave"]');if(btn)btn.disabled=!(UI.tech.place&&UI.tech.text.trim())}
   if(id==='rep-to'){UI.rep.to=e.target.value;const btn=document.querySelector('[data-act="repsend"]');if(btn)btn.disabled=!UI.rep.to.trim()}
+  if(id==='th-name')UI.thNew.name=e.target.value;
+  if(id==='th-items')UI.thNew.items=e.target.value;
+  if(id==='th-room')UI.thNew.room=e.target.value;
   if(id==='adm-cname')UI.admC=e.target.value;
   if(id==='adm-cort')UI.admO=e.target.value;
   if(id==='adm-aname')UI.admA=e.target.value;
@@ -794,6 +945,11 @@ document.addEventListener('change',e=>{const id=e.target.id;
   if(id==='t-place'){UI.tech.place=e.target.value;render()}
   if(id==='t-lock'){UI.tech.lock=e.target.checked}
   if(id==='t-text'){UI.tech.text=e.target.value;render()}
+  if(id==='out-has'){const box=document.getElementById('out-things');if(box)box.hidden=!e.target.checked}
+  if(id==='out-photo'&&e.target.files[0]){const fr=new FileReader();fr.onload=()=>{UI.outPhoto=fr.result};fr.readAsDataURL(e.target.files[0])}
+  if(id==='th-reason'){UI.thNew.reason=e.target.value}
+  if(id==='th-store'){UI.thNew.store=e.target.value}
+  if(id==='th-photo'&&e.target.files[0]){const fr=new FileReader();fr.onload=()=>{UI.thNew.photo=fr.result;render()};fr.readAsDataURL(e.target.files[0])}
   if(id==='camp-side'||id==='camp-top'){S.camp=e.target.value;save();render();toast('Einrichtung: '+campName(S.camp))}
   if(id==='rep-type'){UI.rep.type=e.target.value}
   if(id==='rep-plan'){UI.rep.plan=e.target.value;render()}
@@ -802,6 +958,9 @@ document.addEventListener('change',e=>{const id=e.target.id;
   if(id==='t-photo'&&e.target.files[0]){const fr=new FileReader();fr.onload=()=>{UI.tech.photo=fr.result;render()};fr.readAsDataURL(e.target.files[0])}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.scrim'))closeSheet()});
+function setNet(off){S.offline=off;if(!off&&S.queue.length){const n=S.queue.length;S.queue=[];addLog('KONTROLLE',null,n+' Offline-Einträge übertragen');save();render();toast('Wieder online – '+n+' Einträge übertragen');return}save();render();toast(off?'Offline – Einträge werden auf dem Gerät gespeichert':'Wieder online')}
+window.addEventListener('offline',()=>setNet(true));
+window.addEventListener('online',()=>setNet(false));
 window.addEventListener('hashchange',route);
 route();
 })();
