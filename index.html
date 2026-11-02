@@ -285,6 +285,18 @@ tr.alert-row{background:var(--bad-bg)}
 .hc-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px;font-weight:700}
 .hc-foot .mk{width:20px;height:20px}
 .hc-foot .mk svg{width:12px;height:12px}
+.inc-box .search{flex:none}
+.chk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}
+.chk-grid label{overflow-wrap:anywhere;min-width:0;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer;background:var(--surface)}
+.chk-grid input{width:20px;height:20px;flex:none;accent-color:var(--accent);margin-top:1px}
+.inc-box{display:flex;flex-direction:column;gap:8px;background:var(--surface-2);border-radius:12px;padding:12px}
+.sug{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.sug button{text-align:left;border:0;border-top:1px solid var(--line);background:var(--surface);padding:10px 12px;min-height:44px;font-size:15px}
+.sug button:first-child{border-top:0}
+.sug button:hover{background:var(--surface-2)}
+.res-card{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:10px}
+.inc-row{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;color:inherit;font:inherit}
+.doc-table th{width:38%;color:var(--muted);font-size:13px;text-transform:none;letter-spacing:0;vertical-align:top}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 
@@ -307,7 +319,7 @@ const AREA_DEF=[
 const STATUSES=['Frei','Belegt','Reinigen','Reserviert','Gesperrt','Lager'];
 const NATS=['Afghanistan','Syrien','Irak','Türkei','Eritrea','Iran','Algerien','Georgien','Somalia','Ukraine'];
 const LANGS={Afghanistan:'Dari',Syrien:'Arabisch',Irak:'Arabisch','Türkei':'Türkisch',Eritrea:'Tigrinya',Iran:'Persisch',Algerien:'Arabisch',Georgien:'Georgisch',Somalia:'Somali',Ukraine:'Ukrainisch'};
-const KEY='hero-bms-demo-v3';
+const KEY='hero-bms-demo-v5';
 function pad(n){return String(n).padStart(2,'0')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function rnd(seed){let s=seed;return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
@@ -404,8 +416,9 @@ IC.cog='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="curr
 IC.more='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 IC.box='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>';
 IC.wifi='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/></svg>';
-const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['berichte','Berichte',IC.chart],['verwaltung','Einrichtungen',IC.cog]];
-const TABS=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['berichte','Berichte',IC.chart]];
+IC.doc='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>';
+const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc],['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['berichte','Statistik',IC.chart],['verwaltung','Einrichtungen',IC.cog]];
+const TABS=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc]];
 
 /* ---------- render ---------- */
 function render(){
@@ -414,7 +427,7 @@ function render(){
   ensureArea();
   const v=UI.view;
   const navLinks=NAV.map(([id,l,ic])=>`<a class="nav-a" href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}${l}</a>`).join('');
-  const inMore=['technik','neuaufnahme','verwaltung','sachen'].includes(v);
+  const inMore=['technik','neuaufnahme','verwaltung','sachen','berichte','vorlagen'].includes(v);
   const tabs=TABS.map(([id,l,ic])=>`<a href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}<span>${l}</span></a>`).join('')+`<a href="#mehr" data-act="more" ${inMore?'aria-current="page"':''}>${IC.more}<span>Mehr</span></a>`;
   app.innerHTML=`<div class="app">
    <nav class="side" aria-label="Hauptnavigation">
@@ -439,6 +452,8 @@ function viewHTML(v){
   if(v==='berichte')return berichteView();
   if(v==='verwaltung')return verwaltungView();
   if(v==='sachen')return sachenView();
+  if(v==='vorfall')return berichteIncView();
+  if(v==='vorlagen')return vorlagenView();
   return overviewView();
 }
 
@@ -492,7 +507,7 @@ function overviewView(){
       <span class="hc-foot"><span class="pres"><span class="mk a">${CK}</span>${a1}</span><span class="pres"><span class="mk b">${XX}</span>${b1}</span><span style="color:var(--muted)">${o1} offen</span>${al?`<span class="pill bad">${al}× &gt;3 T</span>`:''}${df?`<span class="pill warn">${df} Mangel</span>`:''}</span>
     </button>`}).join('');
   const logs=S.log.filter(l=>logCamp(l)===S.camp).sort((a,b)=>b.t-a.t).slice(0,6);
-  const dot={NEUAUFNAHME:'var(--info)',AUSZUG:'var(--bad)',UMBUCHUNG:'var(--accent)',KONTROLLE:'var(--ok)',MANGEL:'var(--warn)',SACHEN:'var(--warn)'};
+  const dot={BERICHT:'var(--accent-strong)',NEUAUFNAHME:'var(--info)',AUSZUG:'var(--bad)',UMBUCHUNG:'var(--accent)',KONTROLLE:'var(--ok)',MANGEL:'var(--warn)',SACHEN:'var(--warn)'};
   return `
   <section class="hero-ov">
     <div class="ho-text">
@@ -641,7 +656,7 @@ function akteView(){
   const d=daysAway(p);
   const seq=[]; for(let i=13;i>=0;i--){let c='d-a'; if(i<p.lastSeen&&S.att[p.qmm]!=='a')c='d-b'; if(i===0){c=S.att[p.qmm]==='a'?'d-a':S.att[p.qmm]==='b'?'d-b':S.att[p.qmm]==='c'?'d-c':(p.lastSeen>0?'d-b':'d-n')} if(new Date(p.since)>dAgo(i))c='d-n'; seq.push({c,n:dAgo(i).getDate()})}
   const hist=S.log.filter(l=>l.qmm===p.qmm).sort((a,b)=>b.t-a.t);
-  const dotC={NEUAUFNAHME:'var(--info)',AUSZUG:'var(--bad)',UMBUCHUNG:'var(--accent)'};
+  const dotC={BERICHT:'var(--accent-strong)',NEUAUFNAHME:'var(--info)',AUSZUG:'var(--bad)',UMBUCHUNG:'var(--accent)'};
   return `<div style="font-size:14px;color:var(--muted)"><button type="button" class="linkish" data-act="back">‹ Zurück</button> · QMM ${p.qmm}</div>
   <section class="card akte-head"><span class="avatar big" aria-hidden="true">${esc(p.vorname).slice(0,2)}</span>
    <div style="flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:4px"><h1 style="font-size:26px">${esc(p.name)} ${esc(p.vorname)}</h1><span style="color:var(--fg-2)">QMM ${p.qmm} · ${p.active?bedLabel(S.beds,p.bed):'ausgezogen'} · seit ${fmt(p.since)}</span>
@@ -680,7 +695,7 @@ function berichteView(){
   const tr=attRateToday(); if(hist.length||tr!==null)hist.push({n:today.getDate(),v:tr,today:true});
   const R=UI.rep||(UI.rep={type:REPORTS[0],to:'einrichtungsleitung@[firma].de',plan:'Einmalig, jetzt',fmt:'PDF'});
   const myReports=S.reports.filter(x=>(x.camp||'c1')===S.camp).slice().reverse();
-  return `<div class="page-head"><div><div class="sub">${esc(campName(S.camp))} · Auswertungen</div><h1>Berichte und Statistik</h1></div>
+  return `<div class="page-head"><div><div class="sub">${esc(campName(S.camp))} · Auswertungen</div><h1>Statistik und Auswertungen</h1></div>
    <div class="chips" role="group" aria-label="Zeitraum">${[7,30].map(d=>`<button type="button" class="chip" aria-pressed="${per===d}" data-act="per" data-d="${d}">${d} Tage</button>`).join('')}</div></div>
   <section class="kpis" aria-label="Bewegungen im Zeitraum">
    <div class="card kpi"><span class="l">Neuaufnahmen · ${per} Tage</span><span class="v">${cnt('NEUAUFNAHME')}</span></div>
@@ -741,6 +756,82 @@ function reportPreview(type){
   if(type==='Bewegungsprotokoll'){const L=periodLogs(7).sort((a,b)=>b.t-a.t).slice(0,12);return head+`<div class="table-wrap"><table class="rep-table"><tr><th>Zeit</th><th>Art</th><th>Vorgang</th></tr>${L.map(l=>`<tr><td>${fmtT(l.t)}</td><td>${l.type}</td><td>${esc(l.text)}</td></tr>`).join('')}</table></div><p class="hint">Auszug: die letzten 12 Einträge der letzten 7 Tage.</p>`}
   const D=S.defects.filter(d=>campOf(d.area)===S.camp);return head+`<div class="table-wrap"><table class="rep-table"><tr><th>Ort</th><th>Kategorie</th><th>Dringlichkeit</th><th>Status</th></tr>${D.map(d=>`<tr><td>${esc(areaName(d.area))} · ${esc(d.place)}</td><td>${esc(d.cat)}</td><td>${d.prio}</td><td>${d.state}</td></tr>`).join('')}</table></div>`;
 }
+
+/* ---------- Vorlagen & Berichte (Vorfälle) ---------- */
+const SHIFTS=[['Frühschicht','06:00–14:30'],['Tagschicht','08:00–16:30'],['Spätschicht','14:00–22:30'],['Nachtschicht','22:00–06:30']];
+function shiftAt(d){const x=new Date(d);const m=x.getHours()*60+x.getMinutes();if(m>=1320||m<390)return 'Nachtschicht';if(m>=870)return 'Spätschicht';if(m>=480&&m<870&&UI.preferTag)return 'Tagschicht';return 'Frühschicht'}
+function dtLocal(t){const x=new Date(t);return iso(x)+'T'+pad(x.getHours())+':'+pad(x.getMinutes())}
+const ART_OPTS=['gesundheitlicher Notfall','Suizidandrohung','Todesfall/Mord','Beleidigung','Suizidversuch','Schlägerei mit Bitte um Verlegung (Seitens Polizei)','Bedrohung','Kindeswohlgefährdung (Verletzung der Aufsichtspflicht)','Massenschlägerei','Sachbeschädigung/Vandalismus','Körperverletzung','Epidemie (Quarantäne geordert)','Fehlalarm (Feuer)','(Häusliche) Gewalt mit Verlegungswunsch','große Brandstiftung','großer Wasser- oder Stromausfall'];
+const INC_TYPES=['Konflikt / Streit','Medizinischer Notfall','Polizeieinsatz','Sachbeschädigung','Verstoß gegen die Hausordnung','Brandalarm','Sonstiges'];
+function seedTemplates(){return [
+  {id:'t1',name:'Berichterstattung',desc:'Vordruck für Vorfälle mit Bewohnern – wie in der LUK',kind:'form',multi:true,fields:[
+    ['melder','Meldender HERO','text'],
+    ['team','Team','checks',['HB','SB','FB']],
+    ['art','Art des Vorfalls','checks',ART_OPTS],
+    ['art_sonst','Sonstiges (Art des Vorfalls)','text'],
+    ['desc','Was ist konkret passiert?','area'],
+    ['mass','Was wurde unternommen?','area'],
+    ['info','Wer wurde informiert und/oder hinzugezogen?','checks',['Security','Polizei','HERO Rufbereitschaft','Lazuf Rufbereitschaft','Lazuf','NAB','Aufnahme','SB','FB']],
+    ['info_sonst','Sonstige (informiert)','text'],
+    ['wie','Wie wurde informiert?','checks',['per Telefon','per Mail']]]},
+  {id:'t2',name:'Verwarnung / Hausordnung',desc:'Schriftliche Verwarnung bei Verstößen',kind:'form',fields:[['art','Verstoß','select',['Ruhestörung','Alkohol / Drogen','Unerlaubte Geräte (z. B. Kochplatte)','Besuch nach Besuchszeit','Sonstiges']],['stufe','Stufe','select',['1. Verwarnung','2. Verwarnung','Letzte Verwarnung']],['desc','Beschreibung','area'],['dolm','Mit Sprachmittlung erklärt','checks',['Ja']]]},
+  {id:'t3',name:'Übergabeprotokoll Schicht',desc:'Was die nächste Schicht wissen muss',kind:'form',noRes:true,fields:[['desc','Besondere Vorkommnisse','area'],['offen','Offene Aufgaben','area'],['abw','Auffällige Abwesenheiten','area']]},
+  {id:'t4',name:'Zimmerkontrolle',desc:'Kontrolle von Sauberkeit und Sicherheit im Zimmer',kind:'form',fields:[['zust','Zustand','select',['In Ordnung','Mängel festgestellt','Nicht zugänglich']],['punkte','Geprüft','checks',['Sauberkeit','Rauchmelder','Fenster/Türen','Unerlaubte Geräte']],['desc','Bemerkungen','area']]}
+]}
+function resSearch(q){q=q.trim().toLowerCase();if(q.length<2)return [];return Object.values(S.people).filter(p=>p.active&&(p.qmm.includes(q)||(p.name+' '+p.vorname).toLowerCase().includes(q))).slice(0,6)}
+function vorlagenView(){
+  return `<div class="page-head"><div><div class="sub">Alle Formulare an einem Ort – kein externes Programm nötig</div><h1>Vorlagen</h1></div><label class="btn" style="cursor:pointer">${IC.plus}Vorlage hinzufügen<input id="tpl-up" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" class="sr"></label></div>
+  <div class="hgrid">${S.templates.map(t=>`<div class="card panel" style="gap:10px"><span style="display:flex;gap:12px;align-items:center"><span class="ti-ic" style="background:var(--surface-2);color:var(--accent-strong)">${IC.doc}</span><span style="display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${esc(t.name)}</b><span style="font-size:13px;color:var(--muted)">${esc(t.desc)}</span></span></span>
+    ${t.kind==='form'?`<span class="pill info" style="align-self:flex-start">Digitales Formular · ${t.fields.length+ (t.noRes?2:3)} Felder</span><button type="button" class="btn primary" data-act="incNew" data-t="${t.id}">Ausfüllen</button>`:`<span class="pill st-Lager" style="align-self:flex-start">Datei · ${esc(t.file)}</span><p class="hint">Wird in der echten Version in ein digitales Formular umgewandelt.</p>`}</div>`).join('')}</div>
+  <p class="hint">Die Vorlagen hier sind Beispiele. Eure echten Vorlagen aus dem Alltag werden genauso eingebaut.</p>`;
+}
+function berichteIncView(){
+  const f=UI.incF||'alle'; const all=S.incidents.filter(x=>(x.camp||'c1')===S.camp).sort((a,b)=>b.when-a.when);
+  const list=all.filter(x=>f==='alle'||x.shift===f);
+  return `<div class="page-head"><div><div class="sub">Vorfälle und Protokolle aus dem Dienst</div><h1>Berichte</h1></div><button type="button" class="btn primary" data-act="incNew" data-t="t1">${IC.plus}Neuer Bericht</button></div>
+  <div class="chips" role="group" aria-label="Schicht">${[['alle','Alle'],...SHIFTS.map(s=>[s[0],s[0]])].map(([k,l])=>`<button type="button" class="chip" aria-pressed="${f===k}" data-act="incF" data-f="${k}">${l}</button>`).join('')}</div>
+  <section class="card panel">${list.map(x=>{const t=S.templates.find(y=>y.id===x.tpl)||{name:'Bericht'};return `<button type="button" class="row inc-row" data-act="incView" data-id="${x.id}"><span class="ti-ic" style="background:var(--surface-2);color:var(--accent-strong)">${IC.doc}</span><span class="grow"><span class="t">${esc(t.name)}${x.vals.art?' · '+esc([].concat(x.vals.art).join(', ')):''}</span><span class="d">${(x.resList||[x.res].filter(Boolean)).map(r=>esc(r.name)+' · QMM '+r.qmm).join(' · ')}${(x.resList||[x.res]).filter(Boolean).length?' · ':''}Vorfall ${fmtT(x.when)} · ${esc(x.shift)}</span><span class="d">geschrieben ${fmtT(x.created)} von ${esc(x.by)}${x.created-x.when>3600e3?` <span class="pill st-Lager" style="font-size:11px">${Math.round((x.created-x.when)/3600e3)} Std. später</span>`:''}</span></span><span aria-hidden="true">›</span></button>`}).join('')||'<p class="empty">Noch keine Berichte in dieser Schicht.</p>'}</section>`;
+}
+function incForm(){
+  const N=UI.inc; const t=S.templates.find(x=>x.id===N.tpl);
+  const sug=resSearch(N.q||'').filter(p=>!N.resList.some(r=>r.qmm===p.qmm));
+  const field=([k,l,type,opts])=>{const v=N.vals[k]??'';
+    if(type==='select')return `<label class="f">${l}<select id="inc-${k}" data-k="${k}">${['',...opts].map(o=>`<option ${o===v?'selected':''} value="${esc(o)}">${o?esc(o):'Bitte wählen'}</option>`).join('')}</select></label>`;
+    if(type==='area')return `<label class="f">${l}<textarea id="inc-${k}" data-k="${k}" rows="3">${esc(v)}</textarea></label>`;
+    if(type==='checks')return `<fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:6px"><legend style="font-size:14px;font-weight:700;padding-bottom:6px">${l}</legend><div class="${opts.length>4?'chk-grid':'chips'}">${opts.map(o=>`<label class="${opts.length>4?'':'chip'}" style="display:${opts.length>4?'flex':'inline-flex'};align-items:center;gap:8px;cursor:pointer"><input type="checkbox" data-k="${k}" data-o="${esc(o)}" ${(v||[]).includes(o)?'checked':''} style="accent-color:var(--accent)">${esc(o)}</label>`).join('')}</div></fieldset>`;
+    return `<label class="f">${l}<input id="inc-${k}" data-k="${k}" type="text" value="${esc(v)}"></label>`};
+  return `<div class="sheet-h"><div><h2>${esc(t.name)}</h2><p class="hint">Erstellt ${fmtT(N.created)} · ${esc(ME.name)}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <label class="f">Vorlage<select id="inc-tpl">${S.templates.filter(x=>x.kind==='form').map(x=>`<option value="${x.id}" ${x.id===N.tpl?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+  ${t.noRes?'':`<div class="inc-box"><span style="font-size:14px;font-weight:700">${t.multi?'Beteiligte Person(en) (QMM-Nr.)':'Bewohner (QMM-Nr.)'}</span>
+    ${N.resList.map(r=>`<div class="res-card"><span class="avatar">${esc(r.vorname).slice(0,2)}</span><span class="grow" style="display:flex;flex-direction:column;min-width:0"><b>${esc(r.name)} ${esc(r.vorname)}</b><span style="font-size:13px;color:var(--muted)">QMM ${r.qmm} · ${esc(r.room)} · geb. ${fmt(r.geb)} · ${esc(r.nat)} · ${esc(r.lang)}</span></span><button type="button" class="btn" style="min-height:36px" data-act="incResClear" data-q="${r.qmm}" aria-label="Entfernen">${IC.x}</button></div>`).join('')}
+    ${(!t.multi&&N.resList.length)?'':`<label class="search">${IC.search}<input id="inc-q" type="text" inputmode="numeric" placeholder="${N.resList.length?'Weitere Person: QMM-Nr. oder Name':'QMM-Nr. oder Name eingeben, z. B. 26000'}" value="${esc(N.q||'')}" aria-label="Bewohner suchen"></label>
+      ${sug.length?`<div class="sug">${sug.map(p=>`<button type="button" data-act="incRes" data-q="${p.qmm}"><b>${p.qmm}</b> · ${esc(p.name)} ${esc(p.vorname)} <span style="color:var(--muted)">· ${bedLabel(S.beds,p.bed)}</span></button>`).join('')}</div>`:(N.q&&N.q.length>=2?'<p class="hint">Kein Bewohner gefunden.</p>':(N.resList.length?'':'<p class="hint">Name, Zimmer und weitere Daten werden nach der Auswahl automatisch übernommen.</p>'))}`}
+  </div>`}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px">
+    <label class="f">Zeitpunkt des Vorfalls<input id="inc-when" type="datetime-local" value="${dtLocal(N.when)}"></label>
+    <label class="f">Schicht<select id="inc-shift">${SHIFTS.map(([s,h])=>`<option value="${s}" ${s===N.shift?'selected':''}>${s} (${h})</option>`).join('')}</select></label>
+  </div>
+  <p class="hint" style="margin-top:-6px">Zeitpunkt und Schicht sind vorausgefüllt und können angepasst werden, wenn der Bericht später geschrieben wird.</p>
+  ${t.fields.map(field).join('')}
+  <button type="button" class="btn primary block" data-act="incSave" ${(t.noRes||N.resList.length)?'':'disabled'}>Bericht speichern</button>
+  ${(t.noRes||N.resList.length)?'':'<p class="hint">Bitte zuerst einen Bewohner auswählen.</p>'}`;
+}
+function incNew(tpl){const now=Date.now();UI.inc={tpl,created:now,when:now,shift:shiftAt(now),vals:{melder:ME.name},q:'',resList:[]};openSheet(incForm())}
+function incRedraw(focusId){const pos=focusId&&document.getElementById(focusId)?document.getElementById(focusId).selectionStart:null;document.querySelector('.sheet').innerHTML=incForm();if(focusId){const el=document.getElementById(focusId);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}}
+function incDoc(x){const t=S.templates.find(y=>y.id===x.tpl);const rows=t.fields.map(([k,l])=>{const v=x.vals[k];if(!v||(Array.isArray(v)&&!v.length))return '';return `<tr><th>${esc(l)}</th><td style="white-space:pre-line">${esc(Array.isArray(v)?v.join(', '):v)}</td></tr>`}).join('');
+  return `<div class="sheet-h"><div><h2>${esc(t.name)}</h2><p class="hint">${esc(campName(x.camp||'c1'))}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <div class="table-wrap"><table class="rep-table doc-table">
+   ${(x.resList||[x.res].filter(Boolean)).map((r,i,a)=>`<tr><th>${a.length>1?'Beteiligte Person '+(i+1):'Beteiligte Person'}</th><td>${esc(r.name)} ${esc(r.vorname)} · QMM ${r.qmm}<br>${esc(r.room)} · geb. ${fmt(r.geb)} · ${esc(r.nat)} · ${esc(r.lang)}</td></tr>`).join('')}
+   <tr><th>Datum / Uhrzeit</th><td>${fmt(x.when)} · ${new Date(x.when).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr · ${esc(x.shift)}</td></tr>
+   <tr><th>Bericht erstellt</th><td>${fmtT(x.created)} · ${esc(x.by)}</td></tr>${rows}</table></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" data-act="incPdf">Als PDF</button><button type="button" class="btn" data-act="incMail">An Leitung senden</button></div>
+  <p class="hint">Demo: PDF und Versand sind in der echten Version aktiv.</p>`}
+function seedIncidents(){const now=Date.now();const P=Object.values(S.people).filter(p=>p.active);const pick=i=>{const p=P[i%P.length];return {qmm:p.qmm,name:p.name,vorname:p.vorname,room:bedLabel(S.beds,p.bed),geb:p.geb,nat:p.nat,lang:p.lang}};
+  return [
+   {id:'i1',tpl:'t1',resList:[pick(10),pick(11)],res:pick(10),when:now-30*3600e3,created:now-28*3600e3,shift:'Nachtschicht',by:'M. Schmidt',camp:'c1',vals:{melder:'M. Schmidt',team:['SB'],art:['Beleidigung','Bedrohung'],desc:'Lautstarker Streit zwischen zwei Bewohnern in der Küche. Die Situation wurde beruhigt.',mass:'Gespräch mit beiden Bewohnern geführt.',info:['Security'],wie:['per Telefon']}},
+   {id:'i2',tpl:'t1',resList:[pick(33)],res:pick(33),when:now-6*3600e3,created:now-5.5*3600e3,shift:'Frühschicht',by:'Verwaltung',camp:'c1',vals:{melder:'Verwaltung',team:['HB'],art:['gesundheitlicher Notfall'],desc:'Bewohner klagte über starke Bauchschmerzen.',mass:'Über die Wache ein Taxi ins Krankenhaus veranlasst.',info:['Security','HERO Rufbereitschaft'],wie:['per Telefon']}},
+   {id:'i3',tpl:'t2',res:pick(52),when:now-50*3600e3,created:now-49*3600e3,shift:'Spätschicht',by:'K. Yilmaz',camp:'c1',vals:{art:'Unerlaubte Geräte (z. B. Kochplatte)',stufe:'1. Verwarnung',desc:'Kochplatte im Zimmer gefunden und eingelagert.',dolm:['Ja']}}
+  ]}
 
 /* ---------- Bewohnersachen ---------- */
 const FRIST=30;
@@ -856,7 +947,7 @@ function otherSheet(q){const p=person(q);openSheet(`<div class="sheet-h"><div><h
 
 function toast(t){const r=document.getElementById('toast-root');r.innerHTML=`<div class="toast">${esc(t)}</div>`;clearTimeout(toast.h);toast.h=setTimeout(()=>{r.innerHTML=''},2600)}
 function go(v){if(location.hash==='#'+v)route();else location.hash=v}
-function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
+function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen','vorfall','vorlagen'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -865,7 +956,7 @@ document.addEventListener('click',e=>{
   switch(a){
    case 'login':UI.logged=true;try{sessionStorage.setItem(KEY+'-in','1')}catch(_){}route();break;
    case 'logout':UI.logged=false;try{sessionStorage.removeItem(KEY+'-in')}catch(_){}render();break;
-   case 'reset':S=seed();UI.na={};UI.tech=null;save();render();toast('Demo wurde zurückgesetzt');break;
+   case 'reset':S=seed();S.templates=seedTemplates();S.incidents=seedIncidents();UI.na={};UI.tech=null;save();render();toast('Demo wurde zurückgesetzt');break;
    case 'goArea':UI.area=t.dataset.area;go('belegung');break;
    case 'area':UI.area=t.dataset.area;render();break;
    case 'attArea':UI.attArea=t.dataset.area;render();break;
@@ -901,12 +992,20 @@ document.addEventListener('click',e=>{
    case 'nasave':{const n=UI.na;const b=bed(n.bed);const q=n.qmm.trim();
       S.people[q]={qmm:q,name:n.name.trim(),vorname:n.vorname.trim(),geb:n.geb||'2000-01-01',nat:n.nat||NATS[0],lang:n.lang||LANGS[NATS[0]],g:n.g||'Männlich',since:iso(today),active:true,bed:b.id,lastSeen:0,other:null};
       b.status='Belegt';b.qmm=q;addLog('NEUAUFNAHME',q,'Aufgenommen in '+bedLabel(S.beds,b.id));UI.na={};save();UI.akte=q;toast('Aufgenommen – Bett '+bedLabel(S.beds,b.id));go('akte');break}
-   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['neuaufnahme','Neuaufnahme',IC.plus],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
+   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Statistik',IC.chart],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
    case 'per':UI.per=+t.dataset.d;render();break;
    case 'todoArea':UI.attArea=t.dataset.area;UI.attFilter='offen';break;
    case 'todoF':UI.attFilter=t.dataset.f;break;
    case 'net':setNet(!S.offline);break;
    case 'thF':UI.thF=t.dataset.f;render();break;
+   case 'incNew':incNew(t.dataset.t);break;
+   case 'incF':UI.incF=t.dataset.f;render();break;
+   case 'incRes':{const p=person(t.dataset.q);UI.inc.resList.push({qmm:p.qmm,name:p.name,vorname:p.vorname,room:bedLabel(S.beds,p.bed),geb:p.geb,nat:p.nat,lang:p.lang});UI.inc.q='';incRedraw();break}
+   case 'incResClear':UI.inc.resList=UI.inc.resList.filter(r=>r.qmm!==t.dataset.q);incRedraw();break;
+   case 'incSave':{const N=UI.inc;const x={id:'i'+(S.nextId++),tpl:N.tpl,res:N.resList[0]||null,resList:N.resList,when:N.when,created:N.created,shift:N.shift,by:ME.name,camp:S.camp,vals:N.vals};S.incidents.push(x);const tn=(S.templates.find(y=>y.id===N.tpl)||{}).name;N.resList.forEach(r=>addLog('BERICHT',r.qmm,tn+(N.vals.art?': '+[].concat(N.vals.art).join(', '):'')));if(!N.resList.length)addLog('BERICHT',null,tn);save();closeSheet();UI.incF='alle';if(UI.view!=='vorfall')go('vorfall');else render();toast('Bericht gespeichert');break}
+   case 'incView':openSheet(incDoc(S.incidents.find(y=>y.id===t.dataset.id)));break;
+   case 'incPdf':toast('Demo: In der echten Version als PDF herunterladen');break;
+   case 'incMail':toast('Demo: In der echten Version per E-Mail an die Leitung');break;
    case 'thSet':{const x=S.things.find(y=>y.id==t.dataset.id);x.state=t.dataset.s;addLog('SACHEN',x.qmm,'Sachen '+x.state+': '+x.items);save();render();toast('Als „'+x.state+'“ markiert');break}
    case 'thAdd':{const N=UI.thNew;if(!N.name.trim()||!N.items.trim()){toast('Bitte Name und Sachen angeben');break}const ar=areasCur()[0];S.things.push({id:S.nextId++,name:N.name.trim(),qmm:'',area:ar?ar.id:'',room:N.room.trim()||'–',reason:N.reason,items:N.items.trim(),store:N.store||('Lager '+(ar?ar.name:'')),t:Date.now(),state:'eingelagert',photo:N.photo||null,camp:S.camp});UI.thNew=null;UI.thF='eingelagert';save();render();toast('Sachen eingelagert');break}
    case 'attOpen':UI.attArea=t.dataset.area;UI.attFilter='alle';go('anwesenheit');break;
@@ -929,6 +1028,8 @@ document.addEventListener('input',e=>{const id=e.target.id;
   if(id&&id.startsWith('na-')&&e.target.tagName==='INPUT'&&e.target.type==='text'){UI.na[id.slice(3)]=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById(id);el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
   if(id==='t-text'){UI.tech.text=e.target.value;const btn=document.querySelector('[data-act="tsave"]');if(btn)btn.disabled=!(UI.tech.place&&UI.tech.text.trim())}
   if(id==='rep-to'){UI.rep.to=e.target.value;const btn=document.querySelector('[data-act="repsend"]');if(btn)btn.disabled=!UI.rep.to.trim()}
+  if(id==='inc-q'){UI.inc.q=e.target.value;incRedraw('inc-q')}
+  else if(e.target.dataset&&e.target.dataset.k&&UI.inc&&e.target.type!=='checkbox'&&e.target.tagName!=='SELECT'){UI.inc.vals[e.target.dataset.k]=e.target.value}
   if(id==='th-name')UI.thNew.name=e.target.value;
   if(id==='th-items')UI.thNew.items=e.target.value;
   if(id==='th-room')UI.thNew.room=e.target.value;
@@ -948,6 +1049,12 @@ document.addEventListener('change',e=>{const id=e.target.id;
   if(id==='out-has'){const box=document.getElementById('out-things');if(box)box.hidden=!e.target.checked}
   if(id==='out-photo'&&e.target.files[0]){const fr=new FileReader();fr.onload=()=>{UI.outPhoto=fr.result};fr.readAsDataURL(e.target.files[0])}
   if(id==='th-reason'){UI.thNew.reason=e.target.value}
+  if(id==='inc-tpl'){UI.inc.tpl=e.target.value;UI.inc.vals={};{const tt=S.templates.find(x=>x.id===UI.inc.tpl);if(tt.noRes)UI.inc.resList=[];else if(!tt.multi)UI.inc.resList=UI.inc.resList.slice(0,1);UI.inc.vals={melder:ME.name}}incRedraw()}
+  if(id==='inc-when'&&e.target.value){UI.inc.when=+new Date(e.target.value);UI.inc.shift=shiftAt(UI.inc.when);incRedraw()}
+  if(id==='inc-shift'){UI.inc.shift=e.target.value}
+  if(e.target.dataset&&e.target.dataset.k&&UI.inc&&e.target.tagName==='SELECT'){UI.inc.vals[e.target.dataset.k]=e.target.value}
+  if(e.target.type==='checkbox'&&e.target.dataset.o&&UI.inc){const k=e.target.dataset.k;const a=new Set(UI.inc.vals[k]||[]);e.target.checked?a.add(e.target.dataset.o):a.delete(e.target.dataset.o);UI.inc.vals[k]=[...a]}
+  if(id==='tpl-up'&&e.target.files[0]){const f=e.target.files[0];S.templates.push({id:'u'+(S.nextId++),name:f.name.replace(/\.[^.]+$/,''),desc:'Hochgeladene Vorlage',kind:'file',file:f.name});save();render();toast('Vorlage hinzugefügt')}
   if(id==='th-store'){UI.thNew.store=e.target.value}
   if(id==='th-photo'&&e.target.files[0]){const fr=new FileReader();fr.onload=()=>{UI.thNew.photo=fr.result;render()};fr.readAsDataURL(e.target.files[0])}
   if(id==='camp-side'||id==='camp-top'){S.camp=e.target.value;save();render();toast('Einrichtung: '+campName(S.camp))}
@@ -962,6 +1069,8 @@ function setNet(off){S.offline=off;if(!off&&S.queue.length){const n=S.queue.leng
 window.addEventListener('offline',()=>setNet(true));
 window.addEventListener('online',()=>setNet(false));
 window.addEventListener('hashchange',route);
+if(!S.templates)S.templates=seedTemplates();
+if(!S.incidents)S.incidents=seedIncidents();
 route();
 })();
 </script>
