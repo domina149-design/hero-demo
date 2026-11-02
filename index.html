@@ -286,6 +286,7 @@ tr.alert-row{background:var(--bad-bg)}
 .hc-foot .mk{width:20px;height:20px}
 .hc-foot .mk svg{width:12px;height:12px}
 .inc-box .search{flex:none}
+.linkbtn{background:none;border:0;padding:4px 0;color:var(--accent);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
 .chk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}
 .chk-grid label{overflow-wrap:anywhere;min-width:0;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer;background:var(--surface)}
 .chk-grid input{width:20px;height:20px;flex:none;accent-color:var(--accent);margin-top:1px}
@@ -759,7 +760,7 @@ function reportPreview(type){
 
 /* ---------- Vorlagen & Berichte (Vorfälle) ---------- */
 const SHIFTS=[['Frühschicht','06:00–14:30'],['Tagschicht','08:00–16:30'],['Spätschicht','14:00–22:30'],['Nachtschicht','22:00–06:30']];
-function shiftAt(d){const x=new Date(d);const m=x.getHours()*60+x.getMinutes();if(m>=1320||m<390)return 'Nachtschicht';if(m>=870)return 'Spätschicht';if(m>=480&&m<870&&UI.preferTag)return 'Tagschicht';return 'Frühschicht'}
+function shiftAt(d){const x=new Date(d);const m=x.getHours()*60+x.getMinutes();if(m>=1320||m<390)return 'Nachtschicht';if(m>=840)return 'Spätschicht';if(m>=480&&m<840&&UI.preferTag)return 'Tagschicht';return 'Frühschicht'}
 function dtLocal(t){const x=new Date(t);return iso(x)+'T'+pad(x.getHours())+':'+pad(x.getMinutes())}
 const ART_OPTS=['gesundheitlicher Notfall','Suizidandrohung','Todesfall/Mord','Beleidigung','Suizidversuch','Schlägerei mit Bitte um Verlegung (Seitens Polizei)','Bedrohung','Kindeswohlgefährdung (Verletzung der Aufsichtspflicht)','Massenschlägerei','Sachbeschädigung/Vandalismus','Körperverletzung','Epidemie (Quarantäne geordert)','Fehlalarm (Feuer)','(Häusliche) Gewalt mit Verlegungswunsch','große Brandstiftung','großer Wasser- oder Stromausfall'];
 const INC_TYPES=['Konflikt / Streit','Medizinischer Notfall','Polizeieinsatz','Sachbeschädigung','Verstoß gegen die Hausordnung','Brandalarm','Sonstiges'];
@@ -809,7 +810,7 @@ function incForm(){
   </div>`}
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px">
     <label class="f">Zeitpunkt des Vorfalls<input id="inc-when" type="datetime-local" value="${dtLocal(N.when)}"></label>
-    <label class="f">Schicht<select id="inc-shift">${SHIFTS.map(([s,h])=>`<option value="${s}" ${s===N.shift?'selected':''}>${s} (${h})</option>`).join('')}</select></label>
+    <label class="f">Schicht<select id="inc-shift">${SHIFTS.map(([s,h])=>`<option value="${s}" ${s===N.shift?'selected':''}>${s} (${h})</option>`).join('')}</select><span class="hint" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:400">${N.shiftManual?`Von Hand gewählt · <button type="button" class="linkbtn" data-act="shiftAuto">Automatisch nach Uhrzeit</button>`:'Automatisch nach Uhrzeit gewählt – bei Bedarf ändern'}</span></label>
   </div>
   <p class="hint" style="margin-top:-6px">Zeitpunkt und Schicht sind vorausgefüllt und können angepasst werden, wenn der Bericht später geschrieben wird.</p>
   ${t.fields.map(field).join('')}
@@ -999,6 +1000,7 @@ document.addEventListener('click',e=>{
    case 'net':setNet(!S.offline);break;
    case 'thF':UI.thF=t.dataset.f;render();break;
    case 'incNew':incNew(t.dataset.t);break;
+   case 'shiftAuto':UI.inc.shiftManual=false;UI.inc.shift=shiftAt(UI.inc.when);incRedraw();break;
    case 'incF':UI.incF=t.dataset.f;render();break;
    case 'incRes':{const p=person(t.dataset.q);UI.inc.resList.push({qmm:p.qmm,name:p.name,vorname:p.vorname,room:bedLabel(S.beds,p.bed),geb:p.geb,nat:p.nat,lang:p.lang});UI.inc.q='';incRedraw();break}
    case 'incResClear':UI.inc.resList=UI.inc.resList.filter(r=>r.qmm!==t.dataset.q);incRedraw();break;
@@ -1050,8 +1052,8 @@ document.addEventListener('change',e=>{const id=e.target.id;
   if(id==='out-photo'&&e.target.files[0]){const fr=new FileReader();fr.onload=()=>{UI.outPhoto=fr.result};fr.readAsDataURL(e.target.files[0])}
   if(id==='th-reason'){UI.thNew.reason=e.target.value}
   if(id==='inc-tpl'){UI.inc.tpl=e.target.value;UI.inc.vals={};{const tt=S.templates.find(x=>x.id===UI.inc.tpl);if(tt.noRes)UI.inc.resList=[];else if(!tt.multi)UI.inc.resList=UI.inc.resList.slice(0,1);UI.inc.vals={melder:ME.name}}incRedraw()}
-  if(id==='inc-when'&&e.target.value){UI.inc.when=+new Date(e.target.value);UI.inc.shift=shiftAt(UI.inc.when);incRedraw()}
-  if(id==='inc-shift'){UI.inc.shift=e.target.value}
+  if(id==='inc-when'&&e.target.value){UI.inc.when=+new Date(e.target.value);if(!UI.inc.shiftManual)UI.inc.shift=shiftAt(UI.inc.when);incRedraw()}
+  if(id==='inc-shift'){UI.inc.shift=e.target.value;UI.inc.shiftManual=UI.inc.shift!==shiftAt(UI.inc.when);incRedraw()}
   if(e.target.dataset&&e.target.dataset.k&&UI.inc&&e.target.tagName==='SELECT'){UI.inc.vals[e.target.dataset.k]=e.target.value}
   if(e.target.type==='checkbox'&&e.target.dataset.o&&UI.inc){const k=e.target.dataset.k;const a=new Set(UI.inc.vals[k]||[]);e.target.checked?a.add(e.target.dataset.o):a.delete(e.target.dataset.o);UI.inc.vals[k]=[...a]}
   if(id==='tpl-up'&&e.target.files[0]){const f=e.target.files[0];S.templates.push({id:'u'+(S.nextId++),name:f.name.replace(/\.[^.]+$/,''),desc:'Hochgeladene Vorlage',kind:'file',file:f.name});save();render();toast('Vorlage hinzugefügt')}
