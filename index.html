@@ -99,6 +99,7 @@ button{cursor:pointer}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.block{width:100%;min-height:52px;font-size:16px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.ho-count{font-size:20px;margin:0}.ho-count b{font-size:34px;font-weight:800;margin-right:4px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .kpi{padding:16px;display:flex;flex-direction:column;gap:2px}
 .kpi .l{font-size:14px;color:var(--muted)}
@@ -517,7 +518,7 @@ function overviewView(){
     const al=xp.filter(p=>daysAway(p)>3).length; const df=openD.filter(d=>d.area===a.id).length;
     return `<button type="button" class="hcard" data-act="goArea" data-area="${a.id}">
       <span class="hc-top"><span class="hc-ring">${ring(st.total?st.belegt/st.total:0,64,7,'var(--accent)','var(--surface-2)','Auslastung')}<b>${st.total?Math.round(st.belegt/st.total*100):0}%</b></span>
-        <span class="hc-name"><b>${esc(a.name)}</b><span>${st.belegt} / ${st.total} Betten</span><span>${st.frei} frei · ${st.rein} Reinigung</span></span></span>
+        <span class="hc-name"><b>${esc(a.name)}</b><span><b>${xp.length||st.belegt}</b> Bewohner · ${st.belegt} / ${st.total} Betten</span><span>${st.frei} frei · ${st.rein} Reinigung</span></span></span>
       <span class="hc-bar" aria-label="Kontrolle: ${a1} anwesend, ${b1} abwesend, ${o1} offen">${[[a1,'var(--ok)'],[b1,'var(--bad)'],[c1,'var(--warn)'],[o1,'var(--line-2)']].map(([v,col])=>v?`<i style="flex:${v};background:${col}"></i>`:'').join('')}</span>
       <span class="hc-foot"><span class="pres"><span class="mk a">${CK}</span>${a1}</span><span class="pres"><span class="mk b">${XX}</span>${b1}</span><span style="color:var(--muted)">${o1} offen</span>${al?`<span class="pill bad">${al}× &gt;3 T</span>`:''}${df?`<span class="pill warn">${df} Mangel</span>`:''}</span>
     </button>`}).join('');
@@ -528,7 +529,8 @@ function overviewView(){
     <div class="ho-text">
       <span class="ho-date">${today.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})} · ${esc(campName(S.camp))}</span>
       <h1>${greet()}, ${esc(ME.name.split(' ')[0])}</h1>
-      <p>${done} von ${ap.length} Bewohnern sind heute kontrolliert${absent.length?` · <b>${absent.length} brauchen Aufmerksamkeit</b>`:''}.</p>
+      <p class="ho-count"><b>${ap.length||s.belegt}</b> Bewohner${ap.length?'':' (belegte Betten)'}</p>
+      <p>${ap.length?`${done} von ${ap.length} Bewohnern sind heute kontrolliert${absent.length?` · <b>${absent.length} brauchen Aufmerksamkeit</b>`:''}.`:'Die Kontrolle startet, sobald die Bewohnerdaten übernommen sind.'}</p>
       <div class="ho-actions"><a class="btn ho-btn" href="#anwesenheit">${IC.check}Kontrolle starten</a><a class="btn ho-btn ghost" href="#neuaufnahme">${IC.plus}Neuaufnahme</a><a class="btn ho-btn ghost" href="#technik">${IC.tool}Mangel melden</a></div>
     </div>
     <div class="ho-rings">
@@ -538,6 +540,7 @@ function overviewView(){
   </section>
 
   <section class="kpis">
+    <a class="card kpi" href="#belegung" style="text-decoration:none;color:inherit"><span class="l">Bewohner aktuell</span><span class="v">${ap.length||s.belegt}</span><span class="s" style="color:var(--muted)">${ap.length?`${A} anwesend · ${B} abwesend · ${openN} offen`:'laut Bettenstatus „Belegt“'}</span></a>
     <div class="card kpi spk"><span class="l">Auslastung</span><span class="row0"><span class="v">${Math.round(occ*100)}%</span>${spark(occSeries,'var(--accent)')}</span><span class="s" style="color:var(--muted)">${s.belegt} von ${s.total} Betten belegt</span></div>
     <div class="card kpi spk"><span class="l">Anwesenheitsquote</span><span class="row0"><span class="v">${attSeries[6]==null?'–':attSeries[6]+'%'}</span>${spark(attSeries,'var(--ok)')}</span><span class="s" style="color:var(--muted)">letzte 7 Tage</span></div>
     <div class="card kpi spk"><span class="l">Bewegungen</span><span class="row0"><span class="v">${moveSeries.reduce((a,b)=>a+b,0)}</span>${spark(moveSeries,'var(--info)')}</span><span class="s" style="color:var(--muted)">Aufnahmen, Auszüge, Umbuchungen · 7 Tage</span></div>
