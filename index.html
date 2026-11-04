@@ -347,7 +347,7 @@ function seedUsers(){return [
   {id:'u3',name:'M. Schmidt',email:'m.schmidt@hero-beispiel.de',role:'MITARBEITER',active:true},
   {id:'u4',name:'K. Yilmaz',email:'k.yilmaz@hero-beispiel.de',role:'MITARBEITER',active:true},
   {id:'u5',name:'Haustechnik',email:'haustechnik@hero-beispiel.de',role:'TECHNIK',active:true}]}
-function demoDefaults(){if(!S.users)S.users=seedUsers();if(!S.dsgvo)S.dsgvo={approved:true,by:'Testdaten (Vorführung)',at:Date.now()};if(S.retention===undefined)S.retention=0}
+function demoDefaults(){if(!S.users)S.users=seedUsers();if(!S.dsgvo)S.dsgvo={approved:true,by:'Testdaten (Vorführung)',at:Date.now()};if(S.retention===undefined)S.retention=0;if(!S.kk)S.kk=kkSeed()}
 const AREA_DEF=[
   {id:'H12', rooms:Array.from({length:12},(_,i)=>String(101+i)), beds:2},
   {id:'F1', rooms:[...Array.from({length:10},(_,i)=>'A'+pad(i+1)),...Array.from({length:10},(_,i)=>'B'+pad(i+1))], beds:2},
@@ -461,8 +461,9 @@ IC.more='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" ari
 IC.box='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>';
 IC.wifi='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/></svg>';
 IC.list='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>';
+IC.shirt='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3l-5 3 2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"/></svg>';
 IC.doc='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>';
-const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc],['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen',IC.cog]];
+const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc],['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen',IC.cog]];
 const TABS=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc]];
 
 /* ---------- render ---------- */
@@ -472,7 +473,7 @@ function render(){
   ensureArea();
   const v=UI.view;
   const navLinks=NAV.map(([id,l,ic])=>`<a class="nav-a" href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}${l}</a>`).join('');
-  const inMore=['technik','neuaufnahme','verwaltung','sachen','berichte','vorlagen','protokoll'].includes(v);
+  const inMore=['technik','neuaufnahme','verwaltung','sachen','berichte','vorlagen','protokoll','kleiderkammer'].includes(v);
   const tabs=TABS.map(([id,l,ic])=>`<a href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}<span>${l}</span></a>`).join('')+`<a href="#mehr" data-act="more" ${inMore?'aria-current="page"':''}>${IC.more}<span>Mehr</span></a>`;
   app.innerHTML=`<div class="app">
    <nav class="side" aria-label="Hauptnavigation">
@@ -500,6 +501,7 @@ function viewHTML(v){
   if(v==='vorfall')return berichteIncView();
   if(v==='vorlagen')return vorlagenView();
   if(v==='protokoll')return protokollView();
+  if(v==='kleiderkammer')return kleiderkammerView();
   return overviewView();
 }
 
@@ -739,6 +741,7 @@ function akteView(){
      <div class="days" style="margin-top:2px">${seq.map(s=>`<span style="font-size:11px;color:var(--muted);text-align:center">${s.n}</span>`).join('')}</div>
      <div class="legend" style="margin-top:8px"><span><i class="d-a"></i>Anwesend</span><span><i class="d-b"></i>Abwesend</span><span><i class="d-c"></i>Sonstiges</span><span><i class="d-n"></i>Keine Daten</span></div>
     </section>
+    ${akteKkHTML(p)}
    </div>
    <section class="card panel"><div class="panel-h"><h2>Bewegungsverlauf</h2></div>
     <ol class="timeline">${hist.map(h=>`<li><span class="ln"><span class="dot" style="background:${dotC[h.type]||'var(--accent)'}"></span></span><span class="tx"><span class="ty">${h.type}</span><b>${esc(h.text)}</b><span style="font-size:13px;color:var(--muted)">${fmtT(h.t)} · ${esc(h.by)}</span></span></li>`).join('')}</ol>
@@ -1197,7 +1200,7 @@ function usersPanel(){return `<section class="card panel" id="benutzer" style="g
  </section>`}
 
 /* ---------- Protokoll ---------- */
-const LOG_TYPES=['NEUAUFNAHME','AUSZUG','UMBUCHUNG','ZIMMER','KONTROLLE','MANGEL','SACHEN','BERICHT','STAMMDATEN','IMPORT','DATENSCHUTZ'];
+const LOG_TYPES=['NEUAUFNAHME','AUSZUG','UMBUCHUNG','ZIMMER','KONTROLLE','MANGEL','SACHEN','BERICHT','KLEIDERKAMMER','STAMMDATEN','IMPORT','DATENSCHUTZ'];
 function protokollView(){const P=UI.pr||(UI.pr={q:'',typ:'',wer:'',von:'',bis:'',page:1});const q=P.q.trim().toLowerCase();
   let L=S.log.filter(l=>logCamp(l)===S.camp).sort((a,b)=>b.t-a.t);const people=[...new Set(L.map(l=>l.by))].sort();
   if(P.typ)L=L.filter(l=>l.type===P.typ);if(P.wer)L=L.filter(l=>l.by===P.wer);
@@ -1215,6 +1218,226 @@ function protokollView(){const P=UI.pr||(UI.pr={q:'',typ:'',wer:'',von:'',bis:''
    ${rows.map(l=>`<tr><td class="num" style="white-space:nowrap">${fmtT(l.t)}</td><td><span class="pill st-Belegt" style="font-size:11px">${l.type}</span></td><td>${esc(l.text)}</td><td class="num">${l.qmm?(person(l.qmm)?`<button type="button" class="linkish" data-act="akte" data-q="${l.qmm}">${l.qmm}</button>`:l.qmm):''}</td><td style="white-space:nowrap">${esc(l.by)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Keine Einträge für diesen Filter.</td></tr>'}
   </tbody></table></div>
   ${pages>1?`<div style="display:flex;gap:8px">${P.page>1?`<button type="button" class="btn" data-act="prpage" data-p="${P.page-1}">‹ Neuere</button>`:''}${P.page<pages?`<button type="button" class="btn" data-act="prpage" data-p="${P.page+1}">Ältere ›</button>`:''}</div>`:''}`}
+
+/* ---------- Kleiderkammer ---------- */
+const KK_CATS=['Oberteile','Hosen','Jacken','Unterwäsche','Socken','Schuhe','Kinder','Hygiene','Bettwäsche','Sonstiges'];
+const KK_STARTER=[['Oberteile','T-Shirt',['S','M','L','XL','XXL']],['Oberteile','Pullover',['S','M','L','XL','XXL']],['Hosen','Hose',['S','M','L','XL','XXL']],['Hosen','Jogginghose',['S','M','L','XL']],['Jacken','Winterjacke',['S','M','L','XL','XXL']],['Unterwäsche','Unterhose',['S','M','L','XL']],['Socken','Socken (Paar)',['39–42','43–46']],['Schuhe','Schuhe',['38','39','40','41','42','43','44','45']],['Kinder','Kinderkleidung-Set',['98–110','116–128','134–146']],['Hygiene','Hygieneset',['']],['Bettwäsche','Bettwäsche-Set',['']],['Bettwäsche','Handtuch',['']]];
+const KK_WD=['Mo','Di','Mi','Do','Fr','Sa','So'];
+const kkMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
+const kkTime=m=>pad(Math.floor(m/60))+':'+pad(m%60);
+function kkSlots(){const s=S.kk.set,o=[];s.blocks.forEach(([a,b])=>{for(let m=kkMin(a);m+s.slot<=kkMin(b);m+=s.slot)o.push(kkTime(m))});return o}
+function kkWeekday(d){const w=new Date(d+'T12:00:00').getDay();return w===0?7:w}
+function kkAddDays(d,n){const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return iso(x)}
+function kkDiff(a,b){return Math.round((new Date(a+'T12:00:00')-new Date(b+'T12:00:00'))/864e5)}
+function kkItemLabel(i){return i.name+(i.size?' '+i.size:'')}
+function kkSeed(){const items=[];let n=1,sd=11;const r=()=>((sd=(sd*1664525+1013904223)%4294967296)/4294967296);
+  KK_STARTER.forEach(([cat,name,sizes])=>sizes.forEach(size=>{const q=10+Math.floor(r()*40);items.push({id:'k'+(n++),cat,name,size,stock:q,min:5,inn:q,out:0})}));
+  const kk={set:{interval:75,max:30,slot:15,per:2,blocks:[['09:30','11:30'],['13:30','15:30']],days:[1,2,3,4,5]},items,appts:[],next:1};
+  const ppl=Object.values(S.people).filter(p=>p.active);const slots=['09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','13:30','13:45','14:00','14:15','14:30','14:45','15:00','15:15'];let k=0;
+  for(let d=14;d>=1;d--){const day=iso(dAgo(d));if(kkWeekday(day)>5)continue;for(let j=0;j<4+Math.floor(r()*5)&&k<Math.min(70,ppl.length);j++,k++){const p=ppl[k];const lines=[];for(let x=0;x<2+Math.floor(r()*3);x++){const it=items[Math.floor(r()*items.length)];if(it.stock<1)continue;const l=lines.find(y=>y.item===it.id);if(l)l.qty++;else lines.push({item:it.id,qty:1});it.stock--;it.out++}
+    kk.appts.push({id:'t'+(kk.next++),camp:'c1',qmm:p.qmm,date:day,time:slots[j%16],status:'ausgegeben',notfall:false,notfallBy:'',reason:'',note:'',by:'Testdaten',created:+new Date(day+'T08:00:00'),issuedAt:+new Date(day+'T10:00:00'),issuedBy:'Testdaten',lines})}}
+  for(let d=0;d<=3;d++){const day=iso(dAgo(-d));if(kkWeekday(day)>5)continue;for(let j=0;j<(d===0?10:5);j++,k++){const p=ppl[k%ppl.length];if(!p||kk.appts.some(a=>a.qmm===p.qmm&&a.status==='geplant'))continue;kk.appts.push({id:'t'+(kk.next++),camp:'c1',qmm:p.qmm,date:day,time:slots[Math.floor(j/2)],status:'geplant',notfall:false,notfallBy:'',reason:'',note:'',by:'Testdaten',created:Date.now(),issuedAt:null,issuedBy:'',lines:[]})}}
+  return kk}
+function kkCampAppts(){return S.kk.appts.filter(a=>(a.camp||'c1')===S.camp)}
+function kkLast(qmm){const a=S.kk.appts.filter(x=>x.qmm===qmm&&x.status==='ausgegeben').sort((x,y)=>y.issuedAt-x.issuedAt)[0];return a?iso(a.issuedAt):null}
+function kkEnt(qmm,day){const l=kkLast(qmm);if(!l)return {ok:true,last:null,from:null,since:null};const since=kkDiff(day,l);return since>=S.kk.set.interval?{ok:true,last:l,from:null,since}:{ok:false,last:l,from:kkAddDays(l,S.kk.set.interval),since}}
+function kkPlan(day){const s=S.kk.set;const taken=kkCampAppts().filter(a=>a.date===day&&a.status!=='abgesagt');const full=taken.length>=s.max;const nowT=pad(new Date().getHours())+':'+pad(new Date().getMinutes());
+  return {open:s.days.includes(kkWeekday(day)),booked:taken.length,plan:kkSlots().map(t=>{const used=taken.filter(a=>a.time===t).length;const past=day===iso(today)&&t<=nowT;return {t,used,past,free:past||full?0:Math.max(0,s.per-used)}})}}
+function kkStatusPill(st){const c={geplant:'info',ausgegeben:'ok',abgesagt:'st-Lager','nicht erschienen':'warn'}[st];return `<span class="pill ${c}">${st}</span>`}
+
+function kleiderkammerView(){
+  const K=UI.kk||(UI.kk={tab:'termine',day:iso(today),month:iso(today).slice(0,7),qmm:'',date:iso(today),time:'',notfall:false,reason:'',note:'',appt:null,lines:[],von:kkAddDays(iso(today),-29),bis:iso(today),q:'',cat:'Alle'});
+  const s=S.kk.set;
+  const tabs=[['termine','Termine'],['neu','Neuer Termin'],['ausgaben','Ausgaben'],['lager','Lager'],['einstellungen','Einstellungen']];
+  let body='';
+  if(K.tab==='termin')body=kkTerminHTML();
+  else if(K.tab==='neu')body=kkNeuHTML();
+  else if(K.tab==='ausgaben')body=kkAusgabenHTML();
+  else if(K.tab==='lager')body=kkLagerHTML();
+  else if(K.tab==='einstellungen')body=kkSetHTML();
+  else body=kkTermineHTML();
+  return `<div class="page-head"><div><div class="sub">${esc(campName(S.camp))} · Ausgabe alle ${s.interval} Tage · bis ${s.max} Termine pro Tag</div><h1>Kleiderkammer</h1></div><button type="button" class="btn primary" data-kk="tab" data-v="neu">${IC.plus}Neuer Termin</button></div>
+  <div class="chips" role="tablist">${tabs.map(([k,l])=>`<button type="button" class="chip" aria-pressed="${K.tab===k||(K.tab==='termin'&&k==='termine')}" data-kk="tab" data-v="${k}">${l}</button>`).join('')}</div>${body}`}
+
+function kkTermineHTML(){const K=UI.kk,s=S.kk.set;const [y,m]=K.month.split('-').map(Number);const dim=new Date(y,m,0).getDate();const lead=kkWeekday(K.month+'-01')-1;
+  const cnt={};kkCampAppts().forEach(a=>{if(a.status!=='abgesagt'&&a.date.startsWith(K.month))cnt[a.date]=(cnt[a.date]||0)+1});
+  const list=kkCampAppts().filter(a=>a.date===K.day).sort((a,b)=>a.time.localeCompare(b.time));
+  const mName=new Date(y,m-1,15).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  let cells='';for(let i=0;i<lead;i++)cells+='<span></span>';
+  for(let i=1;i<=dim;i++){const d=K.month+'-'+pad(i);const n=cnt[d]||0;const open=s.days.includes(kkWeekday(d));const sel=d===K.day;
+    cells+=`<button type="button" data-kk="day" data-v="${d}" style="min-height:54px;border-radius:8px;border:1px solid ${sel?'var(--accent)':open?'var(--line)':'transparent'};background:${sel?'var(--accent)':open?'var(--surface)':'var(--surface-2)'};color:${sel?'var(--on-accent)':open?'var(--fg)':'var(--muted)'};display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;${d===iso(today)&&!sel?'text-decoration:underline;font-weight:800':''}"><b>${i}</b>${open?`<span style="font-size:11px;${!sel&&n>=s.max?'color:var(--bad);font-weight:700':''}">${n}/${s.max}</span>`:''}</button>`}
+  const active=list.filter(a=>a.status!=='abgesagt').length;
+  return `<div class="two"><section class="card panel"><div class="panel-h"><button type="button" class="btn" style="min-height:38px" data-kk="mon" data-v="-1" aria-label="Voriger Monat">‹</button><h2 style="text-transform:capitalize">${mName}</h2><button type="button" class="btn" style="min-height:38px" data-kk="mon" data-v="1" aria-label="Nächster Monat">›</button></div>
+   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:12px;font-weight:700;color:var(--muted)">${KK_WD.map(w=>`<span>${w}</span>`).join('')}</div>
+   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${cells}</div><p class="hint" style="margin-top:8px">Zahl = gebuchte Termine / höchstens pro Tag. Graue Tage: keine Ausgabe.</p></section>
+  <section class="card panel"><div class="panel-h"><h2>${new Date(K.day+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}</h2><span class="pill st-Belegt">${active}/${s.max}</span></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button type="button" class="btn primary" style="min-height:38px" data-kk="newday">+ Termin an diesem Tag</button><button type="button" class="btn" style="min-height:38px" data-kk="tagesliste">Tagesliste als PDF</button></div>
+   ${list.map(a=>{const p=person(a.qmm)||{name:'?',vorname:''};const b=p.bed&&bed(p.bed);const n=a.lines.reduce((x,l)=>x+l.qty,0);return `<button type="button" class="row" style="width:100%;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0" data-kk="open" data-v="${a.id}"><b style="width:52px;flex-shrink:0">${a.time}</b><span class="grow"><span class="t">${esc(p.name)} ${esc(p.vorname)}</span><span class="d">QMM ${a.qmm}${b?' · '+esc(areaName(b.area))+' · '+b.room:''}${n?' · '+n+' Teile':''}</span></span>${a.notfall?'<span class="pill bad">Notfall</span>':''}${kkStatusPill(a.status)}</button>`}).join('')||'<p class="empty">Keine Termine an diesem Tag.</p>'}
+  </section></div>`}
+
+function kkNeuHTML(){const K=UI.kk,s=S.kk.set;const q=K.qmm.trim();const p=/^\d{5,9}$/.test(q)?person(q):null;const pl=kkPlan(K.date);
+  if(!pl.plan.some(x=>x.t===K.time&&x.free>0)){const f=pl.plan.find(x=>x.free>0);K.time=f?f.t:''}
+  const e=p?kkEnt(p.qmm,K.date):null;const openA=p&&kkCampAppts().find(a=>a.qmm===p.qmm&&a.status==='geplant'&&a.date>=iso(today));
+  const valid=p&&p.active&&!p.anon&&!openA&&K.time&&pl.open&&(e.ok||(K.notfall&&K.reason.trim()));
+  const b=p&&p.bed&&bed(p.bed);
+  return `<div class="two"><section class="card panel" style="gap:8px"><div class="panel-h"><h2>1 · Bewohner</h2></div>
+   <label class="search" style="flex:none;min-height:48px">${IC.search}<input id="kk-qmm" type="search" inputmode="numeric" placeholder="QMM-Nummer eingeben" value="${esc(K.qmm)}" aria-label="QMM-Nummer"></label>
+   ${p&&!p.anon?`<div style="border:1px solid var(--accent);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px">
+     <div style="display:flex;gap:12px;align-items:center"><span class="avatar" aria-hidden="true">${esc(p.vorname).slice(0,2)}</span><span style="display:flex;flex-direction:column"><b style="font-size:18px">${esc(p.name)} ${esc(p.vorname)}</b><span class="d" style="color:var(--muted);font-size:14px">QMM ${p.qmm}</span></span></div>
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:14px">${[['Geburtsdatum',fmt(p.geb)],['Geschlecht',p.g],['Nationalität',p.nat],['Sprache',p.lang],['Zimmer',b?areaName(b.area)+' · '+b.room:'–'],['Letzte Ausgabe',e.last?fmt(e.last)+' (vor '+e.since+' Tagen)':'noch nie']].map(([k,v])=>`<span style="color:var(--muted)">${k}</span><b>${esc(v)}</b>`).join('')}</div>
+     ${!p.active?'<p class="err">Diese Person ist nicht mehr in der Einrichtung.</p>':''}
+     ${openA?`<p class="err">Es gibt bereits einen offenen Termin am ${fmt(openA.date)} um ${openA.time} Uhr. <button type="button" class="linkish" data-kk="open" data-v="${openA.id}">Termin öffnen</button></p>`:''}
+     ${e.ok?`<p class="okmsg">Anspruch besteht (${s.interval}-Tage-Regel erfüllt).</p>`:`<div style="border:2px solid var(--bad);background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px"><b>Kein Anspruch vor dem ${fmt(e.from)}.</b><span style="font-size:14px">Ausgabe nur alle ${s.interval} Tage. Vorher nur mit Zustimmung eines Mitarbeiters – der Termin wird als <b>Notfall</b> gekennzeichnet.</span>
+       <label style="display:flex;gap:10px;align-items:center;font-weight:700;color:var(--fg)"><input type="checkbox" id="kk-notfall" ${K.notfall?'checked':''} style="width:20px;height:20px;accent-color:var(--bad)"> Ausnahme genehmigt (Notfall)</label>
+       ${K.notfall?`<label class="f" style="color:var(--fg)">Grund<input id="kk-reason" type="text" value="${esc(K.reason)}" placeholder="z. B. Neuankunft ohne Winterkleidung"></label>`:''}</div>`}
+   </div>`:q.length>=5?'<p class="hint">Kein Bewohner mit dieser QMM gefunden.</p>':'<p class="hint">Nach Eingabe der QMM werden alle Daten automatisch übernommen.</p>'}
+  </section>
+  <section class="card panel" style="gap:8px"><div class="panel-h"><h2>2 · Termin</h2></div>
+   <label class="f">Datum<input id="kk-date" type="date" min="${iso(today)}" value="${K.date}"></label>
+   ${!pl.open?`<p class="err">An diesem Tag ist keine Ausgabe (Ausgabetage: ${s.days.map(w=>KK_WD[w-1]).join(', ')}).</p>`:`<span style="font-size:14px;font-weight:700">Uhrzeit <span style="font-weight:400;color:var(--muted)">(${pl.booked} von ${s.max} gebucht · ${pl.plan.filter(x=>x.free>0).length} Zeitfenster frei)</span></span>
+   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px">${pl.plan.map(x=>`<button type="button" class="slotbtn" data-kk="time" data-v="${x.t}" ${x.free<=0?'disabled':''} aria-pressed="${x.t===K.time}" style="min-height:52px;border-radius:8px;border:1px solid ${x.t===K.time?'var(--accent)':'var(--line-2)'};background:${x.t===K.time?'var(--accent)':'var(--surface)'};color:${x.t===K.time?'var(--on-accent)':'var(--fg)'};font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;${x.free<=0?'opacity:.4':''}">${x.t}<span style="font-size:11px;font-weight:400">${x.free>0?x.free+' frei':x.past?'vorbei':'voll'}</span></button>`).join('')}</div>
+   <p class="hint">Das nächste freie Zeitfenster ist vorgewählt, damit sich die Termine gleichmäßig verteilen.</p>`}
+   <label class="f">Bemerkung (optional)<input id="kk-note" type="text" value="${esc(K.note)}" placeholder="z. B. Dolmetscher Arabisch"></label>
+   <div class="card" style="background:var(--surface-2);border:0;padding:14px;font-size:15px">${p&&K.time?`Termin für <b>${esc(p.name)} ${esc(p.vorname)}</b> am <b>${fmt(K.date)}</b> um <b>${K.time} Uhr</b>${K.notfall&&!e.ok?' · <b style="color:var(--bad)">NOTFALL</b>':''}.`:'Bitte Bewohner und Uhrzeit wählen.'}</div>
+   <button type="button" class="btn primary block" data-kk="book" ${valid?'':'disabled'}>Termin speichern</button>
+  </section></div>`}
+
+function kkTerminHTML(){const K=UI.kk;const a=S.kk.appts.find(x=>x.id===K.appt);if(!a)return '<p class="empty">Termin nicht gefunden.</p>';const p=person(a.qmm)||{name:'?',vorname:'',qmm:a.qmm};const b=p.bed&&bed(p.bed);
+  const prev=S.kk.appts.filter(x=>x.qmm===a.qmm&&x.status==='ausgegeben'&&x.id!==a.id).sort((x,y)=>y.issuedAt-x.issuedAt).slice(0,5);
+  const items=S.kk.items;const byId=id=>items.find(i=>i.id===id);
+  let issue='';
+  if(a.status==='ausgegeben'){issue=`<h2 style="font-size:18px">Ausgegeben</h2><div class="table-wrap"><table class="rep-table"><tr><th>Artikel</th><th>Größe</th><th style="text-align:right">Menge</th></tr>${a.lines.map(l=>{const i=byId(l.item);return `<tr><td>${esc(i.name)}</td><td>${esc(i.size||'–')}</td><td style="text-align:right;font-weight:700">${l.qty}</td></tr>`}).join('')}<tr><td colspan="2"><b>Gesamt</b></td><td style="text-align:right"><b>${a.lines.reduce((n,l)=>n+l.qty,0)}</b></td></tr></table></div>
+    <p class="hint">Ausgegeben am ${fmtT(a.issuedAt)} von ${esc(a.issuedBy)}</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px;font-size:14px"><div style="border-top:1px solid var(--fg);padding-top:4px">Unterschrift Bewohner/in</div><div style="border-top:1px solid var(--fg);padding-top:4px">Unterschrift Mitarbeiter/in</div></div>`}
+  else if(a.status==='geplant'){const cats=[...new Set(items.map(i=>i.cat))];if(!K.icat||!cats.includes(K.icat))K.icat=cats[0];const names=[...new Set(items.filter(i=>i.cat===K.icat).map(i=>i.name))];if(!names.includes(K.iname))K.iname=names[0];
+    const sizes=items.filter(i=>i.cat===K.icat&&i.name===K.iname);const used=id=>K.lines.filter(l=>l.item===id).reduce((n,l)=>n+l.qty,0);
+    if(!sizes.some(i=>i.id===K.iid))K.iid=(sizes.find(i=>i.stock-used(i.id)>0)||sizes[0]||{}).id;
+    issue=`<div class="no-print" style="border:1px solid var(--accent);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px"><h2 style="font-size:18px">Was erhält die Person?</h2>
+     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:10px;align-items:end">
+      <label class="f">Kategorie<select id="kk-icat">${cats.map(c=>`<option ${c===K.icat?'selected':''}>${c}</option>`).join('')}</select></label>
+      <label class="f">Artikel<select id="kk-iname">${names.map(c=>`<option ${c===K.iname?'selected':''}>${esc(c)}</option>`).join('')}</select></label>
+      <label class="f">Größe<select id="kk-iid">${sizes.map(i=>`<option value="${i.id}" ${i.id===K.iid?'selected':''} ${i.stock-used(i.id)<=0?'disabled':''}>${esc(i.size||'ohne')} (${i.stock-used(i.id)} da)</option>`).join('')}</select></label>
+      <label class="f">Menge<input id="kk-iqty" type="text" inputmode="numeric" value="${esc(K.iqty||'1')}"></label>
+      <button type="button" class="btn soft" data-kk="addline">Hinzufügen</button></div>
+     ${K.lines.length?`<div class="table-wrap"><table><thead><tr><th>Artikel</th><th>Größe</th><th style="text-align:right">Menge</th><th></th></tr></thead><tbody>${K.lines.map(l=>{const i=byId(l.item);return `<tr><td>${esc(i.name)}</td><td>${esc(i.size||'–')}</td><td style="text-align:right;font-weight:700">${l.qty}</td><td style="text-align:right"><button type="button" class="btn" style="min-height:34px" data-kk="delline" data-v="${l.item}" aria-label="Entfernen">${IC.x}</button></td></tr>`}).join('')}</tbody></table></div>`:'<p class="hint">Artikel auswählen und hinzufügen. Der Bestand wird beim Bestätigen abgebucht.</p>'}
+     <button type="button" class="btn primary block" data-kk="issue" ${K.lines.length?'':'disabled'}>Ausgabe bestätigen (${K.lines.reduce((n,l)=>n+l.qty,0)} Teile)</button></div>`}
+  const rows=[['Termin',`<b style="font-size:18px">${fmt(a.date)} · ${a.time} Uhr</b>`],['Name, Vorname',`<button type="button" class="linkish" data-act="akte" data-q="${a.qmm}">${esc(p.name)}, ${esc(p.vorname)}</button>`],['QMM',a.qmm],['Geburtsdatum · Geschlecht',fmt(p.geb)+' · '+esc(p.g||'–')],['Nationalität · Sprache',esc(p.nat||'–')+' · '+esc(p.lang||'–')],['Zimmer',b?esc(areaName(b.area))+' · '+b.room:'–'],['Letzte Ausgabe',(prev[0]?fmt(prev[0].issuedAt):'–')+' · Anspruch alle '+S.kk.set.interval+' Tage']];
+  if(a.notfall)rows.push(['Notfall genehmigt',`<b style="color:var(--bad)">${esc(a.notfallBy)}: ${esc(a.reason)}</b>`]);if(a.note)rows.push(['Bemerkung',esc(a.note)]);rows.push(['Angelegt',fmtT(a.created)+' · '+esc(a.by)]);
+  return `<div class="no-print" style="font-size:14px;color:var(--muted)"><button type="button" class="linkish" data-kk="tab" data-v="termine">‹ Termine am ${fmt(a.date)}</button></div>
+  <article class="card" id="kk-blatt" style="padding:24px;display:flex;flex-direction:column;gap:16px;max-width:860px;width:100%;margin:0 auto">
+   <header style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><h1 style="font-size:24px">Kleiderkammer · Terminblatt</h1><p class="hint">${esc(campName(a.camp||'c1'))}</p><div style="display:flex;gap:8px;margin-top:8px">${kkStatusPill(a.status)}${a.notfall?'<span class="pill bad">NOTFALL</span>':''}</div></div><span style="flex-shrink:0"><img class="logo-light" src="${LOGO_L}" alt="HERO" style="width:170px;height:24px;object-fit:contain"><img class="logo-dark" src="${LOGO_D}" alt="HERO" style="width:170px;height:24px;object-fit:contain"></span></header>
+   <div class="table-wrap"><table class="rep-table doc-table">${rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table></div>
+   ${issue}
+   ${prev.length?`<div class="no-print"><h2 style="font-size:18px">Frühere Ausgaben</h2>${prev.map(x=>`<p class="row" style="font-size:14px;margin:0"><b style="width:90px;flex-shrink:0">${fmt(x.issuedAt)}</b><span>${x.lines.map(l=>{const i=byId(l.item);return l.qty+'× '+kkItemLabel(i)}).join(', ')}${x.notfall?' · Notfall':''}</span></p>`).join('')}</div>`:''}
+   <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-kk="print">Drucken / als PDF speichern</button>
+    ${a.status==='geplant'?`<button type="button" class="btn" data-kk="st" data-v="nicht erschienen">Nicht erschienen</button><button type="button" class="btn danger" data-kk="st" data-v="abgesagt">Absagen</button>`:''}
+    ${a.status==='abgesagt'||a.status==='nicht erschienen'?'<button type="button" class="btn" data-kk="st" data-v="geplant">Wieder auf geplant setzen</button>':''}</div>
+  </article>`}
+
+function kkAusgabenHTML(){const K=UI.kk;const rows=kkCampAppts().filter(a=>a.status==='ausgegeben'&&a.date>=K.von&&a.date<=K.bis).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  const pieces=rows.reduce((n,a)=>n+a.lines.reduce((k,l)=>k+l.qty,0),0);const byId=id=>S.kk.items.find(i=>i.id===id);
+  return `<div class="card filterbar"><label class="f">Von<input id="kk-von" type="date" value="${K.von}"></label><label class="f">Bis<input id="kk-bis" type="date" value="${K.bis}"></label><button type="button" class="btn" data-kk="csv">Als Excel (CSV)</button></div>
+  <p class="hint" style="margin-top:-12px">${rows.length} Ausgaben · ${pieces} Teile · ${rows.filter(a=>a.notfall).length} Notfälle</p>
+  <div class="card table-wrap"><table><thead><tr><th>Datum</th><th>QMM</th><th>Name</th><th>Zimmer</th><th>Ausgegeben</th><th>Art</th><th>Durch</th></tr></thead><tbody>
+   ${rows.map(a=>{const p=person(a.qmm)||{name:'?',vorname:''};const b=p.bed&&bed(p.bed);return `<tr><td class="num" style="white-space:nowrap"><button type="button" class="linkish" data-kk="open" data-v="${a.id}">${fmt(a.date)} ${a.time}</button></td><td class="num">${a.qmm}</td><td><button type="button" class="linkish" style="white-space:nowrap" data-act="akte" data-q="${a.qmm}">${esc(p.name)} ${esc(p.vorname)}</button></td><td style="white-space:nowrap">${b?esc(areaName(b.area))+' · '+b.room:'–'}</td><td style="font-size:14px">${a.lines.map(l=>l.qty+'× '+esc(kkItemLabel(byId(l.item)))).join(', ')}</td><td>${a.notfall?'<span class="pill bad">Notfall</span>':'<span class="pill ok">regulär</span>'}</td><td style="white-space:nowrap;font-size:14px">${esc(a.issuedBy)}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Keine Ausgaben im Zeitraum.</td></tr>'}
+  </tbody></table></div>`}
+
+function kkLagerHTML(){const K=UI.kk;const items=S.kk.items.slice().sort((a,b)=>KK_CATS.indexOf(a.cat)-KK_CATS.indexOf(b.cat)||a.name.localeCompare(b.name,'de')||a.size.localeCompare(b.size,'de',{numeric:true}));
+  const tot=k=>items.reduce((n,i)=>n+i[k],0);const low=items.filter(i=>i.stock<=i.min);
+  const from=kkAddDays(iso(today),-13);const per=Array.from({length:14},(_,i)=>{const d=kkAddDays(from,i);return {d,v:kkCampAppts().filter(a=>a.status==='ausgegeben'&&iso(a.issuedAt)===d).reduce((n,a)=>n+a.lines.reduce((k,l)=>k+l.qty,0),0)}});const mx=Math.max(1,...per.map(x=>x.v));
+  const byCat=KK_CATS.map(c=>{const its=items.filter(i=>i.cat===c);return {c,stock:its.reduce((n,i)=>n+i.stock,0),out:its.reduce((n,i)=>n+i.out,0)}}).filter(x=>x.stock||x.out);
+  const q=(K.q||'').trim().toLowerCase();const rows=items.filter(i=>(K.cat==='Alle'||i.cat===K.cat)&&(!q||kkItemLabel(i).toLowerCase().includes(q)));
+  return `<section class="kpis"><div class="card kpi"><span class="l">Im Lager (Teile)</span><span class="v">${tot('stock')}</span><span class="s" style="color:var(--muted)">${items.length} Artikel/Größen</span></div><div class="card kpi"><span class="l">Eingegangen gesamt</span><span class="v">${tot('inn')}</span></div><div class="card kpi"><span class="l">Ausgegeben gesamt</span><span class="v">${tot('out')}</span><span class="s" style="color:var(--muted)">${per.reduce((n,x)=>n+x.v,0)} in 14 Tagen</span></div><div class="card kpi ${low.length?'alert':''}" style="${low.length?'border-color:var(--bad);color:var(--bad)':''}"><span class="l">Unter Mindestbestand</span><span class="v">${low.length}</span><span class="s">${low.length?'nachbestellen':'alles ausreichend'}</span></div></section>
+  <div class="two"><section class="card panel"><div class="panel-h"><h2>Bestand je Kategorie</h2></div><div class="hbars">${byCat.map(x=>{const t=Math.max(1,x.stock+x.out);return `<div class="hb" title="${x.stock} übrig · ${x.out} ausgegeben"><span>${x.c}</span><span class="tr" style="display:flex"><i style="width:${x.stock/t*100}%;border-radius:0"></i><i style="width:${x.out/t*100}%;background:var(--line-2);border-radius:0"></i></span><b>${x.stock}<span style="font-weight:400;color:var(--muted)"> / ${x.out}</span></b></div>`}).join('')}</div><div class="legend" style="margin-top:8px"><span><i style="background:var(--accent)"></i>noch im Lager</span><span><i style="background:var(--line-2)"></i>ausgegeben</span></div></section>
+   <section class="card panel"><div class="panel-h"><h2>Ausgegebene Teile · 14 Tage</h2></div><div class="vbars">${per.map((x,i)=>`<div class="vb ${i===13?'today':''}" title="${fmt(x.d)}: ${x.v} Teile"><span>${x.v||''}</span><i style="height:${x.v/mx*100}%"></i></div>`).join('')}</div><div class="vlab">${per.map((x,i)=>`<span>${i===13?'heute':Number(x.d.slice(8))}</span>`).join('')}</div></section>
+   ${low.length?`<section class="card panel"><div class="panel-h"><h2>Nachbestellen</h2></div>${hbars(low.map(i=>[kkItemLabel(i),i.stock,'min. '+i.min]),Math.max(1,...low.map(i=>i.min)),(v,e)=>v+'<span style="font-weight:400;color:var(--muted)"> · '+e+'</span>')}</section>`:''}</div>
+  <section class="card panel" style="gap:8px"><div class="panel-h"><h2>Lagerbestand</h2><span class="pill st-Belegt">${items.length}</span></div>
+   <div class="filterbar" style="padding:0"><label class="search">${IC.search}<input id="kk-iq" type="search" placeholder="Artikel suchen" value="${esc(K.q||'')}" aria-label="Artikel suchen"></label><label class="f">Kategorie<select id="kk-icatf">${['Alle',...KK_CATS].map(c=>`<option ${c===K.cat?'selected':''}>${c}</option>`).join('')}</select></label></div>
+   <div class="table-wrap"><table><thead><tr><th>Kategorie</th><th>Artikel</th><th>Größe</th><th style="text-align:right">Eingang</th><th style="text-align:right">Ausgegeben</th><th style="text-align:right">Bestand</th><th style="text-align:right">Mindest</th><th style="text-align:right">Buchen</th></tr></thead><tbody>
+    ${rows.map(i=>`<tr class="${i.stock<=i.min?'alert-row':''}"><td style="font-size:14px;color:var(--muted)">${i.cat}</td><td><b>${esc(i.name)}</b></td><td>${esc(i.size||'–')}</td><td class="num" style="text-align:right">${i.inn}</td><td class="num" style="text-align:right">${i.out}</td><td class="num" style="text-align:right;font-size:18px;font-weight:800;${i.stock<=i.min?'color:var(--bad)':''}">${i.stock}</td><td style="text-align:right"><input data-kkmin="${i.id}" type="text" inputmode="numeric" value="${i.min}" style="width:60px;min-height:36px;text-align:right" aria-label="Mindestbestand"></td><td><span style="display:flex;gap:6px;justify-content:flex-end"><button type="button" class="btn soft" style="min-height:36px" data-kk="stock" data-v="${i.id}" data-t="EINGANG">+ Eingang</button><button type="button" class="btn" style="min-height:36px" data-kk="stock" data-v="${i.id}" data-t="KORREKTUR">Korrektur</button></span></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Kein Artikel gefunden.</td></tr>'}
+   </tbody></table></div><p class="hint">Rot = Bestand am oder unter dem Mindestbestand. Eingang = Spenden oder Lieferung; Korrektur = z. B. nach Inventur (auch minus).</p></section>
+  <section class="card panel" style="gap:8px"><div class="panel-h"><h2>Neuen Artikel anlegen</h2></div>
+   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px"><label class="f">Kategorie<select id="kk-ncat">${KK_CATS.map(c=>`<option>${c}</option>`).join('')}</select></label><label class="f">Bezeichnung<input id="kk-nname" type="text" placeholder="z. B. Regenjacke"></label><label class="f">Größen (mit Komma)<input id="kk-nsizes" type="text" value="S, M, L, XL"></label><label class="f">Mindestbestand<input id="kk-nmin" type="text" inputmode="numeric" value="5"></label></div>
+   <button type="button" class="btn primary" style="align-self:flex-start" data-kk="additem">Anlegen</button><p class="hint">Für jede Größe wird ein eigener Lagerplatz angelegt, damit man sieht, welche Größen fehlen.</p></section>`}
+
+function kkSetHTML(){const s=S.kk.set;const n=kkSlots().length;
+  return `<section class="card panel" style="gap:12px"><div class="panel-h"><h2>Einstellungen Kleiderkammer</h2></div>
+   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px"><label class="f">Ausgabe alle … Tage<input id="kks-interval" type="text" inputmode="numeric" value="${s.interval}"></label><label class="f">Höchstens Termine pro Tag<input id="kks-max" type="text" inputmode="numeric" value="${s.max}"></label><label class="f">Zeitfenster (Minuten)<select id="kks-slot">${[5,10,15,20,30].map(m=>`<option ${m===s.slot?'selected':''}>${m}</option>`).join('')}</select></label><label class="f">Personen je Zeitfenster<input id="kks-per" type="text" inputmode="numeric" value="${s.per}"></label></div>
+   <span style="font-size:14px;font-weight:700">Ausgabezeiten</span>${s.blocks.map((b,i)=>`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="time" data-kkb="${i}|0" value="${b[0]}" aria-label="Von"><span>bis</span><input type="time" data-kkb="${i}|1" value="${b[1]}" aria-label="Bis"></div>`).join('')}
+   <span style="font-size:14px;font-weight:700">Ausgabetage</span><div class="chips">${KK_WD.map((w,i)=>`<button type="button" class="chip" aria-pressed="${s.days.includes(i+1)}" data-kk="wd" data-v="${i+1}">${w}</button>`).join('')}</div>
+   <p class="hint">Aktuell: ${n} Zeitfenster × ${s.per} Personen = ${n*s.per} Plätze, begrenzt auf ${s.max} Termine pro Tag. Änderungen werden sofort gespeichert.</p></section>`}
+
+function kkTagesliste(){const d=UI.kk.day;const list=kkCampAppts().filter(a=>a.date===d&&a.status!=='abgesagt').sort((a,b)=>a.time.localeCompare(b.time));const byId=id=>S.kk.items.find(i=>i.id===id);const tot={};
+  list.forEach(a=>a.lines.forEach(l=>{const k=kkItemLabel(byId(l.item));tot[k]=(tot[k]||0)+l.qty}));
+  openSheet(`<div class="sheet-h"><div><h2>Kleiderkammer · Tagesliste</h2><p class="hint">${esc(campName(S.camp))} · ${new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})} · Stand ${fmtT(Date.now())}</p></div><button type="button" class="x no-print" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+   <p style="margin:0;font-weight:600">${list.length} Termine · ${list.filter(a=>a.status==='ausgegeben').length} ausgegeben · ${list.filter(a=>a.status==='nicht erschienen').length} nicht erschienen · ${list.filter(a=>a.notfall).length} Notfälle</p>
+   <div class="table-wrap"><table class="rep-table"><tr><th>Zeit</th><th>QMM</th><th>Name, Vorname</th><th>Zimmer</th><th>Sprache</th><th>Status</th><th>Ausgegeben</th><th style="width:110px">Unterschrift</th></tr>${list.map(a=>{const p=person(a.qmm)||{name:'?',vorname:''};const b=p.bed&&bed(p.bed);return `<tr><td><b>${a.time}</b></td><td>${a.qmm}</td><td>${esc(p.name)}, ${esc(p.vorname)}${a.notfall?' <b style="color:var(--bad)">· NOTFALL</b>':''}</td><td>${b?esc(areaName(b.area))+' · '+b.room:'–'}</td><td>${esc(p.lang||'')}</td><td>${a.status}</td><td>${a.lines.map(l=>l.qty+'× '+esc(kkItemLabel(byId(l.item)))).join(', ')}</td><td></td></tr>`}).join('')||'<tr><td colspan="8">Keine Termine.</td></tr>'}</table></div>
+   ${Object.keys(tot).length?`<h3 style="font-size:16px">Tagesbericht: ausgegebene Artikel</h3><div class="table-wrap"><table class="rep-table"><tr><th>Artikel</th><th style="text-align:right">Menge</th></tr>${Object.entries(tot).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td style="text-align:right"><b>${v}</b></td></tr>`).join('')}<tr><td><b>Gesamt</b></td><td style="text-align:right"><b>${Object.values(tot).reduce((a,b)=>a+b,0)}</b></td></tr></table></div>`:''}
+   <button type="button" class="btn no-print" style="align-self:flex-start" data-act="printsheet">Drucken / als PDF speichern</button>`)}
+
+function kkStockSheet(id,type){const i=S.kk.items.find(x=>x.id===id);openSheet(`<div class="sheet-h"><div><h2>${type==='EINGANG'?'Wareneingang':'Bestand korrigieren'}</h2><p class="hint">${esc(kkItemLabel(i))} · aktuell ${i.stock}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <label class="f">${type==='EINGANG'?'Menge (Teile)':'Änderung (z. B. -3 oder 5)'}<input id="kk-sq" type="text" inputmode="numeric"></label><label class="f">Bemerkung<input id="kk-sn" type="text" placeholder="${type==='EINGANG'?'z. B. Spende Kirchengemeinde':'z. B. Inventur'}"></label>
+  <button type="button" class="btn primary block" data-kk="stockdo" data-v="${id}" data-t="${type}">Buchen</button>`)}
+
+function kkCsv(){const K=UI.kk;const byId=id=>S.kk.items.find(i=>i.id===id);const rows=[['Datum','Uhrzeit','QMM','Name','Vorname','Artikel','Größe','Menge','Notfall','Ausgegeben von']];
+  kkCampAppts().filter(a=>a.status==='ausgegeben'&&a.date>=K.von&&a.date<=K.bis).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).forEach(a=>{const p=person(a.qmm)||{name:'',vorname:''};a.lines.forEach(l=>{const i=byId(l.item);rows.push([a.date,a.time,a.qmm,p.name,p.vorname,i.name,i.size,l.qty,a.notfall?'ja':'',a.issuedBy])})});
+  const cell=v=>{const s=String(v??'');return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};const u=URL.createObjectURL(new Blob(['﻿'+rows.map(r=>r.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download='kleiderkammer_'+K.von+'_'+K.bis+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('CSV-Datei heruntergeladen')}
+
+function kkRefocus(id,fn){const el=document.getElementById(id);const pos=el?el.selectionStart:null;fn();render();const n=document.getElementById(id);if(n){n.focus();try{if(pos!==null)n.setSelectionRange(pos,pos)}catch(_){}}}
+
+document.addEventListener('click',e=>{const t=e.target.closest('[data-kk]');if(!t)return;const K=UI.kk,v=t.dataset.v,s=S.kk.set;
+  switch(t.dataset.kk){
+   case 'tab':K.tab=v;if(v==='neu'){K.notfall=false;K.reason=''}if(v!=='termin')K.lines=[];if(UI.view!=='kleiderkammer'){go('kleiderkammer');return}render();window.scrollTo(0,0);break;
+   case 'mon':{const [y,m]=K.month.split('-').map(Number);const d=new Date(y,m-1+Number(v),1);K.month=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break}
+   case 'day':K.day=v;render();break;
+   case 'newday':K.date=K.day<iso(today)?iso(today):K.day;K.tab='neu';K.notfall=false;K.reason='';render();break;
+   case 'tagesliste':kkTagesliste();break;
+   case 'open':K.appt=v;K.tab='termin';K.lines=[];closeSheet();if(UI.view!=='kleiderkammer'){go('kleiderkammer');return}render();window.scrollTo(0,0);break;
+   case 'time':K.time=v;render();break;
+   case 'book':{const p=person(K.qmm.trim());const e=kkEnt(p.qmm,K.date);const pl=kkPlan(K.date);const sl=pl.plan.find(x=>x.t===K.time);if(!sl||sl.free<=0){toast('Dieses Zeitfenster ist nicht mehr frei');render();break}
+     if(!e.ok&&!(K.notfall&&K.reason.trim())){toast('Kein Anspruch – nur als Notfall mit Begründung');break}
+     const nf=!e.ok;const a={id:'t'+(S.kk.next++),camp:S.camp,qmm:p.qmm,date:K.date,time:K.time,status:'geplant',notfall:nf,notfallBy:nf?ME.name:'',reason:nf?K.reason.trim():'',note:K.note.trim(),by:ME.name,created:Date.now(),issuedAt:null,issuedBy:'',lines:[]};S.kk.appts.push(a);
+     addLog('KLEIDERKAMMER',p.qmm,'Termin '+fmt(K.date)+' '+K.time+' Uhr'+(nf?' · NOTFALL ('+a.reason+')':''));save();toast('Termin am '+fmt(K.date)+' um '+K.time+' Uhr gespeichert');K.qmm='';K.note='';K.notfall=false;K.reason='';K.appt=a.id;K.tab='termin';K.lines=[];render();window.scrollTo(0,0);break}
+   case 'addline':{const q=Math.max(1,Math.floor(Number(K.iqty)||1));const i=S.kk.items.find(x=>x.id===K.iid);if(!i)break;const used=K.lines.filter(l=>l.item===i.id).reduce((n,l)=>n+l.qty,0);if(i.stock-used<q){toast('Nicht genug auf Lager (noch '+(i.stock-used)+')');break}
+     const l=K.lines.find(x=>x.item===i.id);if(l)l.qty+=q;else K.lines.push({item:i.id,qty:q});K.iqty='1';render();break}
+   case 'delline':K.lines=K.lines.filter(l=>l.item!==v);render();break;
+   case 'issue':{const a=S.kk.appts.find(x=>x.id===K.appt);if(!a||a.status!=='geplant'||!K.lines.length)break;for(const l of K.lines){const i=S.kk.items.find(x=>x.id===l.item);if(i.stock<l.qty){toast('Nicht genug auf Lager: '+kkItemLabel(i));return}}
+     K.lines.forEach(l=>{const i=S.kk.items.find(x=>x.id===l.item);i.stock-=l.qty;i.out+=l.qty});a.lines=K.lines.map(l=>({...l}));a.status='ausgegeben';a.issuedAt=Date.now();a.issuedBy=ME.name;
+     addLog('KLEIDERKAMMER',a.qmm,'Ausgabe'+(a.notfall?' (Notfall)':'')+': '+a.lines.map(l=>l.qty+'× '+kkItemLabel(S.kk.items.find(x=>x.id===l.item))).join(', '));K.lines=[];save();render();toast('Ausgabe gespeichert – Lager aktualisiert');break}
+   case 'st':{const a=S.kk.appts.find(x=>x.id===K.appt);if(v==='abgesagt'&&!confirm('Termin wirklich absagen?'))break;a.status=v;addLog('KLEIDERKAMMER',a.qmm,'Termin '+fmt(a.date)+' '+a.time+' Uhr: '+v);save();render();toast('Termin: '+v);break}
+   case 'print':printSheet();break;
+   case 'csv':kkCsv();break;
+   case 'stock':kkStockSheet(v,t.dataset.t);break;
+   case 'stockdo':{const i=S.kk.items.find(x=>x.id===v);const q=Math.trunc(Number(document.getElementById('kk-sq').value));const type=t.dataset.t;if(!q||(type==='EINGANG'&&q<0)){toast('Bitte eine gültige Menge angeben');break}if(i.stock+q<0){toast('Der Bestand kann nicht negativ werden');break}
+     i.stock+=q;if(type==='EINGANG')i.inn+=q;addLog('KLEIDERKAMMER',null,(type==='EINGANG'?'Wareneingang':'Korrektur')+': '+(q>0?'+':'')+q+' '+kkItemLabel(i));save();closeSheet();render();toast(type==='EINGANG'?'+'+q+' eingebucht':'Bestand korrigiert');break}
+   case 'additem':{const cat=document.getElementById('kk-ncat').value,name=document.getElementById('kk-nname').value.trim(),min=Math.max(0,Number(document.getElementById('kk-nmin').value)||0);if(!name){toast('Bitte eine Bezeichnung angeben');break}
+     const sizes=document.getElementById('kk-nsizes').value.split(/[,;]/).map(x=>x.trim()).filter((x,i,a)=>a.indexOf(x)===i);let n=0;(sizes.length?sizes:['']).forEach(size=>{if(S.kk.items.some(i=>i.name===name&&i.size===size))return;S.kk.items.push({id:'k'+(S.nextId++),cat,name,size,stock:0,min,inn:0,out:0});n++});
+     addLog('KLEIDERKAMMER',null,'Artikel angelegt: '+name+' ('+n+' Größen)');save();render();toast(n?n+' Artikel angelegt':'Alle Größen gab es schon');break}
+   case 'wd':{const d=Number(v);s.days=s.days.includes(d)?s.days.filter(x=>x!==d):[...s.days,d].sort();if(!s.days.length)s.days=[d];save();render();break}
+  }});
+document.addEventListener('input',e=>{const id=e.target.id;if(!UI.kk)return;const K=UI.kk;
+  if(id==='kk-qmm')kkRefocus(id,()=>{K.qmm=e.target.value.replace(/\D/g,'');K.notfall=false;K.reason=''});
+  if(id==='kk-reason')kkRefocus(id,()=>{K.reason=e.target.value});
+  if(id==='kk-note')K.note=e.target.value;
+  if(id==='kk-iqty')K.iqty=e.target.value;
+  if(id==='kk-iq')kkRefocus(id,()=>{K.q=e.target.value});});
+document.addEventListener('change',e=>{const id=e.target.id;if(!UI.kk)return;const K=UI.kk,s=S.kk.set;
+  if(id==='kk-date'&&e.target.value){K.date=e.target.value<iso(today)?iso(today):e.target.value;render()}
+  if(id==='kk-notfall'){K.notfall=e.target.checked;render()}
+  if(id==='kk-icat'){K.icat=e.target.value;K.iname='';K.iid='';render()}
+  if(id==='kk-iname'){K.iname=e.target.value;K.iid='';render()}
+  if(id==='kk-iid'){K.iid=e.target.value}
+  if(id==='kk-von'){K.von=e.target.value;render()}
+  if(id==='kk-bis'){K.bis=e.target.value;render()}
+  if(id==='kk-icatf'){K.cat=e.target.value;render()}
+  if(e.target.dataset&&e.target.dataset.kkmin){const i=S.kk.items.find(x=>x.id===e.target.dataset.kkmin);i.min=Math.max(0,Number(e.target.value)||0);save();render();toast('Mindestbestand gespeichert')}
+  if(e.target.dataset&&e.target.dataset.kkb){const [i,j]=e.target.dataset.kkb.split('|').map(Number);const b=s.blocks[i].slice();b[j]=e.target.value;if(b[0]<b[1]){s.blocks[i]=b;save();toast('Einstellungen gespeichert')}else toast('Bitte gültige Zeiten eingeben');render()}
+  const num={'kks-interval':['interval',1,365],'kks-max':['max',1,200],'kks-slot':['slot',5,30],'kks-per':['per',1,20]}[id];
+  if(num){const v=Math.trunc(Number(e.target.value));if(v>=num[1]&&v<=num[2]){s[num[0]]=v;save();toast('Einstellungen gespeichert')}else toast('Bitte einen gültigen Wert eingeben');render()}});
+function akteKkHTML(p){if(!S.kk)return '';const list=S.kk.appts.filter(a=>a.qmm===p.qmm).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));const last=kkLast(p.qmm);const byId=id=>S.kk.items.find(i=>i.id===id);
+  return `<section class="card panel"><div class="panel-h"><h2>Kleiderkammer</h2>${p.active&&!p.anon?`<button type="button" class="btn soft" style="min-height:38px" data-kk="akteneu" data-v="${p.qmm}">+ Termin</button>`:''}</div>
+   <p class="hint">${last?'Letzte Ausgabe '+fmt(last)+' · nächster Anspruch ab '+fmt(kkAddDays(last,S.kk.set.interval)):'Noch keine Ausgabe – Anspruch besteht.'}</p>
+   ${list.map(a=>`<button type="button" class="row" style="width:100%;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0" data-kk="open" data-v="${a.id}"><span class="grow"><span class="t">${fmt(a.date)} · ${a.time} Uhr · ${a.status}${a.notfall?' · Notfall':''}</span>${a.lines.length?`<span class="d">${a.lines.map(l=>l.qty+'× '+esc(kkItemLabel(byId(l.item)))).join(', ')}</span>`:''}</span><span aria-hidden="true">›</span></button>`).join('')}</section>`}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-kk="akteneu"]');if(!t)return;UI.kk=UI.kk||null;kleiderkammerView();UI.kk.qmm=t.dataset.v;UI.kk.tab='neu';UI.kk.date=iso(today);UI.kk.notfall=false;UI.kk.reason='';go('kleiderkammer')},true);
 
 /* ---------- sheets ---------- */
 function openSheet(html){document.getElementById('sheet-root').innerHTML=`<div class="scrim" data-act="closeScrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;const f=document.querySelector('.sheet button, .sheet select');if(f)f.focus()}
@@ -1253,7 +1476,7 @@ function otherSheet(q){const p=person(q);openSheet(`<div class="sheet-h"><div><h
 
 function toast(t){const r=document.getElementById('toast-root');r.innerHTML=`<div class="toast">${esc(t)}</div>`;clearTimeout(toast.h);toast.h=setTimeout(()=>{r.innerHTML=''},2600)}
 function go(v){if(location.hash==='#'+v)route();else location.hash=v}
-function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen','vorfall','vorlagen','protokoll'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
+function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen','vorfall','vorlagen','protokoll','kleiderkammer'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -1262,7 +1485,7 @@ document.addEventListener('click',e=>{
   switch(a){
    case 'login':UI.logged=true;try{sessionStorage.setItem(KEY+'-in','1')}catch(_){}route();break;
    case 'logout':UI.logged=false;try{sessionStorage.removeItem(KEY+'-in')}catch(_){}render();break;
-   case 'reset':S=seed();demoDefaults();S.templates=seedTemplates();S.incidents=seedIncidents();UI.pr=null;UI.gFilter='Alle';UI.nFilter='Alle';UI.attG='Alle';UI.attN='Alle';UI.na={};UI.tech=null;save();render();toast('Demo wurde zurückgesetzt');break;
+   case 'reset':S=seed();demoDefaults();S.templates=seedTemplates();S.incidents=seedIncidents();UI.pr=null;UI.kk=null;UI.gFilter='Alle';UI.nFilter='Alle';UI.attG='Alle';UI.attN='Alle';UI.na={};UI.tech=null;save();render();toast('Demo wurde zurückgesetzt');break;
    case 'goArea':UI.area=t.dataset.area;go('belegung');break;
    case 'area':UI.area=t.dataset.area;render();break;
    case 'attArea':UI.attArea=t.dataset.area;render();break;
@@ -1299,7 +1522,7 @@ document.addEventListener('click',e=>{
    case 'nasave':{const n=UI.na;const b=bed(n.bed);const q=n.qmm.trim();
       S.people[q]={qmm:q,name:n.name.trim(),vorname:n.vorname.trim(),geb:n.geb||'2000-01-01',nat:n.nat||NATS[0],lang:n.lang||LANGS[NATS[0]],g:n.g||'Männlich',since:iso(today),active:true,bed:b.id,lastSeen:0,other:null};
       b.status='Belegt';b.qmm=q;addLog('NEUAUFNAHME',q,'Aufgenommen in '+bedLabel(S.beds,b.id));UI.na={};save();UI.akte=q;toast('Aufgenommen – Bett '+bedLabel(S.beds,b.id));go('akte');break}
-   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
+   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
    case 'per':UI.per=+t.dataset.d;render();break;
    case 'todoArea':UI.attArea=t.dataset.area;UI.attFilter='offen';break;
    case 'todoF':UI.attFilter=t.dataset.f;break;
