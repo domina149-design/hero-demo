@@ -384,7 +384,7 @@ const AREA_IDS=Object.keys(LUK_STRUCT);
 const STATUSES=['Frei','Belegt','Reinigen','Reserviert','Gesperrt','Nicht frei','Lager'];
 const NATS=['Afghanistan','Syrien','Irak','Türkei','Eritrea','Iran','Algerien','Georgien','Somalia','Ukraine'];
 const LANGS={Afghanistan:'Dari',Syrien:'Arabisch',Irak:'Arabisch','Türkei':'Türkisch',Eritrea:'Tigrinya',Iran:'Persisch',Algerien:'Arabisch',Georgien:'Georgisch',Somalia:'Somali',Ukraine:'Ukrainisch'};
-const KEY='hero-bms-demo-v8';
+const KEY='hero-bms-demo-v9';
 const REAL=false, REAL_STRUCT=null;
 function pad(n){return String(n).padStart(2,'0')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -406,7 +406,7 @@ function seed(){
     if(st==='Belegt'){
       const rk=area+'|'+room.replace(/\.[^.]*$/,'');if(!roomNat[rk])roomNat[rk]=NATS[Math.floor(r()*NATS.length)];const nat=r()<.85?roomNat[rk]:NATS[Math.floor(r()*NATS.length)]; const id=String(q++);
       const since=dAgo(5+Math.floor(r()*120));
-      people[id]={qmm:id, name:'Testperson', vorname:id.slice(-3), geb:iso(new Date(1960+Math.floor(r()*45),Math.floor(r()*12),1+Math.floor(r()*27))), nat, lang:LANGS[nat], g:area==='H12'?'Weiblich':(r()<.72?'Männlich':'Weiblich'), since:iso(since), active:true, bed:bed.id, lastSeen:0, other:null};
+      people[id]={om:String(10421+(+id-2600001)).padStart(6,'0'), qmm:id, name:'Testperson', vorname:id.slice(-3), geb:iso(new Date(1960+Math.floor(r()*45),Math.floor(r()*12),1+Math.floor(r()*27))), nat, lang:LANGS[nat], g:area==='H12'?'Weiblich':(r()<.72?'Männlich':'Weiblich'), since:iso(since), active:true, bed:bed.id, lastSeen:0, other:null};
       log.push({t:+since+9*3600e3, type:'NEUAUFNAHME', qmm:id, text:'Aufgenommen in '+area+' · '+room, by:'Aufnahme'});
       bed.qmm=id;
     }
@@ -633,7 +633,7 @@ function belegungView(){
   if(UI.stFilter!=='Alle')bs=bs.filter(b=>b.status===UI.stFilter);
   if(G!=='Alle')bs=bs.filter(b=>{const p=b.qmm&&person(b.qmm);return p&&p.g===G});
   if(N!=='Alle')bs=bs.filter(b=>{const p=b.qmm&&person(b.qmm);return p&&p.nat===N});
-  if(q)bs=bs.filter(b=>{const p=b.qmm&&person(b.qmm);return b.room.toLowerCase().includes(q)||(p&&(p.qmm.includes(q)||(p.name+' '+p.vorname).toLowerCase().includes(q)))});
+  if(q)bs=bs.filter(b=>{const p=b.qmm&&person(b.qmm);return b.room.toLowerCase().includes(q)||(p&&(p.qmm.includes(q)||(p.om||'').toLowerCase().includes(q)||(p.name+' '+p.vorname).toLowerCase().includes(q)))});
   const st=stats(all?null:a);
   const presence=p=>{if(!p)return{t:'',c:''};if(p.other&&S.att[p.qmm]==='c')return{t:p.other,c:'color:var(--warn);font-weight:700'};const d=daysAway(p);if(S.att[p.qmm]==='a')return{t:'Anwesend · heute',c:'color:var(--muted)'};if(d>3)return{t:'Abwesend seit '+d+' Tagen',c:'color:var(--bad);font-weight:700'};if(S.att[p.qmm]==='b')return{t:'Heute abwesend',c:'color:var(--bad)'};return{t:'Heute noch nicht kontrolliert',c:'color:var(--muted)'}};
   const rows=bs.map(b=>{const p=b.qmm&&person(b.qmm);const pr=presence(p);const al=p&&daysAway(p)>3;
@@ -641,17 +641,17 @@ function belegungView(){
     return {b,p,pr,al,act}});
   return `<div class="page-head"><div><div class="sub">${st.total} Betten · ${st.belegt} belegt · ${st.frei} frei</div><h1>Belegung · ${all?'alle Gebäude':esc(areaName(a))}</h1></div><span style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="bstand">Belegungsstand</button><a class="btn primary" href="#neuaufnahme">${IC.plus}Neuaufnahme</a></span></div>
   <div class="chips" role="group" aria-label="Bereich">${areasCur().map(x=>`<button type="button" class="chip" aria-pressed="${x.id===a}" data-act="area" data-area="${x.id}">${esc(x.name)}</button>`).join('')}<button type="button" class="chip" aria-pressed="${all}" data-act="area" data-area="alle">Alle</button></div>
-  <div class="card filterbar"><label class="search">${IC.search}<input id="bq" type="search" placeholder="QMM, Name oder Zimmer" value="${esc(UI.q)}" aria-label="Suchen"></label>
+  <div class="card filterbar"><label class="search">${IC.search}<input id="bq" type="search" placeholder="OM-Nr., QMM, Name oder Zimmer" value="${esc(UI.q)}" aria-label="Suchen"></label>
    <label class="f">Zimmerstatus<select id="bst">${['Alle',...STATUSES].map(s=>`<option ${s===UI.stFilter?'selected':''}>${s}</option>`).join('')}</select></label>
    <label class="f">Geschlecht<select id="bg">${['Alle',...opts.g].map(s=>`<option ${s===G?'selected':''}>${s}</option>`).join('')}</select></label>
    <label class="f">Nationalität<select id="bn">${['Alle',...opts.n].map(s=>`<option ${s===N?'selected':''}>${s}</option>`).join('')}</select></label>
    ${(UI.q||UI.stFilter!=='Alle'||G!=='Alle'||N!=='Alle')?'<button type="button" class="btn" data-act="bfreset">Filter zurücksetzen</button>':''}</div>
   <div class="st-legend" style="margin-top:-10px">${[['Frei','var(--ok)','var(--rs-Frei)'],['Belegt','var(--line-2)','var(--surface)'],['Reinigen','var(--accent)','var(--rs-Reinigen)'],['Reserviert','var(--info)','var(--rs-Reserviert)'],['Gesperrt','var(--bad)','var(--rs-Gesperrt)'],['Nicht frei','var(--neutral)','var(--rs-Nicht)'],['Lager','var(--warn)','var(--rs-Lager)']].map(([l,c,b])=>`<span><i style="--c:${c};--b:${b}"></i>${l}</span>`).join('')}</div>
   <p class="hint" style="margin-top:-12px">${bs.length} von ${totalN} Betten${G!=='Alle'||N!=='Alle'?' · Filter nach Person zeigt nur belegte Betten':''}</p>
-  <div class="card table-wrap beds"><table><thead><tr>${all?'<th>Gebäude</th>':''}<th>Zimmer</th><th>Status</th><th>QMM</th><th>Name</th><th>Geschlecht</th><th>Nationalität</th><th>Anwesenheit</th><th style="text-align:right">Aktionen</th></tr></thead><tbody>
-   ${rows.map((r,i)=>{const rm=x=>x.b.area+'|'+x.b.room.replace(/\.[^.]*$/,'');const grp=i&&rm(rows[i-1])===rm(r)?'same-room':'room-start';return `<tr class="${grp} ${r.al?'alert-row':'rs-'+r.b.status.split(' ')[0]}">${all?`<td>${esc(areaName(r.b.area))}</td>`:''}<td><b>${r.b.room}</b></td><td><span class="pill st-${r.b.status}">${r.b.status}</span></td><td class="num">${r.p?r.p.qmm:'–'}</td><td>${r.p?`<button type="button" class="linkish" style="white-space:nowrap" data-act="akte" data-q="${r.p.qmm}">${esc(r.p.name)} ${esc(r.p.vorname)}</button>`:`<span style="color:var(--muted)">${esc(r.b.note)||'–'}</span>`}</td><td>${r.p?esc(r.p.g):''}</td><td>${r.p?esc(r.p.nat):''}</td><td style="${r.pr.c}">${r.p?`<span class="pres">${quick(r.p)}<span>${esc(r.pr.t)}</span></span>`:''}</td><td><div class="actions" style="flex-wrap:nowrap">${r.act}</div></td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Keine Betten für diesen Filter.</td></tr>'}
+  <div class="card table-wrap beds"><table><thead><tr><th>OM Nr.</th><th>QMM</th>${all?'<th>Gebäude</th>':''}<th>Zimmer</th><th>Status</th><th>Name</th><th>Geschlecht</th><th>Nationalität</th><th>Anwesenheit</th><th style="text-align:right">Aktionen</th></tr></thead><tbody>
+   ${rows.map((r,i)=>{const rm=x=>x.b.area+'|'+x.b.room.replace(/\.[^.]*$/,'');const grp=i&&rm(rows[i-1])===rm(r)?'same-room':'room-start';return `<tr class="${grp} ${r.al?'alert-row':'rs-'+r.b.status.split(' ')[0]}"><td class="num" style="white-space:nowrap">${r.p&&r.p.om?esc(r.p.om):'–'}</td><td class="num">${r.p?r.p.qmm:'–'}</td>${all?`<td>${esc(areaName(r.b.area))}</td>`:''}<td><b>${r.b.room}</b></td><td><span class="pill st-${r.b.status}">${r.b.status}</span></td><td>${r.p?`<button type="button" class="linkish" style="white-space:nowrap" data-act="akte" data-q="${r.p.qmm}">${esc(r.p.name)} ${esc(r.p.vorname)}</button>`:`<span style="color:var(--muted)">${esc(r.b.note)||'–'}</span>`}</td><td>${r.p?esc(r.p.g):''}</td><td>${r.p?esc(r.p.nat):''}</td><td style="${r.pr.c}">${r.p?`<span class="pres">${quick(r.p)}<span>${esc(r.pr.t)}</span></span>`:''}</td><td><div class="actions" style="flex-wrap:nowrap">${r.act}</div></td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Keine Betten für diesen Filter.</td></tr>'}
   </tbody></table></div>
-  <div class="bedcards">${rows.map(r=>`<div class="bedcard rs-${r.b.status.split(' ')[0]} ${r.al?'alert':''} ${r.p&&S.att[r.p.qmm]?'m-'+S.att[r.p.qmm]:''}"><button type="button" class="bc-main" data-act="bedmenu" data-b="${r.b.id}"><span class="room"><b>${r.b.room}</b><span class="pill st-${r.b.status}" style="font-size:11px;justify-content:center">${r.b.status}</span></span><span style="flex:1;min-width:0;display:flex;flex-direction:column"><b>${r.p?esc(r.p.name+' '+r.p.vorname):(esc(r.b.note)||'Bett '+r.b.status.toLowerCase())}</b>${r.p?`<span style="font-size:13px;color:var(--muted)">${all?esc(areaName(r.b.area))+' · ':''}${esc(r.p.g)} · ${esc(r.p.nat)}</span>`:''}<span class="pres" style="font-size:13px;${r.pr.c}">${r.p?mark(r.p):''}${esc(r.pr.t)}</span></span></button>${r.p?quick(r.p):''}</div>`).join('')||'<p class="empty">Keine Betten für diesen Filter.</p>'}</div>`;
+  <div class="bedcards">${rows.map(r=>`<div class="bedcard rs-${r.b.status.split(' ')[0]} ${r.al?'alert':''} ${r.p&&S.att[r.p.qmm]?'m-'+S.att[r.p.qmm]:''}"><button type="button" class="bc-main" data-act="bedmenu" data-b="${r.b.id}"><span class="room"><b>${r.b.room}</b><span class="pill st-${r.b.status}" style="font-size:11px;justify-content:center">${r.b.status}</span></span><span style="flex:1;min-width:0;display:flex;flex-direction:column"><b>${r.p?esc(r.p.name+' '+r.p.vorname):(esc(r.b.note)||'Bett '+r.b.status.toLowerCase())}</b>${r.p?`<span style="font-size:13px;color:var(--muted)">${r.p.om?'OM '+esc(r.p.om)+' · ':''}QMM ${r.p.qmm} · ${all?esc(areaName(r.b.area))+' · ':''}${esc(r.p.g)} · ${esc(r.p.nat)}</span>`:''}<span class="pres" style="font-size:13px;${r.pr.c}">${r.p?mark(r.p):''}${esc(r.pr.t)}</span></span></button>${r.p?quick(r.p):''}</div>`).join('')||'<p class="empty">Keine Betten für diesen Filter.</p>'}</div>`;
 }
 
 function attView(){
@@ -719,6 +719,7 @@ function naView(){
   return `<div class="page-head"><div><div class="sub">Neue Person aufnehmen</div><h1>Neuaufnahme</h1></div></div>
   <div class="two">
    <section class="card panel" aria-labelledby="na1"><div class="panel-h"><h2 id="na1">1 · Person</h2></div>
+    <label class="f">OM-Nr.<input id="na-om" type="text" value="${esc(n.om||'')}" placeholder="z. B. 010421"></label>
     <label class="f">QMM-Nummer *<input id="na-qmm" type="text" inputmode="numeric" value="${esc(n.qmm||'')}" ${dup?'aria-invalid="true" style="border:2px solid var(--bad)"':''} placeholder="z. B. 2609999"></label>
     ${dup?`<div class="err" role="alert">Diese QMM ist bereits vergeben: <b>${esc(dup.name)} ${esc(dup.vorname)}</b> · ${bedLabel(S.beds,dup.bed)}. <button type="button" class="linkish" data-act="akte" data-q="${dup.qmm}">Akte öffnen</button></div>`:qmm&&/^\d{5,9}$/.test(qmm)?'<div class="okmsg">QMM ist frei.</div>':'<p class="hint">Tipp: Geben Sie zum Test 2600001 ein – diese Nummer ist schon vergeben.</p>'}
     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px">
@@ -749,7 +750,7 @@ function akteView(){
   const dotC={BERICHT:'var(--accent-strong)',NEUAUFNAHME:'var(--info)',AUSZUG:'var(--bad)',UMBUCHUNG:'var(--accent)'};
   return `<div style="font-size:14px;color:var(--muted)"><button type="button" class="linkish" data-act="back">‹ Zurück</button> · QMM ${p.qmm}</div>
   <section class="card akte-head"><span class="avatar big" aria-hidden="true">${esc(p.vorname).slice(0,2)}</span>
-   <div style="flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:4px"><h1 style="font-size:26px">${esc(p.name)} ${esc(p.vorname)}</h1><span style="color:var(--fg-2)">QMM ${p.qmm} · ${p.active?bedLabel(S.beds,p.bed):'ausgezogen'} · seit ${fmt(p.since)}</span>
+   <div style="flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:4px"><h1 style="font-size:26px">${esc(p.name)} ${esc(p.vorname)}</h1><span style="color:var(--fg-2)">${p.om?'OM '+esc(p.om)+' · ':''}QMM ${p.qmm} · ${p.active?bedLabel(S.beds,p.bed):'ausgezogen'} · seit ${fmt(p.since)}</span>
     ${p.active?(d>3?`<span class="pill bad" style="align-self:flex-start">Abwesend seit ${d} Tagen</span>`:`<span class="pres" style="font-weight:700">${mark(p)}${S.att[p.qmm]==='a'?'Heute anwesend':S.att[p.qmm]==='b'?'Heute abwesend':S.att[p.qmm]==='c'?esc(p.other||'Sonstiges'):'Heute noch nicht kontrolliert'}</span>`):'<span class="pill st-Lager" style="align-self:flex-start">Nicht mehr in der Einrichtung</span>'}</div>
    ${p.active?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="move" data-q="${p.qmm}">Umbuchen</button><button type="button" class="btn danger" data-act="out" data-q="${p.qmm}">Auszug / UG</button></div>`:''}
   </section>
@@ -760,7 +761,7 @@ function akteView(){
   <div class="two">
    <div style="display:flex;flex-direction:column;gap:16px">
     <section class="card panel facts"><div class="panel-h"><h2>Stammdaten</h2></div>
-     ${[['Geburtsdatum',fmt(p.geb)],['Geschlecht',p.g],['Nationalität',p.nat],['Muttersprache',p.lang],['Aufnahme',fmt(p.since)]].map(([k,v])=>`<div class="row"><span style="color:var(--muted)">${k}</span><b>${esc(v)}</b></div>`).join('')}
+     ${[['OM-Nr.',p.om||'–'],['Geburtsdatum',fmt(p.geb)],['Geschlecht',p.g],['Nationalität',p.nat],['Muttersprache',p.lang],['Aufnahme',fmt(p.since)]].map(([k,v])=>`<div class="row"><span style="color:var(--muted)">${k}</span><b>${esc(v)}</b></div>`).join('')}
     </section>
     <section class="card panel"><div class="panel-h"><h2>Anwesenheit · 14 Tage</h2></div>
      <div class="days">${seq.map(s=>`<i class="${s.c}" title="${s.n}."></i>`).join('')}</div>
@@ -1096,7 +1097,7 @@ function readCsv(text){text=text.replace(/^﻿/,'');const first=text.split(/\r?\
   const rows=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const ch=text[i];if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}else if(ch==='"')q=true;else if(ch===sep){row.push(cur);cur=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cur);rows.push(row.map(v=>v===''?null:v));row=[];cur=''}else cur+=ch}
   if(cur||row.length){row.push(cur);rows.push(row.map(v=>v===''?null:v))}return [{name:'CSV',rows}]}
 async function readTable(f){const buf=await f.arrayBuffer();if(/\.csv$/i.test(f.name)){let t=new TextDecoder('utf-8').decode(buf);if(t.includes('\ufffd'))t=new TextDecoder('windows-1252').decode(buf);return readCsv(t)}return readXlsx(buf)}
-const IMP_COLS={qmm:/^qmm(\s*-?nr\.?)?$/i,area:/^(bereich|feld|haus|gebäude|gebaeude)$/i,room:/^(raum\s*-?nr\.?|zimmer(\s*-?nr\.?)?|bett(\s*-?nr\.?)?)$/i,status:/^(raum\s*status|zimmer\s*status|bett\s*status)$/i,name:/^(nach)?name$/i,vorname:/^vorname$/i,geb:/^(geb\.?\s*datum|gebdatum|geburtsdatum)$/i,nat:/^nationalit(ä|ae)t$/i,lang:/^mutter\s*sprache$/i,g:/^geschlecht$/i};
+const IMP_COLS={om:/^om(\s*-?\s*(nr|nummer)\.?:?)?$/i,qmm:/^qmm(\s*-?nr\.?)?$/i,area:/^(bereich|feld|haus|gebäude|gebaeude)$/i,room:/^(raum\s*-?nr\.?|zimmer(\s*-?nr\.?)?|bett(\s*-?nr\.?)?)$/i,status:/^(raum\s*status|zimmer\s*status|bett\s*status)$/i,name:/^(nach)?name$/i,vorname:/^vorname$/i,geb:/^(geb\.?\s*datum|gebdatum|geburtsdatum)$/i,nat:/^nationalit(ä|ae)t$/i,lang:/^mutter\s*sprache$/i,g:/^geschlecht$/i};
 const ST_NORM={'frei':'Frei','belegt':'Belegt','reinigen':'Reinigen','gesperrt':'Gesperrt','reserviert':'Reserviert','nicht frei':'Nicht frei','lager':'Lager'};
 function impCell(v){if(v==null)return '';if(v instanceof Date)return iso(v);if(typeof v==='number')return Number.isInteger(v)?String(v):v.toFixed(1);return String(v).trim()}
 function impDate(v){if(v instanceof Date)return iso(v);const s=String(v||'').trim();let m=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);if(m)return m[3]+'-'+pad(+m[2])+'-'+pad(+m[1]);m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
@@ -1110,7 +1111,7 @@ function impParse(sheets){let best=null;
   const M=best.map,areas={},seen=new Set();let dup=0,resRows=0;const rows=[];
   best.data.forEach(x=>{const an=impCell(x[M.area]),bn=impCell(x[M.room]);const k=an.toLowerCase()+'|'+bn.toLowerCase();if(seen.has(k)){dup++;return}seen.add(k);
     const st=ST_NORM[impCell(M.status!=null?x[M.status]:'').toLowerCase()]||'Frei';
-    const res=(M.qmm!=null&&M.name!=null&&impCell(x[M.qmm])&&impCell(x[M.name]))?{qmm:impCell(x[M.qmm]),name:impCell(x[M.name]),vorname:M.vorname!=null?impCell(x[M.vorname]):'',geb:M.geb!=null?impDate(x[M.geb]):'',nat:M.nat!=null?impCell(x[M.nat]):'',lang:M.lang!=null?impCell(x[M.lang]):'',g:M.g!=null?impCell(x[M.g]):''}:null;
+    const res=(M.qmm!=null&&M.name!=null&&impCell(x[M.qmm])&&impCell(x[M.name]))?{om:M.om!=null?impCell(x[M.om]):'',qmm:impCell(x[M.qmm]),name:impCell(x[M.name]),vorname:M.vorname!=null?impCell(x[M.vorname]):'',geb:M.geb!=null?impDate(x[M.geb]):'',nat:M.nat!=null?impCell(x[M.nat]):'',lang:M.lang!=null?impCell(x[M.lang]):'',g:M.g!=null?impCell(x[M.g]):''}:null;
     if(res)resRows++;
     const A=areas[an]||(areas[an]={rooms:new Set(),beds:0,st:{}});A.rooms.add(bn.includes('.')?bn.replace(/\.[^.]*$/,''):bn);A.beds++;A.st[st]=(A.st[st]||0)+1;
     rows.push({an,bn,st,res})});
@@ -1153,7 +1154,7 @@ function impRun(){const I=UI.imp,R=I.r,cid=UI.admCamp||S.camp;const out={na:0,nr
   addLog('IMPORT',null,'Import „'+I.file+'“: '+out.nr+' Zimmer, '+out.nb+' Betten'+(I.withRes?', '+out.np+' Bewohner':''));S.log[S.log.length-1].camp=cid;
   if(!UI.area||!S.areas.some(a=>a.id===UI.area&&a.camp===S.camp))UI.area=(areasCur()[0]||{}).id;if(!S.areas.some(a=>a.id===UI.attArea&&a.camp===S.camp))UI.attArea=(areasCur()[0]||{}).id;
   UI.rm=null;I.out=out;I.step='done';save();render();impRedraw()}
-function impTemplate(){const rows=[['Bereich','Raum Nr','Raum Status','QMM','Name','Vorname','Geb Datum','Nationalität','Mutter Sprache','Geschlecht'],['Haus A','101.1','Frei','','','','','','',''],['Haus A','101.2','Frei','','','','','','',''],['Haus A','102.1','Gesperrt','','','','','','','']];
+function impTemplate(){const rows=[['Bereich','Raum Nr','Raum Status','OM Nr.','QMM','Name','Vorname','Geb Datum','Nationalität','Mutter Sprache','Geschlecht'],['Haus A','101.1','Frei','','','','','','','',''],['Haus A','101.2','Frei','','','','','','','',''],['Haus A','102.1','Gesperrt','','','','','','','','']];
   const csv='\ufeff'+rows.map(r=>r.join(';')).join('\r\n');const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const l=document.createElement('a');l.href=u;l.download='Vorlage_Zimmer_Import.csv';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 function importPanel(){return `<section class="card panel"><div class="panel-h"><h2>Import aus Excel oder CSV</h2></div>
   <p style="margin:0 0 10px">Gebäude, Zimmer und Betten direkt aus einer Datei übernehmen – z. B. aus der bisherigen Belegungsliste. Die Spalten werden automatisch erkannt (mindestens „Bereich“ und „Raum Nr“, optional „Raum Status“ und Bewohnerdaten).</p>
@@ -1169,7 +1170,7 @@ function printSheet(){const sh=document.querySelector('.sheet');const fit=sh&&sh
   setTimeout(()=>{document.body.classList.remove('print-sheet');if(fit){sh.style.zoom='';sh.style.width='';sh.style.maxWidth='';sh.classList.remove('fit-print')}},500)}
 function incMailto(x){const t=S.templates.find(y=>y.id===x.tpl)||{name:'Bericht',fields:[]};const lines=[t.name+' – '+campName(x.camp||'c1'),'Vorfall: '+fmtT(x.when)+' ('+x.shift+')'];(x.resList||[x.res].filter(Boolean)).forEach(r=>lines.push('Person: '+r.name+' '+r.vorname+', QMM '+r.qmm+', '+r.room));t.fields.forEach(([k,l])=>{const v=x.vals[k];if(v&&(!Array.isArray(v)||v.length))lines.push(l+': '+[].concat(v).join(', '))});lines.push('Erstellt: '+fmtT(x.created)+' von '+x.by);return 'mailto:?subject='+encodeURIComponent(t.name+' – '+fmt(x.when))+'&body='+encodeURIComponent(lines.join('\n'))}
 function downloadCsv(type){const cell=v=>{const s=String(v??'');return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};let rows=[];
-  if(type==='belegung'){rows=[['Bereich','Raum Nr','Raum Status','QMM','Name','Vorname','Geschlecht','Nationalität']];campBeds().forEach(b=>{const p=b.qmm&&person(b.qmm);rows.push([areaName(b.area),b.room,b.status,p?p.qmm:'',p?p.name:'',p?p.vorname:'',p?p.g:'',p?p.nat:''])})}
+  if(type==='belegung'){rows=[['OM Nr.','QMM','Bereich','Raum Nr','Raum Status','Name','Vorname','Geschlecht','Nationalität']];campBeds().forEach(b=>{const p=b.qmm&&person(b.qmm);rows.push([p&&p.om||'',p?p.qmm:'',areaName(b.area),b.room,b.status,p?p.name:'',p?p.vorname:'',p?p.g:'',p?p.nat:''])})}
   else if(type==='anwesenheit'){const L={a:'anwesend',b:'abwesend',c:'sonstiges'};rows=[['Bereich','Bett','QMM','Name','Vorname','Status heute','Sonderstatus','Tage abwesend']];activePeople().forEach(p=>{const b=bed(p.bed);rows.push([areaName(b.area),b.room,p.qmm,p.name,p.vorname,S.att[p.qmm]?L[S.att[p.qmm]]:'offen',S.att[p.qmm]==='c'?(p.other||''):'',daysAway(p)])})}
   else{rows=[['Zeit','Art','QMM','Vorgang','Durch']];periodLogs(UI.per||7).sort((a,b)=>b.t-a.t).forEach(l=>rows.push([fmtT(l.t),l.type,l.qmm||'',l.text,l.by]))}
   const u=URL.createObjectURL(new Blob(['﻿'+rows.map(r=>r.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download=type+'_'+iso(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('CSV-Datei heruntergeladen')}
@@ -1177,7 +1178,10 @@ function downloadCsv(type){const cell=v=>{const s=String(v??'');return /[";\n]/.
 /* ---------- Stammdaten, Datenauskunft, Löschung ---------- */
 function editSheet(q){const p=person(q);const opt=(list,v)=>(v&&!list.includes(v)?[v,...list]:list).map(x=>`<option ${x===v?'selected':''}>${esc(x)}</option>`).join('');
   openSheet(`<div class="sheet-h"><div><h2>Stammdaten bearbeiten</h2><p class="hint">Änderungen werden mit Name und Zeit protokolliert.</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
-  <label class="f">QMM-Nummer<input id="ed-qmm" type="text" inputmode="numeric" value="${esc(p.qmm)}"></label>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+   <label class="f">OM-Nr.<input id="ed-om" type="text" value="${esc(p.om||'')}"></label>
+   <label class="f">QMM-Nummer<input id="ed-qmm" type="text" inputmode="numeric" value="${esc(p.qmm)}"></label>
+  </div>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
    <label class="f">Name<input id="ed-name" type="text" value="${esc(p.name)}"></label>
    <label class="f">Vorname<input id="ed-vorname" type="text" value="${esc(p.vorname)}"></label>
@@ -1191,9 +1195,9 @@ function saveEdit(q){const p=person(q);const v=k=>(document.getElementById('ed-'
   if(!/^\d{5,9}$/.test(nq)){toast('Die QMM-Nummer muss aus 5 bis 9 Ziffern bestehen');return}
   if(!v('name')||!v('vorname')){toast('Bitte Name und Vorname angeben');return}
   if(nq!==q&&S.people[nq]){toast('Diese QMM ist bereits vergeben');return}
-  const next={qmm:nq,name:v('name'),vorname:v('vorname'),geb:v('geb'),g:v('g'),nat:v('nat'),lang:v('lang')};
-  const L={qmm:'QMM',name:'Name',vorname:'Vorname',geb:'Geburtsdatum',g:'Geschlecht',nat:'Nationalität',lang:'Sprache'};
-  const changed=Object.keys(next).filter(k=>next[k]!==p[k]);if(!changed.length){closeSheet();toast('Keine Änderungen');return}
+  const next={om:v('om'),qmm:nq,name:v('name'),vorname:v('vorname'),geb:v('geb'),g:v('g'),nat:v('nat'),lang:v('lang')};
+  const L={om:'OM-Nr.',qmm:'QMM',name:'Name',vorname:'Vorname',geb:'Geburtsdatum',g:'Geschlecht',nat:'Nationalität',lang:'Sprache'};
+  const changed=Object.keys(next).filter(k=>next[k]!==(p[k]||''));if(!changed.length){closeSheet();toast('Keine Änderungen');return}
   Object.assign(p,next);
   if(nq!==q){delete S.people[q];S.people[nq]=p;if(p.bed){const b=bed(p.bed);if(b)b.qmm=nq}if(S.att[q]){S.att[nq]=S.att[q];delete S.att[q]}S.log.forEach(l=>{if(l.qmm===q)l.qmm=nq});S.things.forEach(x=>{if(x.qmm===q)x.qmm=nq});S.incidents.forEach(x=>(x.resList||[]).forEach(r=>{if(r.qmm===q)r.qmm=nq}));UI.akte=nq}
   addLog('STAMMDATEN',nq,'Stammdaten geändert: '+changed.map(k=>L[k]).join(', '));save();closeSheet();render();toast('Stammdaten gespeichert')}
@@ -1201,14 +1205,14 @@ function anonymize(q){const p=person(q);const k='X-'+(S.nextId++);delete S.att[q
   S.incidents.forEach(x=>{x.resList=(x.resList||[]).map(r=>r.qmm===q?{qmm:'–',name:'Anonymisiert',vorname:'',room:'',geb:'',nat:'',lang:''}:r);if(x.res&&x.res.qmm===q)x.res=x.resList[0]});
   S.things.forEach(x=>{if(x.qmm===q&&x.state!=='eingelagert'){x.name='Anonymisiert';x.qmm='';x.photo=null}});
   S.log.forEach(l=>{if(l.qmm===q)l.qmm=null});
-  delete S.people[q];S.people[k]=Object.assign(p,{qmm:k,name:'Anonymisiert',vorname:'',geb:'',g:'',nat:'',lang:'',other:null,anon:Date.now()});return k}
+  delete S.people[q];S.people[k]=Object.assign(p,{om:'',qmm:k,name:'Anonymisiert',vorname:'',geb:'',g:'',nat:'',lang:'',other:null,anon:Date.now()});return k}
 function anonSheet(q){openSheet(`<div class="sheet-h"><div><h2>Daten auf Antrag löschen</h2><p class="hint">Recht auf Löschung (Art. 17 DSGVO)</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
   <p style="margin:0">Name, QMM, Geburtsdatum, Nationalität, Sprache und die Anwesenheitsdaten werden endgültig entfernt. Umbuchungen und Berichte bleiben ohne Namen für die Statistik erhalten. <b>Das kann nicht rückgängig gemacht werden.</b></p>
   <label class="f">Zur Bestätigung LÖSCHEN eingeben<input id="anon-c" type="text"></label>
   <button type="button" class="btn danger block" data-act="anondo" data-q="${esc(q)}">Endgültig löschen</button>`)}
 function auskunftHTML(p){const hist=S.log.filter(l=>l.qmm===p.qmm).sort((a,b)=>b.t-a.t);const inc=S.incidents.filter(x=>(x.resList||[x.res]).some(r=>r&&r.qmm===p.qmm));const th=S.things.filter(x=>x.qmm===p.qmm);const M={a:'anwesend',b:'abwesend',c:'sonstiges'};
   return `<div class="sheet-h"><div><h2>Auskunft über gespeicherte Daten</h2><p class="hint">nach Art. 15 DSGVO · Stand ${fmtT(Date.now())} · erstellt von ${ME.name}</p></div><button type="button" class="x no-print" data-act="close" aria-label="Schließen">${IC.x}</button></div>
-  <div class="table-wrap"><table class="rep-table doc-table">${[['QMM',p.qmm],['Name, Vorname',p.name+', '+p.vorname],['Geburtsdatum',fmt(p.geb)],['Geschlecht',p.g],['Nationalität',p.nat],['Muttersprache',p.lang],['Aufnahme',fmt(p.since)],['Unterbringung',p.active?bedLabel(S.beds,p.bed):'ausgezogen'+(p.out?' · '+fmt(p.out)+' · '+(p.outReason||''):'')],['Anwesenheit heute',S.att[p.qmm]?M[S.att[p.qmm]]:'nicht kontrolliert']].map(([k,v])=>`<tr><th>${k}</th><td>${esc(v)}</td></tr>`).join('')}</table></div>
+  <div class="table-wrap"><table class="rep-table doc-table">${[['OM-Nr.',p.om||'–'],['QMM',p.qmm],['Name, Vorname',p.name+', '+p.vorname],['Geburtsdatum',fmt(p.geb)],['Geschlecht',p.g],['Nationalität',p.nat],['Muttersprache',p.lang],['Aufnahme',fmt(p.since)],['Unterbringung',p.active?bedLabel(S.beds,p.bed):'ausgezogen'+(p.out?' · '+fmt(p.out)+' · '+(p.outReason||''):'')],['Anwesenheit heute',S.att[p.qmm]?M[S.att[p.qmm]]:'nicht kontrolliert']].map(([k,v])=>`<tr><th>${k}</th><td>${esc(v)}</td></tr>`).join('')}</table></div>
   <h3 style="font-size:16px">Verlauf (${hist.length})</h3><div class="table-wrap"><table class="rep-table"><tr><th>Zeit</th><th>Art</th><th>Vorgang</th><th>Durch</th></tr>${hist.map(l=>`<tr><td>${fmtT(l.t)}</td><td>${l.type}</td><td>${esc(l.text)}</td><td>${esc(l.by)}</td></tr>`).join('')}</table></div>
   <h3 style="font-size:16px">Berichte (${inc.length})</h3>${inc.map(x=>{const t=S.templates.find(y=>y.id===x.tpl)||{name:'Bericht'};return `<p style="margin:0"><b>${esc(t.name)}</b> · ${fmtT(x.when)} · ${esc(x.shift)} · ${esc(x.by)}</p>`}).join('')||'<p class="hint">Keine Berichte.</p>'}
   <h3 style="font-size:16px">Eingelagerte Sachen (${th.length})</h3>${th.map(x=>`<p style="margin:0">${fmt(x.t)} · ${esc(x.items)} · ${esc(x.store)} · ${x.state}</p>`).join('')||'<p class="hint">Keine Einträge.</p>'}
@@ -1219,7 +1223,7 @@ function privacyPanel(){const anon=Object.values(S.people).filter(p=>p.anon).len
    <p style="margin:0">Solange keine Freigabe vorliegt, arbeitet das System nur mit Gebäuden, Zimmern und Betten. <b>Neuaufnahme</b> und <b>Import von Bewohnerdaten</b> sind gesperrt.</p>
    <p class="hint">${S.dsgvo.approved?'Freigegeben':'Zuletzt geändert'} von ${esc(S.dsgvo.by)} am ${fmtT(S.dsgvo.at)}</p>
    ${S.dsgvo.approved?'<button type="button" class="btn danger" style="align-self:flex-start" data-act="dsgvoOff">Freigabe zurücknehmen</button>':`<div class="warnbox" style="display:flex;flex-direction:column;gap:8px"><span>Erst freigeben, wenn die Zustimmung der Leitung und des Datenschutzbeauftragten schriftlich vorliegt.</span><div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap"><label class="f" style="flex:1 1 200px">Zur Bestätigung FREIGEBEN eingeben<input id="dsgvo-c" type="text"></label><button type="button" class="btn primary" data-act="dsgvoOn">Bewohnerdaten freigeben</button></div></div>`}
-   <div class="rm-box" style="margin-top:6px"><b>Löschfrist nach Auszug</b><span class="hint">Nach Ablauf werden Name, QMM, Geburtsdatum, Nationalität, Sprache und Anwesenheitsdaten ausgezogener Personen automatisch entfernt (täglich geprüft). Zahlen für die Statistik bleiben anonym erhalten. Bisher anonymisiert: ${anon}.</span>
+   <div class="rm-box" style="margin-top:6px"><b>Löschfrist nach Auszug</b><span class="hint">Nach Ablauf werden Name, OM-Nr., QMM, Geburtsdatum, Nationalität, Sprache und Anwesenheitsdaten ausgezogener Personen automatisch entfernt (täglich geprüft). Zahlen für die Statistik bleiben anonym erhalten. Bisher anonymisiert: ${anon}.</span>
     <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap"><label class="f">Frist<select id="ret-m"><option value="0" ${!S.retention?'selected':''}>Keine automatische Löschung</option>${[3,6,12,24,36].map(m=>`<option value="${m}" ${S.retention===m?'selected':''}>${m} Monate</option>`).join('')}</select></label>
     ${S.retention?`<button type="button" class="btn" data-act="retrun" ${due?'':'disabled'}>${due?due+' fällige jetzt anonymisieren':'Keine fälligen Daten'}</button>`:''}</div>
     <span class="hint">Die richtige Frist legt die Leitung zusammen mit dem Datenschutzbeauftragten fest. Einzelne Löschungen auf Antrag: in der Akte der Person.</span></div>
@@ -1577,7 +1581,7 @@ document.addEventListener('click',e=>{
    case 'tdone':{const d=S.defects.find(x=>x.id==t.dataset.id);d.state='erledigt';if(d.lock){S.beds.filter(b=>b.area===d.area&&b.room.startsWith(d.place+'.')&&b.status==='Gesperrt'&&(b.note||'').endsWith('(Mangel '+d.id+')')).forEach(b=>{b.status='Frei';b.note=''})}addLog('MANGEL',null,d.area+' · '+d.place+': erledigt');save();render();toast('Mangel erledigt'+(d.lock?' – Zimmer freigegeben':''));break}
    case 'nabed':UI.na.bed=t.dataset.b;render();break;
    case 'nasave':{const n=UI.na;const b=bed(n.bed);const q=n.qmm.trim();
-      S.people[q]={qmm:q,name:n.name.trim(),vorname:n.vorname.trim(),geb:n.geb||'2000-01-01',nat:n.nat||NATS[0],lang:n.lang||LANGS[NATS[0]],g:n.g||'Männlich',since:iso(today),active:true,bed:b.id,lastSeen:0,other:null};
+      S.people[q]={om:(n.om||'').trim(),qmm:q,name:n.name.trim(),vorname:n.vorname.trim(),geb:n.geb||'2000-01-01',nat:n.nat||NATS[0],lang:n.lang||LANGS[NATS[0]],g:n.g||'Männlich',since:iso(today),active:true,bed:b.id,lastSeen:0,other:null};
       b.status='Belegt';b.qmm=q;addLog('NEUAUFNAHME',q,'Aufgenommen in '+bedLabel(S.beds,b.id));UI.na={};save();UI.akte=q;toast('Aufgenommen – Bett '+bedLabel(S.beds,b.id));go('akte');break}
    case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
    case 'per':UI.per=+t.dataset.d;render();break;
