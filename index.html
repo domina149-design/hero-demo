@@ -406,7 +406,7 @@ function seed(){
     if(st==='Belegt'){
       const rk=area+'|'+room.replace(/\.[^.]*$/,'');if(!roomNat[rk])roomNat[rk]=NATS[Math.floor(r()*NATS.length)];const nat=r()<.85?roomNat[rk]:NATS[Math.floor(r()*NATS.length)]; const id=String(q++);
       const since=dAgo(5+Math.floor(r()*120));
-      people[id]={om:String(10421+(+id-2600001)).padStart(6,'0'), qmm:id, name:'Testperson', vorname:id.slice(-3), geb:iso(new Date(1960+Math.floor(r()*45),Math.floor(r()*12),1+Math.floor(r()*27))), nat, lang:LANGS[nat], g:area==='H12'?'Weiblich':(r()<.72?'Männlich':'Weiblich'), since:iso(since), active:true, bed:bed.id, lastSeen:0, other:null};
+      people[id]={om:String(26000010421+(+id-2600001)), qmm:id, name:'Testperson', vorname:id.slice(-3), geb:iso(new Date(1960+Math.floor(r()*45),Math.floor(r()*12),1+Math.floor(r()*27))), nat, lang:LANGS[nat], g:area==='H12'?'Weiblich':(r()<.72?'Männlich':'Weiblich'), since:iso(since), active:true, bed:bed.id, lastSeen:0, other:null};
       log.push({t:+since+9*3600e3, type:'NEUAUFNAHME', qmm:id, text:'Aufgenommen in '+area+' · '+room, by:'Aufnahme'});
       bed.qmm=id;
     }
@@ -715,11 +715,13 @@ function naView(){
   const n=UI.na; n.area=n.area||(areasCur()[0]||{}).id;
   const qmm=(n.qmm||'').trim(); const dup=qmm&&S.people[qmm]&&S.people[qmm].active?S.people[qmm]:null;
   const free=areaBeds(n.area).filter(b=>b.status==='Frei');
-  const valid=qmm&&/^\d{5,9}$/.test(qmm)&&!dup&&(n.name||'').trim()&&(n.vorname||'').trim()&&n.bed;
+  const om=(n.om||'').trim();const omBad=!!om&&!/^\d{11}$/.test(om);const omDup=om&&!omBad?Object.values(S.people).find(x=>x.active&&x.om===om):null;
+  const valid=qmm&&/^\d{5,9}$/.test(qmm)&&!dup&&!omBad&&!omDup&&(n.name||'').trim()&&(n.vorname||'').trim()&&n.bed;
   return `<div class="page-head"><div><div class="sub">Neue Person aufnehmen</div><h1>Neuaufnahme</h1></div></div>
   <div class="two">
    <section class="card panel" aria-labelledby="na1"><div class="panel-h"><h2 id="na1">1 · Person</h2></div>
-    <label class="f">OM-Nr.<input id="na-om" type="text" value="${esc(n.om||'')}" placeholder="z. B. 010421"></label>
+    <label class="f">OM-Nummer<input id="na-om" type="text" inputmode="numeric" maxlength="11" value="${esc(n.om||'')}" placeholder="11 Ziffern" ${omBad||omDup?'aria-invalid="true" style="border:2px solid var(--bad)"':''}></label>
+    ${omBad?`<p class="hint" style="color:var(--bad)">Noch ${11-om.length} Ziffern – die OM-Nummer hat genau 11 Ziffern.</p>`:omDup?`<div class="err" role="alert">Diese OM-Nummer ist bereits vergeben: <b>${esc(omDup.name)} ${esc(omDup.vorname)}</b>.</div>`:''}
     <label class="f">QMM-Nummer *<input id="na-qmm" type="text" inputmode="numeric" value="${esc(n.qmm||'')}" ${dup?'aria-invalid="true" style="border:2px solid var(--bad)"':''} placeholder="z. B. 2609999"></label>
     ${dup?`<div class="err" role="alert">Diese QMM ist bereits vergeben: <b>${esc(dup.name)} ${esc(dup.vorname)}</b> · ${bedLabel(S.beds,dup.bed)}. <button type="button" class="linkish" data-act="akte" data-q="${dup.qmm}">Akte öffnen</button></div>`:qmm&&/^\d{5,9}$/.test(qmm)?'<div class="okmsg">QMM ist frei.</div>':'<p class="hint">Tipp: Geben Sie zum Test 2600001 ein – diese Nummer ist schon vergeben.</p>'}
     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px">
@@ -1111,7 +1113,7 @@ function impParse(sheets){let best=null;
   const M=best.map,areas={},seen=new Set();let dup=0,resRows=0;const rows=[];
   best.data.forEach(x=>{const an=impCell(x[M.area]),bn=impCell(x[M.room]);const k=an.toLowerCase()+'|'+bn.toLowerCase();if(seen.has(k)){dup++;return}seen.add(k);
     const st=ST_NORM[impCell(M.status!=null?x[M.status]:'').toLowerCase()]||'Frei';
-    const res=(M.qmm!=null&&M.name!=null&&impCell(x[M.qmm])&&impCell(x[M.name]))?{om:M.om!=null?impCell(x[M.om]):'',qmm:impCell(x[M.qmm]),name:impCell(x[M.name]),vorname:M.vorname!=null?impCell(x[M.vorname]):'',geb:M.geb!=null?impDate(x[M.geb]):'',nat:M.nat!=null?impCell(x[M.nat]):'',lang:M.lang!=null?impCell(x[M.lang]):'',g:M.g!=null?impCell(x[M.g]):''}:null;
+    const res=(M.qmm!=null&&M.name!=null&&impCell(x[M.qmm])&&impCell(x[M.name]))?{om:M.om!=null?(d=>d.length===11?d:'')((typeof x[M.om]==='number'?x[M.om].toFixed(0):String(x[M.om]??'')).replace(/\D/g,'')):'',qmm:impCell(x[M.qmm]),name:impCell(x[M.name]),vorname:M.vorname!=null?impCell(x[M.vorname]):'',geb:M.geb!=null?impDate(x[M.geb]):'',nat:M.nat!=null?impCell(x[M.nat]):'',lang:M.lang!=null?impCell(x[M.lang]):'',g:M.g!=null?impCell(x[M.g]):''}:null;
     if(res)resRows++;
     const A=areas[an]||(areas[an]={rooms:new Set(),beds:0,st:{}});A.rooms.add(bn.includes('.')?bn.replace(/\.[^.]*$/,''):bn);A.beds++;A.st[st]=(A.st[st]||0)+1;
     rows.push({an,bn,st,res})});
@@ -1179,7 +1181,7 @@ function downloadCsv(type){const cell=v=>{const s=String(v??'');return /[";\n]/.
 function editSheet(q){const p=person(q);const opt=(list,v)=>(v&&!list.includes(v)?[v,...list]:list).map(x=>`<option ${x===v?'selected':''}>${esc(x)}</option>`).join('');
   openSheet(`<div class="sheet-h"><div><h2>Stammdaten bearbeiten</h2><p class="hint">Änderungen werden mit Name und Zeit protokolliert.</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
-   <label class="f">OM-Nr.<input id="ed-om" type="text" value="${esc(p.om||'')}"></label>
+   <label class="f">OM-Nummer<input id="ed-om" type="text" inputmode="numeric" maxlength="11" placeholder="11 Ziffern" value="${esc(p.om||'')}"></label>
    <label class="f">QMM-Nummer<input id="ed-qmm" type="text" inputmode="numeric" value="${esc(p.qmm)}"></label>
   </div>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
@@ -1195,7 +1197,9 @@ function saveEdit(q){const p=person(q);const v=k=>(document.getElementById('ed-'
   if(!/^\d{5,9}$/.test(nq)){toast('Die QMM-Nummer muss aus 5 bis 9 Ziffern bestehen');return}
   if(!v('name')||!v('vorname')){toast('Bitte Name und Vorname angeben');return}
   if(nq!==q&&S.people[nq]){toast('Diese QMM ist bereits vergeben');return}
-  const next={om:v('om'),qmm:nq,name:v('name'),vorname:v('vorname'),geb:v('geb'),g:v('g'),nat:v('nat'),lang:v('lang')};
+  const om=v('om').replace(/\D/g,'');if(om&&om.length!==11){toast('Die OM-Nummer muss aus genau 11 Ziffern bestehen');return}
+  const omDup=om&&Object.values(S.people).find(x=>x!==p&&x.active&&x.om===om);if(omDup){toast('Diese OM-Nummer ist bereits vergeben');return}
+  const next={om,qmm:nq,name:v('name'),vorname:v('vorname'),geb:v('geb'),g:v('g'),nat:v('nat'),lang:v('lang')};
   const L={om:'OM-Nr.',qmm:'QMM',name:'Name',vorname:'Vorname',geb:'Geburtsdatum',g:'Geschlecht',nat:'Nationalität',lang:'Sprache'};
   const changed=Object.keys(next).filter(k=>next[k]!==(p[k]||''));if(!changed.length){closeSheet();toast('Keine Änderungen');return}
   Object.assign(p,next);
@@ -1646,7 +1650,7 @@ document.addEventListener('input',e=>{const id=e.target.id;
   if(id==='ar-name'&&UI.arE)UI.arE.name=e.target.value;
   if(id==='pr-q'){UI.pr.q=e.target.value;UI.pr.page=1;const pos=e.target.selectionStart;render();const el=document.getElementById('pr-q');el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
   if(id==='bq'){UI.q=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById('bq');el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
-  if(id&&id.startsWith('na-')&&e.target.tagName==='INPUT'&&e.target.type==='text'){UI.na[id.slice(3)]=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById(id);el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
+  if(id&&id.startsWith('na-')&&e.target.tagName==='INPUT'&&e.target.type==='text'){UI.na[id.slice(3)]=id==='na-om'?e.target.value.replace(/\D/g,'').slice(0,11):e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById(id);el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}
   if(id==='t-text'){UI.tech.text=e.target.value;const btn=document.querySelector('[data-act="tsave"]');if(btn)btn.disabled=!(UI.tech.place&&UI.tech.text.trim())}
   if(id==='rep-to'){UI.rep.to=e.target.value;const btn=document.querySelector('[data-act="repsend"]');if(btn)btn.disabled=!UI.rep.to.trim()}
   if(id==='inc-q'){UI.inc.q=e.target.value;incRedraw('inc-q')}
