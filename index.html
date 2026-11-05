@@ -346,8 +346,12 @@ tr.alert-row{background:var(--bad-bg)}
 .filterbar .search{flex:1 1 240px}
 .anon{background:var(--surface-2);border-radius:10px;padding:12px 14px;font-size:15px}
 .dangerbox{border:1px solid var(--bad);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+@page{size:A4 portrait;margin:8mm}
 @media print{
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .fit-print{padding:0!important;gap:12px!important}
+  .fit-print .bs-nat{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important}
+  .fit-print .bs-nat td{padding-top:2px!important;padding-bottom:2px!important;font-size:13px}
   .side,.tabbar,.topbar,.demo-bar,.no-print,.sticky-foot{display:none!important}
   body{background:#fff}
   .content{padding:0!important;max-width:none}
@@ -1158,7 +1162,11 @@ function importPanel(){return `<section class="card panel"><div class="panel-h">
 
 /* ---------- Filterwerte, Druck, Export ---------- */
 function personOptions(){const ap=activePeople();return {g:[...new Set(ap.map(p=>p.g).filter(Boolean))].sort(),n:[...new Set(ap.map(p=>p.nat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'))}}
-function printSheet(){document.body.classList.add('print-sheet');window.print();setTimeout(()=>document.body.classList.remove('print-sheet'),500)}
+function printSheet(){const sh=document.querySelector('.sheet');const fit=sh&&sh.querySelector('.bs-wide');
+  document.body.classList.add('print-sheet');
+  if(fit){sh.style.zoom='1';sh.style.width='1000px';sh.style.maxWidth='none';sh.classList.add('fit-print');sh.style.zoom=String(Math.min(733/1000,1050/sh.scrollHeight))}
+  window.print();
+  setTimeout(()=>{document.body.classList.remove('print-sheet');if(fit){sh.style.zoom='';sh.style.width='';sh.style.maxWidth='';sh.classList.remove('fit-print')}},500)}
 function incMailto(x){const t=S.templates.find(y=>y.id===x.tpl)||{name:'Bericht',fields:[]};const lines=[t.name+' – '+campName(x.camp||'c1'),'Vorfall: '+fmtT(x.when)+' ('+x.shift+')'];(x.resList||[x.res].filter(Boolean)).forEach(r=>lines.push('Person: '+r.name+' '+r.vorname+', QMM '+r.qmm+', '+r.room));t.fields.forEach(([k,l])=>{const v=x.vals[k];if(v&&(!Array.isArray(v)||v.length))lines.push(l+': '+[].concat(v).join(', '))});lines.push('Erstellt: '+fmtT(x.created)+' von '+x.by);return 'mailto:?subject='+encodeURIComponent(t.name+' – '+fmt(x.when))+'&body='+encodeURIComponent(lines.join('\n'))}
 function downloadCsv(type){const cell=v=>{const s=String(v??'');return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};let rows=[];
   if(type==='belegung'){rows=[['Bereich','Raum Nr','Raum Status','QMM','Name','Vorname','Geschlecht','Nationalität']];campBeds().forEach(b=>{const p=b.qmm&&person(b.qmm);rows.push([areaName(b.area),b.room,b.status,p?p.qmm:'',p?p.name:'',p?p.vorname:'',p?p.g:'',p?p.nat:''])})}
@@ -1265,7 +1273,7 @@ function bstandHTML(withHead){const d=bstandData();const stamp=new Date().toLoca
    <tfoot><tr style="background:var(--accent);color:var(--on-accent)"><td style="padding:10px;font-weight:700">Belegungsanzahl</td><td style="padding:10px;text-align:right;font-size:18px;font-weight:800">${d.belegt}</td><td style="padding:10px;text-align:right;font-size:18px;font-weight:800">${d.frei}</td><td style="padding:10px;font-weight:700">Freie Betten gesamt</td><td style="padding:10px;text-align:right;font-size:18px;font-weight:800">${d.leer}</td></tr></tfoot></table></div>
   <p class="hint">Beispiel: „64 × 2“ bedeutet 64 Zimmer mit je 2 freien Betten = 128 freie Betten. Als frei zählen nur Betten mit Status „Frei“.</p>
   <h3 style="font-size:17px">Freie Betten nach Nationalität der Mitbewohner</h3><p class="hint" style="margin-top:-8px">Freie Betten in teilbelegten Zimmern, nach der Nationalität, die dort wohnt – hilft bei der passenden Zuweisung.</p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px">${d.rows.filter(r=>r.frei>0).map(r=>`<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden"><div style="background:var(--accent);color:var(--on-accent);padding:6px 10px;font-size:14px;font-weight:700;display:flex;justify-content:space-between"><span>${esc(r.name)}</span><span>${r.zg||'–'}</span></div><table style="font-size:14px">${r.nat.map(([n,v])=>`<tr><td style="padding:4px 10px;border-top:1px solid var(--line)">${esc(n)}</td><td style="padding:4px 10px;border-top:1px solid var(--line);text-align:right;font-weight:700">${v}</td></tr>`).join('')}${r.inLeer?`<tr style="background:var(--ok-bg)"><td style="padding:4px 10px;border-top:1px solid var(--line);color:var(--ok);font-weight:600">In Zimmern ohne Bewohner</td><td style="padding:4px 10px;border-top:1px solid var(--line);text-align:right;font-weight:700;color:var(--ok)">${r.inLeer}</td></tr>`:''}</table></div>`).join('')}</div>
+  <div class="bs-nat" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px;align-items:start">${d.rows.filter(r=>r.frei>0).map(r=>`<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden"><div style="background:var(--accent);color:var(--on-accent);padding:6px 10px;font-size:14px;font-weight:700;display:flex;justify-content:space-between"><span>${esc(r.name)}</span><span>${r.zg||'–'}</span></div><table style="font-size:14px">${r.nat.map(([n,v])=>`<tr><td style="padding:4px 10px;border-top:1px solid var(--line)">${esc(n)}</td><td style="padding:4px 10px;border-top:1px solid var(--line);text-align:right;font-weight:700">${v}</td></tr>`).join('')}${r.inLeer?`<tr style="background:var(--ok-bg)"><td style="padding:4px 10px;border-top:1px solid var(--line);color:var(--ok);font-weight:600">In Zimmern ohne Bewohner</td><td style="padding:4px 10px;border-top:1px solid var(--line);text-align:right;font-weight:700;color:var(--ok)">${r.inLeer}</td></tr>`:''}</table></div>`).join('')}</div>
   ${withHead?`<div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="printsheet">Drucken / als PDF speichern</button><button type="button" class="btn" data-act="bsmail">Per E-Mail senden</button><button type="button" class="btn" data-act="bscopy">Text für Teams kopieren</button><button type="button" class="btn" data-act="bscsv">Als Excel (CSV)</button></div>`:''}`}
 
 /* ---------- Kleiderkammer ---------- */
