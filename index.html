@@ -341,11 +341,13 @@ tr.alert-row{background:var(--bad-bg)}
 .inc-row{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;color:inherit;font:inherit}
 .doc-table th{width:38%;color:var(--muted);font-size:13px;text-transform:none;letter-spacing:0;vertical-align:top}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.sheet:has(.bs-wide){max-width:1000px}
 .filterbar{padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
 .filterbar .search{flex:1 1 240px}
 .anon{background:var(--surface-2);border-radius:10px;padding:12px 14px;font-size:15px}
 .dangerbox{border:1px solid var(--bad);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 @media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .side,.tabbar,.topbar,.demo-bar,.no-print,.sticky-foot{display:none!important}
   body{background:#fff}
   .content{padding:0!important;max-width:none}
@@ -378,7 +380,7 @@ const AREA_IDS=Object.keys(LUK_STRUCT);
 const STATUSES=['Frei','Belegt','Reinigen','Reserviert','Gesperrt','Nicht frei','Lager'];
 const NATS=['Afghanistan','Syrien','Irak','Türkei','Eritrea','Iran','Algerien','Georgien','Somalia','Ukraine'];
 const LANGS={Afghanistan:'Dari',Syrien:'Arabisch',Irak:'Arabisch','Türkei':'Türkisch',Eritrea:'Tigrinya',Iran:'Persisch',Algerien:'Arabisch',Georgien:'Georgisch',Somalia:'Somali',Ukraine:'Ukrainisch'};
-const KEY='hero-bms-demo-v7';
+const KEY='hero-bms-demo-v8';
 const REAL=false, REAL_STRUCT=null;
 function pad(n){return String(n).padStart(2,'0')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -394,11 +396,11 @@ function realSeed(){const beds=[],areas=[];Object.entries(REAL_STRUCT).forEach((
 function seed(){
   if(REAL)return realSeed();
   const r=rnd(42); const beds=[]; const people={}; const log=[]; let q=2600001;
-  const NOTES=['Wasserschaden','Renovierung','Schimmel','Heizung defekt','Fenster defekt'];let gi=0;
+  const roomNat={};const NOTES=['Wasserschaden','Renovierung','Schimmel','Heizung defekt','Fenster defekt'];let gi=0;
   Object.entries(LUK_STRUCT).forEach(([area,list])=>list.forEach(([room,st])=>{
     const bed={id:area+'|'+room, area, room, status:st, qmm:null, note: st==='Gesperrt'?NOTES[(gi++)%NOTES.length]:''};
     if(st==='Belegt'){
-      const nat=NATS[Math.floor(r()*NATS.length)]; const id=String(q++);
+      const rk=area+'|'+room.replace(/\.[^.]*$/,'');if(!roomNat[rk])roomNat[rk]=NATS[Math.floor(r()*NATS.length)];const nat=r()<.85?roomNat[rk]:NATS[Math.floor(r()*NATS.length)]; const id=String(q++);
       const since=dAgo(5+Math.floor(r()*120));
       people[id]={qmm:id, name:'Testperson', vorname:id.slice(-3), geb:iso(new Date(1960+Math.floor(r()*45),Math.floor(r()*12),1+Math.floor(r()*27))), nat, lang:LANGS[nat], g:area==='H12'?'Weiblich':(r()<.72?'Männlich':'Weiblich'), since:iso(since), active:true, bed:bed.id, lastSeen:0, other:null};
       log.push({t:+since+9*3600e3, type:'NEUAUFNAHME', qmm:id, text:'Aufgenommen in '+area+' · '+room, by:'Aufnahme'});
@@ -431,7 +433,7 @@ function seed(){
   const attHist={};
   for(let d=1;d<=14;d++){attHist[iso(dAgo(d))]=Math.round(86+r()*11)}
   const camps=[{id:'c1',name:'LUK Bad Segeberg',ort:'Bad Segeberg'}];
-  const areas=AREA_IDS.map(id=>({id,camp:'c1',name:id,rooms:[...new Set(LUK_STRUCT[id].map(([b])=>b.replace(/\.[^.]*$/,'')))]}));
+  const areas=AREA_IDS.map(id=>({id,camp:'c1',name:id,zg:id==='H12'?'Frauen':'Männer',rooms:[...new Set(LUK_STRUCT[id].map(([b])=>b.replace(/\.[^.]*$/,'')))]}));
   const reports=[{id:1,type:'Tagesbericht Anwesenheit',to:'Einrichtungsleitung',plan:'täglich 08:00',t:now-20*3600e3}];
   const things=[
     {id:1,name:'Testperson 211',qmm:'2600211',area:'F1',room:'L17.1',reason:'JVA',items:'1 Koffer, private Unterlagen',store:'Lager F1',t:+dAgo(9),state:'eingelagert',photo:null,camp:'c1'},
@@ -633,7 +635,7 @@ function belegungView(){
   const rows=bs.map(b=>{const p=b.qmm&&person(b.qmm);const pr=presence(p);const al=p&&daysAway(p)>3;
     const act=p?`<button type="button" class="btn soft" data-act="move" data-q="${p.qmm}">Umbuchen</button><button type="button" class="btn danger" data-act="out" data-q="${p.qmm}">Auszug</button>`:`<button type="button" class="btn" data-act="status" data-b="${b.id}">Status ändern</button>`;
     return {b,p,pr,al,act}});
-  return `<div class="page-head"><div><div class="sub">${st.total} Betten · ${st.belegt} belegt · ${st.frei} frei</div><h1>Belegung · ${all?'alle Gebäude':esc(areaName(a))}</h1></div><a class="btn primary" href="#neuaufnahme">${IC.plus}Neuaufnahme</a></div>
+  return `<div class="page-head"><div><div class="sub">${st.total} Betten · ${st.belegt} belegt · ${st.frei} frei</div><h1>Belegung · ${all?'alle Gebäude':esc(areaName(a))}</h1></div><span style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="bstand">Belegungsstand</button><a class="btn primary" href="#neuaufnahme">${IC.plus}Neuaufnahme</a></span></div>
   <div class="chips" role="group" aria-label="Bereich">${areasCur().map(x=>`<button type="button" class="chip" aria-pressed="${x.id===a}" data-act="area" data-area="${x.id}">${esc(x.name)}</button>`).join('')}<button type="button" class="chip" aria-pressed="${all}" data-act="area" data-area="alle">Alle</button></div>
   <div class="card filterbar"><label class="search">${IC.search}<input id="bq" type="search" placeholder="QMM, Name oder Zimmer" value="${esc(UI.q)}" aria-label="Suchen"></label>
    <label class="f">Zimmerstatus<select id="bst">${['Alle',...STATUSES].map(s=>`<option ${s===UI.stFilter?'selected':''}>${s}</option>`).join('')}</select></label>
@@ -770,7 +772,7 @@ function akteView(){
 }
 
 /* ---------- Berichte & Statistik ---------- */
-const REPORTS=['Tagesbericht Anwesenheit','Wochenbericht Belegung','Bewegungsprotokoll','Mängelbericht'];
+const REPORTS=['Belegungsstand','Tagesbericht Anwesenheit','Wochenbericht Belegung','Bewegungsprotokoll','Mängelbericht'];
 function hbars(items,max,fmtV){return `<div class="hbars">${items.map(([l,v,extra])=>`<div class="hb"><span>${esc(l)}</span><span class="tr"><i style="width:${max?Math.round(v/max*100):0}%"></i></span><b>${fmtV?fmtV(v,extra):v}</b></div>`).join('')||'<p class="empty">Noch keine Daten.</p>'}</div>`}
 function periodLogs(days){const from=+dAgo(days);return S.log.filter(l=>l.t>=from&&logCamp(l)===S.camp)}
 function attRateToday(){const ap=activePeople();const a=ap.filter(p=>S.att[p.qmm]==='a'||S.att[p.qmm]==='c').length;const done=ap.filter(p=>S.att[p.qmm]).length;return done?Math.round(a/done*100):null}
@@ -785,7 +787,7 @@ function berichteView(){
   const R=UI.rep||(UI.rep={type:REPORTS[0],to:'einrichtungsleitung@[firma].de',plan:'Einmalig, jetzt',fmt:'PDF'});
   const myReports=S.reports.filter(x=>(x.camp||'c1')===S.camp).slice().reverse();
   return `<div class="page-head"><div><div class="sub">${esc(campName(S.camp))} · Auswertungen</div><h1>Statistik und Auswertungen</h1></div>
-   <div class="chips" role="group" aria-label="Zeitraum">${[7,30].map(d=>`<button type="button" class="chip" aria-pressed="${per===d}" data-act="per" data-d="${d}">${d} Tage</button>`).join('')}</div></div>
+   <span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="btn primary" data-act="bstand">Belegungsstand</button><div class="chips" role="group" aria-label="Zeitraum">${[7,30].map(d=>`<button type="button" class="chip" aria-pressed="${per===d}" data-act="per" data-d="${d}">${d} Tage</button>`).join('')}</div></span></div>
   <section class="kpis" aria-label="Bewegungen im Zeitraum">
    <div class="card kpi"><span class="l">Neuaufnahmen · ${per} Tage</span><span class="v">${cnt('NEUAUFNAHME')}</span></div>
    <div class="card kpi"><span class="l">Auszüge · ${per} Tage</span><span class="v">${cnt('AUSZUG')}</span></div>
@@ -817,6 +819,7 @@ function berichteView(){
   </section>`;
 }
 function reportPreview(type){
+  if(type==='Belegungsstand')return bstandHTML(false);
   const head=`<p class="hint">${esc(campName(S.camp))} · Stand ${today.toLocaleDateString('de-DE')} · erstellt von ${ME.name}</p>`;
   if(type==='Tagesbericht Anwesenheit'){
     const ap=activePeople(); const C=k=>ap.filter(p=>S.att[p.qmm]===k).length;
@@ -1239,6 +1242,32 @@ function protokollView(){const P=UI.pr||(UI.pr={q:'',typ:'',wer:'',von:'',bis:''
   </tbody></table></div>
   ${pages>1?`<div style="display:flex;gap:8px">${P.page>1?`<button type="button" class="btn" data-act="prpage" data-p="${P.page-1}">‹ Neuere</button>`:''}${P.page<pages?`<button type="button" class="btn" data-act="prpage" data-p="${P.page+1}">Ältere ›</button>`:''}</div>`:''}`}
 
+/* ---------- Belegungsstand ---------- */
+function areaZg(a){return a.zg!==undefined?a.zg:(a.id==='H12'?'Frauen':'Männer')}
+function bstandData(){const rows=areasCur().map(a=>{const rooms={};S.beds.filter(b=>b.area===a.id).forEach(b=>{const k=b.room.replace(/\.[^.]*$/,'');(rooms[k]=rooms[k]||[]).push(b)});
+  const gr={},nat={};let leer=0,inLeer=0;
+  Object.values(rooms).forEach(bs=>{const free=bs.filter(b=>b.status==='Frei'&&!b.qmm).length;if(!free)return;gr[free]=(gr[free]||0)+1;const occ=bs.filter(b=>b.qmm&&person(b.qmm));
+    if(!occ.length){if(free===bs.length)leer++;inLeer+=free;return}
+    const c={};occ.forEach(b=>{const n=person(b.qmm).nat||'unbekannt';c[n]=(c[n]||0)+1});const top=Object.entries(c).sort((x,y)=>y[1]-x[1])[0][0];nat[top]=(nat[top]||0)+free});
+  const gruppen=Object.entries(gr).map(([k,n])=>[+k,n]).sort((x,y)=>y[0]-x[0]);
+  return {id:a.id,name:a.name,zg:areaZg(a),belegt:S.beds.filter(b=>b.area===a.id&&(b.qmm||b.status==='Belegt')).length,frei:gruppen.reduce((n,[k,v])=>n+k*v,0),leer,inLeer,gruppen,nat:Object.entries(nat).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0],'de'))}});
+  return {rows,belegt:rows.reduce((n,r)=>n+r.belegt,0),frei:rows.reduce((n,r)=>n+r.frei,0),leer:rows.reduce((n,r)=>n+r.leer,0)}}
+function bstandText(d){const l=['Belegungsstand '+campName(S.camp)+' – '+new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' Uhr',''];
+  [['Frauen','Frauen'],['Männer','Männer'],['','Weitere']].forEach(([g,lab])=>{const rs=d.rows.filter(r=>r.zg===g);if(!rs.length)return;l.push(lab+':');rs.forEach(r=>l.push('  '+r.name+': '+r.belegt+' belegt · '+r.frei+' freie Betten'+(r.gruppen.length?' ('+r.gruppen.map(([k,n])=>n+' Zi. × '+k).join(', ')+')':'')+(r.leer?' · '+r.leer+' leere Zimmer':'')))});
+  l.push('','Belegungsanzahl: '+d.belegt,'Freie Betten: '+d.frei,'Leere Zimmer: '+d.leer);return l.join('\n')}
+function bstandHTML(withHead){const d=bstandData();const stamp=new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const th='background:var(--accent);color:var(--on-accent);padding:8px 10px;font-size:13px;font-weight:700;text-align:left;text-transform:none;letter-spacing:0';const td='padding:8px 10px;border-top:1px solid var(--line);vertical-align:top';
+  const row=r=>`<tr><td style="${td};font-size:17px;font-weight:700">${esc(r.name)}</td><td style="${td};text-align:right;font-size:17px;font-weight:800;color:var(--bad)">${r.belegt}</td><td style="${td};text-align:right;font-size:17px;font-weight:800">${r.frei}</td><td style="${td}">${r.gruppen.length?`<span style="display:flex;flex-wrap:wrap;gap:6px">${r.gruppen.map(([k,n])=>`<span style="background:var(--surface-2);border-radius:6px;padding:2px 8px;font-size:14px;font-variant-numeric:tabular-nums"><b style="color:var(--bad)">${n}</b> <span style="color:var(--muted)">Zi. ×</span> <b>${k}</b> <span style="color:var(--muted)">= ${n*k}</span></span>`).join('')}</span>`:'<span style="color:var(--muted)">keine freien Betten</span>'}</td><td style="${td};text-align:right">${r.leer}</td></tr>`;
+  const groups=[['Frauen','Frauen'],['Männer','Männer'],['','Weitere Gebäude']].map(([g,lab])=>{const rs=d.rows.filter(r=>r.zg===g);if(!rs.length)return '';return `<tr><td colspan="5" style="background:var(--surface-2);text-align:center;padding:6px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-strong)">${lab}</td></tr>`+rs.map(row).join('')}).join('');
+  return `<span class="bs-wide" hidden></span><div class="sheet-h"><div><h2>Belegungsstand</h2><p class="hint">${esc(campName(S.camp))} · ${stamp} Uhr</p></div>${withHead?`<button type="button" class="x no-print" data-act="close" aria-label="Schließen">${IC.x}</button>`:''}</div>
+  <section class="kpis"><div class="card kpi"><span class="l">Bewohner (belegte Betten)</span><span class="v">${d.belegt}</span></div><div class="card kpi"><span class="l">Freie Betten</span><span class="v" style="color:var(--ok)">${d.frei}</span></div><div class="card kpi"><span class="l">Komplett leere Zimmer</span><span class="v">${d.leer}</span></div></section>
+  <div class="table-wrap" style="border:1px solid var(--line);border-radius:12px;overflow:hidden"><table style="font-size:15px"><thead><tr><th style="${th}">Feld / Haus</th><th style="${th};text-align:right">Belegt</th><th style="${th};text-align:right">Freie Betten</th><th style="${th}">Aufteilung: Zimmer × freie Betten</th><th style="${th};text-align:right">Leere Zimmer</th></tr></thead><tbody>${groups}</tbody>
+   <tfoot><tr style="background:var(--accent);color:var(--on-accent)"><td style="padding:10px;font-weight:700">Belegungsanzahl</td><td style="padding:10px;text-align:right;font-size:18px;font-weight:800">${d.belegt}</td><td style="padding:10px;text-align:right;font-size:18px;font-weight:800">${d.frei}</td><td style="padding:10px;font-weight:700">Freie Betten gesamt</td><td style="padding:10px;text-align:right;font-size:18px;font-weight:800">${d.leer}</td></tr></tfoot></table></div>
+  <p class="hint">Beispiel: „64 × 2“ bedeutet 64 Zimmer mit je 2 freien Betten = 128 freie Betten. Als frei zählen nur Betten mit Status „Frei“.</p>
+  <h3 style="font-size:17px">Freie Betten nach Nationalität der Mitbewohner</h3><p class="hint" style="margin-top:-8px">Freie Betten in teilbelegten Zimmern, nach der Nationalität, die dort wohnt – hilft bei der passenden Zuweisung.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px">${d.rows.filter(r=>r.frei>0).map(r=>`<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden"><div style="background:var(--accent);color:var(--on-accent);padding:6px 10px;font-size:14px;font-weight:700;display:flex;justify-content:space-between"><span>${esc(r.name)}</span><span>${r.zg||'–'}</span></div><table style="font-size:14px">${r.nat.map(([n,v])=>`<tr><td style="padding:4px 10px;border-top:1px solid var(--line)">${esc(n)}</td><td style="padding:4px 10px;border-top:1px solid var(--line);text-align:right;font-weight:700">${v}</td></tr>`).join('')}${r.inLeer?`<tr style="background:var(--ok-bg)"><td style="padding:4px 10px;border-top:1px solid var(--line);color:var(--ok);font-weight:600">In Zimmern ohne Bewohner</td><td style="padding:4px 10px;border-top:1px solid var(--line);text-align:right;font-weight:700;color:var(--ok)">${r.inLeer}</td></tr>`:''}</table></div>`).join('')}</div>
+  ${withHead?`<div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="printsheet">Drucken / als PDF speichern</button><button type="button" class="btn" data-act="bsmail">Per E-Mail senden</button><button type="button" class="btn" data-act="bscopy">Text für Teams kopieren</button><button type="button" class="btn" data-act="bscsv">Als Excel (CSV)</button></div>`:''}`}
+
 /* ---------- Kleiderkammer ---------- */
 const KK_CATS=['Oberteile','Hosen','Jacken','Unterwäsche','Socken','Schuhe','Kinder','Hygiene','Bettwäsche','Sonstiges'];
 const KK_STARTER=[['Oberteile','T-Shirt',['S','M','L','XL','XXL']],['Oberteile','Pullover',['S','M','L','XL','XXL']],['Hosen','Hose',['S','M','L','XL','XXL']],['Hosen','Jogginghose',['S','M','L','XL']],['Jacken','Winterjacke',['S','M','L','XL','XXL']],['Unterwäsche','Unterhose',['S','M','L','XL']],['Socken','Socken (Paar)',['39–42','43–46']],['Schuhe','Schuhe',['38','39','40','41','42','43','44','45']],['Kinder','Kinderkleidung-Set',['98–110','116–128','134–146']],['Hygiene','Hygieneset',['']],['Bettwäsche','Bettwäsche-Set',['']],['Bettwäsche','Handtuch',['']]];
@@ -1590,6 +1619,11 @@ document.addEventListener('click',e=>{
    case 'csv':downloadCsv(t.dataset.t);break;
    case 'prpage':UI.pr.page=+t.dataset.p;render();break;
    case 'prreset':UI.pr=null;render();break;
+   case 'bstand':openSheet(bstandHTML(true));break;
+   case 'bsmail':{const d=bstandData();location.href='mailto:?subject='+encodeURIComponent('Belegungsstand '+campName(S.camp)+' – '+fmtT(Date.now()))+'&body='+encodeURIComponent(bstandText(d));break}
+   case 'bscopy':{const d=bstandData();try{navigator.clipboard.writeText(bstandText(d));toast('Text kopiert – z. B. in Teams einfügen')}catch(_){toast('Kopieren nicht möglich')}break}
+   case 'bscsv':{const d=bstandData();const rows=[['Gebäude','Belegung für','Belegt','Freie Betten','Leere Zimmer','Aufteilung (Zimmer × freie Betten)']];d.rows.forEach(r=>rows.push([r.name,r.zg,r.belegt,r.frei,r.leer,r.gruppen.map(([k,n])=>n+'×'+k).join(' | ')]));rows.push(['Gesamt','',d.belegt,d.frei,d.leer,'']);
+     const u=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download='Belegungsstand_'+iso(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('CSV-Datei heruntergeladen');break}
    case 'close':case 'closeScrim':closeSheet();break;
   }
 });
