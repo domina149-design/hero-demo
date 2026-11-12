@@ -381,6 +381,62 @@ tr.alert-row{background:var(--bad-bg)}
   body.print-sheet .sheet{max-height:none;overflow:visible;box-shadow:none;max-width:none;border-radius:0;padding:0}
   .card{break-inside:avoid}
 }
+/* Postfach */
+.note-info{background:var(--info-bg);color:var(--info);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:600}
+.btn.sm{min-height:38px;padding:0 12px;font-size:14px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:700;font-size:14px;cursor:pointer;padding:4px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.chip.mtab{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--fg)}
+.chip.mtab[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.mail-grid{display:grid;grid-template-columns:minmax(0,1fr);height:calc(100dvh - 270px);min-height:460px;overflow:hidden}
+.mail-folders{display:none;flex-direction:column;gap:12px;border-right:1px solid var(--line);padding:12px;overflow:auto}
+.mail-folders ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mf-addr{font-size:12px;font-weight:700;color:var(--muted);padding:0 10px;overflow:hidden;text-overflow:ellipsis}
+.mail-fold{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0 10px;border:0;border-radius:8px;background:none;font-weight:600;font-size:15px;text-align:left;color:var(--fg);cursor:pointer}
+.mail-fold:hover,.mail-fold[aria-current="true"]{background:var(--surface-2)}.mail-fold[aria-current="true"]{color:var(--accent-strong)}
+.mf-ic{display:flex;width:20px;justify-content:center;color:var(--muted)}.mf-ic svg{width:18px;height:18px}.mf-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mail-list{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line)}
+.ml-head{display:flex;flex-direction:column;gap:8px;padding:12px;border-bottom:1px solid var(--line)}
+.ml-items{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;min-height:0}
+.mail-item{position:relative;display:flex;flex-direction:column;gap:2px;width:100%;padding:10px 16px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;color:var(--fg);cursor:pointer;font:inherit}
+.mail-item:hover,.mail-item[aria-current="true"]{background:var(--surface-2)}
+.mail-item.unread::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--accent)}
+.mi-top{display:flex;align-items:center;gap:8px}.mi-who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:15px}
+.mail-item.unread .mi-who{font-weight:800}.mi-ic{display:flex;color:var(--muted)}.mi-ic svg{width:15px;height:15px}.mi-time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mi-subj{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mail-item.unread .mi-subj{font-weight:700;color:var(--accent-strong)}
+.mi-prev{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mail-read{min-height:0;overflow-y:auto}
+.mail-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);padding:32px}
+.mail-art{display:flex;flex-direction:column;gap:12px;padding:16px}
+.mail-tools{display:flex;flex-wrap:wrap;gap:6px}.mail-h{font-size:22px;line-height:1.3}
+.mail-from{display:flex;gap:12px;align-items:flex-start;font-size:14px}.avatar.soft{background:var(--surface-2);color:var(--accent-strong);flex:none}
+.mail-atts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.mail-att{display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:14px;color:var(--fg);cursor:pointer;font-family:inherit}
+.mail-att b{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mail-att span{color:var(--muted)}
+.mail-body{border-top:1px solid var(--line);padding-top:12px;font-size:15px;line-height:1.55;overflow-wrap:anywhere}
+.mail-body p{margin:0 0 .7em}.mail-body hr{border:0;border-top:1px solid var(--line);margin:12px 0}.mail-body ul{list-style:disc;padding-left:1.4em}.mail-body ol{list-style:decimal;padding-left:1.4em}
+.m-only{display:flex}.m-hide{display:none!important}
+@media (min-width:1024px){.mail-grid{grid-template-columns:230px minmax(300px,400px) minmax(0,1fr);height:calc(100vh - 230px);min-height:520px}.mail-folders{display:flex}.m-only{display:none!important}.m-hide{display:flex!important}.mail-read.m-hide{display:block!important}.mail-art{padding:24px}}
+.sheet:has(.mc-wide){max-width:760px}
+.mc-row{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:4px 0}
+.mc-row span{width:64px;flex:none;font-size:14px;font-weight:700;color:var(--muted)}
+.mc-row input{flex:1;min-width:0;border:0!important;background:transparent!important;outline:none;min-height:40px!important;padding:0!important}
+.mc-tools{display:flex;flex-wrap:wrap;gap:4px}.mc-tools .btn{min-width:38px;padding:0 10px}
+.mail-editor{min-height:200px;border:1px solid var(--line-2);border-radius:8px;padding:10px 12px;font-size:16px;line-height:1.55;outline:none;background:var(--surface)}
+.mail-editor:focus{border-color:var(--accent)}.mail-editor p{margin:0 0 .6em}.mail-editor ul{list-style:disc;padding-left:1.4em}.mail-editor ol{list-style:decimal;padding-left:1.4em}
+.nav-badge{margin-left:auto;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+.cal-week{display:grid;gap:10px}
+@media (min-width:1024px){.cal-week{grid-template-columns:repeat(7,minmax(0,1fr))}.cal-day{min-height:340px}}
+.cal-day{display:flex;flex-direction:column;gap:6px;padding:10px}.cal-day.today{border-color:var(--accent)}.cal-day.we{background:color-mix(in srgb,var(--surface-2) 40%,var(--surface))}
+.cal-day h3{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--fg-2);margin:0 2px}.cal-day.today h3{color:var(--accent-strong)}
+.cal-add{border:0;background:none;font-size:18px;font-weight:700;color:var(--muted);cursor:pointer;line-height:1}
+.cal-ev{display:flex;flex-direction:column;width:100%;text-align:left;border:0;border-radius:8px;padding:6px 8px;font-size:13px;line-height:1.3;cursor:pointer;color:var(--fg);font-family:inherit;background:color-mix(in srgb,var(--accent) 13%,var(--surface));border-left:3px solid var(--accent)}
+.cal-ev:hover{background:color-mix(in srgb,var(--accent) 22%,var(--surface))}.cal-ev b{color:var(--fg-2)}.cal-ev small{color:var(--muted)}
+.cal-ev.allday{background:var(--info-bg);border-left-color:var(--info)}
+.cal-none{font-size:12px;color:var(--muted)}@media (min-width:1024px){.cal-none{display:none}}
+.cal-dl{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;margin:0;font-size:15px}.cal-dl dt{color:var(--muted)}.cal-dl dd{margin:0}
+.ev-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+input[type=time]{border:1px solid var(--line-2);background:var(--surface);border-radius:8px;min-height:44px;padding:0 10px;font-size:16px}
 </style>
 
 <div id="app"></div>
@@ -516,7 +572,19 @@ IC.wifi='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="cur
 IC.list='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>';
 IC.shirt='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3l-5 3 2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"/></svg>';
 IC.doc='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>';
-const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc],['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen',IC.cog]];
+IC.mail='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+IC.cal='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
+IC.clip='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.4 3.4 0 0 1 4.8 4.8l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg>';
+IC.reply='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg>';
+IC.replyAll='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 14L2 9l5-5"/><path d="M12 14L7 9l5-5"/><path d="M7 9h8a6 6 0 0 1 6 6v4"/></svg>';
+IC.fwd='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg>';
+IC.trash='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>';
+IC.flag='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+IC.flagOn='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+IC.open='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 10l9-6 9 6v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10l9 6 9-6"/></svg>';
+IC.back='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
+IC.fwdArrow='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const NAV=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc],['post','Postfach',IC.mail],['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['neuaufnahme','Neuaufnahme',IC.plus],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen',IC.cog]];
 const TABS=[['uebersicht','Übersicht',IC.home],['belegung','Belegung',IC.bed],['anwesenheit','Kontrolle',IC.check],['vorfall','Berichte',IC.doc]];
 
 /* ---------- render ---------- */
@@ -525,9 +593,10 @@ function render(){
   if(!UI.logged){app.innerHTML=loginView();return}
   ensureArea();
   const v=UI.view;
-  const navLinks=NAV.map(([id,l,ic])=>`<a class="nav-a" href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}${l}</a>`).join('');
-  const inMore=['technik','neuaufnahme','verwaltung','sachen','berichte','vorlagen','protokoll','kleiderkammer'].includes(v);
-  const tabs=TABS.map(([id,l,ic])=>`<a href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}<span>${l}</span></a>`).join('')+`<a href="#mehr" data-act="more" ${inMore?'aria-current="page"':''}>${IC.more}<span>Mehr</span></a>`;
+  const unread=mlUnread();
+  const navLinks=NAV.map(([id,l,ic])=>`<a class="nav-a" href="#${id}" ${(v===id||(v==='akte'&&id==='belegung')||(v==='kalender'&&id==='post'))?'aria-current="page"':''}>${ic}${l}${id==='post'&&unread?`<span class="nav-badge" aria-label="${unread} ungelesen">${unread}</span>`:''}</a>`).join('');
+  const inMore=['technik','neuaufnahme','verwaltung','sachen','berichte','vorlagen','protokoll','kleiderkammer','post','kalender'].includes(v);
+  const tabs=TABS.map(([id,l,ic])=>`<a href="#${id}" ${(v===id||(v==='akte'&&id==='belegung'))?'aria-current="page"':''}>${ic}<span>${l}</span></a>`).join('')+`<a href="#mehr" data-act="more" ${inMore?'aria-current="page"':''}><span style="position:relative;display:flex">${IC.more}${unread?'<span style="position:absolute;right:-5px;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent)"></span>':''}</span><span>Mehr</span></a>`;
   app.innerHTML=`<div class="app">
    <nav class="side" aria-label="Hauptnavigation">
      <img class="logo-light" src="${LOGO_L}" alt="HERO – Eine neue Zukunft möglich machen"><img class="logo-dark" src="${LOGO_D}" alt="HERO – Eine neue Zukunft möglich machen">
@@ -555,6 +624,8 @@ function viewHTML(v){
   if(v==='vorlagen')return vorlagenView();
   if(v==='protokoll')return protokollView();
   if(v==='kleiderkammer')return kleiderkammerView();
+  if(v==='post')return mailView();
+  if(v==='kalender')return kalenderView();
   return overviewView();
 }
 
@@ -955,7 +1026,7 @@ function incDoc(x){const t=S.templates.find(y=>y.id===x.tpl);const rows=t.fields
    <tr><th>Datum / Uhrzeit</th><td>${fmt(x.when)} · ${new Date(x.when).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr · ${esc(x.shift)}</td></tr>
    <tr><th>Bericht erstellt</th><td>${fmtT(x.created)} · ${esc(x.by)}</td></tr>${rows}</table></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn no-print" data-act="incPdf">Drucken / als PDF speichern</button><button type="button" class="btn no-print" data-act="incMail" data-id="${x.id}">Per E-Mail senden</button></div>
-  <p class="hint no-print">„Als PDF speichern“ im Druckdialog wählen. Der E-Mail-Versand öffnet Outlook mit dem Bericht als Text.</p>`}
+  <p class="hint no-print">„Als PDF speichern“ im Druckdialog wählen. „Per E-Mail senden“ verschickt den Bericht direkt aus Ihrem Postfach.</p>`}
 function seedIncidents(){if(REAL)return [];const now=Date.now();const P=Object.values(S.people).filter(p=>p.active);const pick=i=>{const p=P[i%P.length];return {qmm:p.qmm,name:p.name,vorname:p.vorname,room:bedLabel(S.beds,p.bed),geb:p.geb,nat:p.nat,lang:p.lang}};
   return [
    {id:'i1',tpl:'t1',resList:[pick(10),pick(11)],res:pick(10),when:now-30*3600e3,created:now-28*3600e3,shift:'Nachtschicht',by:'M. Schmidt',camp:'c1',vals:{melder:'M. Schmidt',team:['SB'],art:['Beleidigung','Bedrohung'],desc:'Lautstarker Streit zwischen zwei Bewohnern in der Küche. Die Situation wurde beruhigt.',mass:'Gespräch mit beiden Bewohnern geführt.',info:['Security'],wie:['per Telefon']}},
@@ -1533,6 +1604,209 @@ function akteKkHTML(p){if(!S.kk)return '';const list=S.kk.appts.filter(a=>a.qmm=
 document.addEventListener('click',e=>{const t=e.target.closest('[data-kk="akteneu"]');if(!t)return;UI.kk=UI.kk||null;kleiderkammerView();UI.kk.qmm=t.dataset.v;UI.kk.tab='neu';UI.kk.date=iso(today);UI.kk.notfall=false;UI.kk.reason='';go('kleiderkammer')},true);
 
 /* ---------- sheets ---------- */
+/* ---------- Postfach und Kalender (Demo, alles erfunden, kein Versand) ---------- */
+const ME_MAIL='khaled@beispiel.de';
+const ML_FOLDERS=[['inbox','Posteingang',IC.mail],['drafts','Entwürfe',IC.doc],['sentitems','Gesendete Elemente',IC.fwd],['archive','Archiv',IC.box],['deleteditems','Gelöschte Elemente',IC.trash],['junkemail','Junk-E-Mail',IC.flag]];
+
+function mlSeed(){
+  const now=Date.now(),h=x=>now-x*3600e3,P=(n,u)=>({n,a:u+'@beispiel.de'}),me={n:ME.name,a:ME_MAIL};
+  const p=t=>t.split('\n\n').map(x=>'<p>'+esc(x).replace(/\n/g,'<br>')+'</p>').join('');
+  let id=0;const m=(f,from,subject,text,hrs,x={})=>Object.assign({id:'m'+(++id),f,from,to:[me],cc:[],subject,html:p(text),date:h(hrs),read:hrs>30,flag:false,imp:'normal',att:[]},x);
+  const mo=mondayISO(new Date()),dd=(n,t)=>addDaysISO(mo,n)+'T'+t;
+  const ev=(n,s,e,subject,loc,online)=>({id:'e'+(++id),subject,start:dd(n,s),end:dd(n,e),allDay:false,loc:loc||'',online:!!online,org:'Leitung LUK',att:[],note:''});
+  return {seq:100,folders:ML_FOLDERS.map(([fid,name])=>({id:fid,name,wk:fid})),
+   msgs:[
+    m('inbox',P('Anna Becker (Verwaltung)','anna.becker'),'Dienstplan Dezember','Hallo zusammen,\n\nim Anhang ist der Dienstplan für Dezember. Bitte bis Freitag prüfen und Änderungswünsche direkt an mich schicken.\n\nViele Grüße\nAnna Becker',1.5,{att:[{n:'Dienstplan-Dezember.csv',size:118,type:'text/csv',content:'Datum;Frühschicht;Spätschicht;Nachtschicht\r\n01.12.;Team A;Team B;Team C\r\n02.12.;Team B;Team C;Team A'}]}),
+    m('inbox',P('Haustechnik LUK','haustechnik'),'F3 · C12: Heizung repariert','Hallo,\n\ndie Heizung in F3, Zimmer C12 ist repariert. Das Zimmer kann wieder belegt werden.\n\nGruß\nHaustechnik',3),
+    m('inbox',P('Zentrale Aufnahme (Test)','aufnahme'),'Morgen 3 Neuaufnahmen','Guten Tag,\n\nmorgen kommen voraussichtlich drei Personen (2 Männer, 1 Frau) gegen 10 Uhr. Bitte passende Betten vorbereiten.\n\nMit freundlichen Grüßen\nZentrale Aufnahme',5,{imp:'high'}),
+    m('inbox',P('Mehmet Yilmaz (Kleiderkammer)','m.yilmaz'),'Lieferung Winterjacken','Hi,\n\nheute sind 40 Winterjacken angekommen (Größen M bis XXL). Ich buche sie gleich im Lager ein.\n\nMehmet',22,{flag:true}),
+    m('inbox',P('Leitung LUK','leitung'),'Brandschutzübung am Donnerstag','Liebe Kolleginnen und Kollegen,\n\nam Donnerstag um 10:00 Uhr findet die Brandschutzübung statt. Bitte informiert die Bewohner in euren Gebäuden vorher.\n\nDanke!',48),
+    m('inbox',P('IT-Service (Test)','it'),'Wartung am Wochenende','Am Samstag zwischen 20 und 22 Uhr kann es kurz zu Ausfällen bei Teams und Outlook kommen.',70),
+    m('sentitems',me,'Belegungsstand heute','Hallo,\n\nanbei der Belegungsstand von heute.\n\nGruß',26,{to:[P('Leitung LUK','leitung')],read:true}),
+    m('drafts',me,'Frage zur Kleiderkammer','Hallo Mehmet,\n\nkönnen wir nächste Woche ',30,{to:[P('Mehmet Yilmaz (Kleiderkammer)','m.yilmaz')],read:true}),
+    m('junkemail',P('Gewinnspiel','gewinn'),'Sie haben gewonnen!','Klicken Sie hier, um Ihren Preis abzuholen.',90)],
+   events:[ev(0,'09:00','09:30','Teambesprechung Wochenstart','Büro H12',1),ev(1,'14:00','14:30','Übergabe Spätschicht','Büro H12'),ev(3,'10:00','11:00','Brandschutzübung','Alle Gebäude'),ev(4,'13:30','15:30','Kleiderkammer Ausgabe','Kleiderkammer F1'),ev(7,'09:00','09:30','Teambesprechung Wochenstart','Büro H12',1)]};
+}
+function mondayISO(d){const x=new Date(d);x.setHours(12,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return iso(x)}
+function addDaysISO(k,n){const [y,m,d]=k.split('-').map(Number);const x=new Date(y,m-1,d+n,12);return iso(x)}
+function mlBox(){if(!S.mail)S.mail=mlSeed();if(!UI.ml)UI.ml={folder:'inbox',sel:null,q:'',unread:false,remote:false};if(!UI.cal)UI.cal={week:mondayISO(new Date())};return S.mail}
+function mlUnread(){const b=mlBox();return b.msgs.filter(m=>m.f==='inbox'&&!m.read).length}
+function mlWhen(t,long){const d=new Date(t),tm=d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});if(long)return d.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})+', '+tm;const s=x=>x.toDateString();if(s(d)===s(new Date()))return tm;if(s(d)===s(new Date(Date.now()-864e5)))return 'Gestern';return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}
+function mlSize(n){return n<1024?n+' B':n<1048576?Math.round(n/1024)+' KB':(n/1048576).toFixed(1).replace('.',',')+' MB'}
+function mlPreview(h){const d=document.createElement('div');d.innerHTML=String(h).replace(/<(br|\/p|\/div|\/li|hr)[^>]*>/gi,' ');return (d.textContent||'').replace(/\s+/g,' ').trim().slice(0,160)}
+function mlClean(h){const d=document.createElement('div');d.innerHTML=h;d.querySelectorAll('script,style,iframe,object,embed,form').forEach(x=>x.remove());d.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name)||/^\s*javascript:/i.test(a.value))el.removeAttribute(a.name)}));d.querySelectorAll('a').forEach(a=>{a.target='_blank';a.rel='noreferrer'});return d.innerHTML}
+function mlInitials(n){return (n||'?').replace(/[^\p{L}\p{N} ]/gu,'').split(/\s+/).filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?'}
+function postTabs(v){return `<span class="chips"><a class="chip mtab" href="#post" ${v==='post'?'aria-current="page"':''}>${IC.mail}E-Mail</a><a class="chip mtab" href="#kalender" ${v==='kalender'?'aria-current="page"':''}>${IC.cal}Kalender</a></span>`}
+
+function mlListHTML(){
+  const b=mlBox(),M=UI.ml,q=M.q.trim().toLowerCase(),sent=['sentitems','drafts'].includes(M.folder);
+  let l=b.msgs.filter(m=>m.f===M.folder);if(M.unread)l=l.filter(m=>!m.read);
+  if(q)l=l.filter(m=>[m.subject,mlPreview(m.html),m.from.n,m.from.a,...m.to.map(t=>t.n+' '+t.a)].join(' ').toLowerCase().includes(q));
+  l.sort((a,c)=>c.date-a.date);
+  if(!l.length)return `<li class="empty">${q?'Keine Treffer.':M.unread?'Keine ungelesenen Nachrichten.':'Dieser Ordner ist leer.'}</li>`;
+  return l.map(m=>{const who=sent?'An: '+(m.to.map(t=>t.n).join(', ')||'(kein Empfänger)'):m.from.n;
+    return `<li><button type="button" class="mail-item ${m.read?'':'unread'}" data-ml="open" data-id="${m.id}" ${m.id===M.sel?'aria-current="true"':''}>
+     <span class="mi-top"><span class="mi-who">${esc(who)}</span>${m.att.length?`<span class="mi-ic">${IC.clip}</span>`:''}${m.flag?`<span class="mi-ic" style="color:var(--bad)">${IC.flagOn}</span>`:''}<span class="mi-time">${mlWhen(m.date)}</span></span>
+     <span class="mi-subj">${m.imp==='high'?'<b style="color:var(--bad)">! </b>':''}${esc(m.subject)}</span><span class="mi-prev">${esc(mlPreview(m.html))}</span></button></li>`}).join('');
+}
+function mlReadHTML(){
+  const b=mlBox(),M=UI.ml,m=b.msgs.find(x=>x.id===M.sel);
+  if(!m)return `<div class="mail-empty">${IC.mail.replace(/20/g,'40')}<span>Nachricht auswählen</span></div>`;
+  const others=b.folders.filter(f=>f.id!==M.folder);
+  return `<article class="mail-art">
+   <button type="button" class="btn sm m-only" style="align-self:flex-start" data-ml="back">${IC.back}Zurück</button>
+   <div class="mail-tools" role="toolbar" aria-label="Aktionen">
+    ${M.folder==='drafts'?`<button type="button" class="btn sm primary" data-ml="editdraft">Weiter bearbeiten</button>`:`<button type="button" class="btn sm" data-ml="reply" data-v="reply">${IC.reply}Antworten</button><button type="button" class="btn sm" data-ml="reply" data-v="replyAll">${IC.replyAll}Allen antworten</button><button type="button" class="btn sm" data-ml="reply" data-v="forward">${IC.fwd}Weiterleiten</button>`}
+    <button type="button" class="btn sm" data-ml="read" title="${m.read?'Als ungelesen markieren':'Als gelesen markieren'}" aria-label="${m.read?'Als ungelesen markieren':'Als gelesen markieren'}">${IC.open}</button>
+    <button type="button" class="btn sm" data-ml="flag" aria-pressed="${m.flag}" title="${m.flag?'Markierung entfernen':'Markieren'}" aria-label="Markieren" ${m.flag?'style="color:var(--bad)"':''}>${m.flag?IC.flagOn:IC.flag}</button>
+    <label><span class="sr-only">Verschieben nach</span><select id="ml-move" class="btn sm" style="max-width:150px"><option value="">Verschieben …</option>${others.map(f=>`<option value="${f.id}">${esc(f.name)}</option>`).join('')}</select></label>
+    <button type="button" class="btn sm danger" data-ml="del" title="Löschen" aria-label="Löschen">${IC.trash}</button>
+   </div>
+   <h2 class="mail-h">${m.imp==='high'?'<span style="color:var(--bad)">! </span>':''}${esc(m.subject)}</h2>
+   <div class="mail-from"><span class="avatar soft" aria-hidden="true">${esc(mlInitials(m.from.n))}</span><div><div><b>${esc(m.from.n)}</b> <span style="color:var(--muted)">&lt;${esc(m.from.a)}&gt;</span></div><div style="color:var(--fg-2)">An: ${esc(m.to.map(t=>t.n).join(', ')||'–')}</div>${m.cc.length?`<div style="color:var(--fg-2)">Cc: ${esc(m.cc.map(t=>t.n).join(', '))}</div>`:''}<div style="color:var(--muted)">${mlWhen(m.date,true)}</div></div></div>
+   ${m.att.length?`<ul class="mail-atts">${m.att.map((a,i)=>`<li><button type="button" class="mail-att" data-ml="dl" data-i="${i}">${IC.clip}<b>${esc(a.n)}</b><span>${mlSize(a.size)}</span></button></li>`).join('')}</ul>`:''}
+   <div class="mail-body">${mlClean(m.html)}</div></article>`;
+}
+function mailView(){
+  const b=mlBox(),M=UI.ml,fd=b.folders;
+  const cnt=f=>b.msgs.filter(m=>m.f===f.id&&!m.read).length;
+  const folders=fd.map(f=>{const ic=(ML_FOLDERS.find(x=>x[0]===f.id)||[])[2]||IC.list;const n=cnt(f);return `<li><button type="button" class="mail-fold" data-ml="folder" data-v="${f.id}" ${f.id===M.folder?'aria-current="true"':''}><span class="mf-ic">${ic}</span><span class="mf-n">${esc(f.name)}</span>${n&&f.id!=='sentitems'?`<span class="pill" style="background:var(--accent);color:var(--on-accent)">${n}</span>`:''}</button></li>`}).join('');
+  const cur=fd.find(f=>f.id===M.folder)||fd[0];
+  return `<div class="page-head"><div><div class="sub">${ME_MAIL}</div><h1>Postfach</h1></div>${postTabs('post')}</div>
+  <div class="note-info">Testpostfach: Alle Nachrichten sind erfunden, es wird nichts wirklich versendet. Im echten System erscheint hier das Microsoft-365-Postfach des angemeldeten Mitarbeiters.</div>
+  <div class="mail-grid card">
+   <aside class="mail-folders"><button type="button" class="btn primary" style="width:100%" data-ml="new">${IC.plus}Neue E-Mail</button><div class="mf-addr">${ME_MAIL}</div><ul>${folders}</ul><button type="button" class="btn sm" style="align-self:flex-start" data-ml="newfolder">+ Ordner</button></aside>
+   <section class="mail-list ${M.sel?'m-hide':''}" aria-label="Nachrichten">
+    <div class="ml-head">
+     <div class="m-only" style="display:flex;gap:8px"><select id="ml-fsel" style="flex:1;font-weight:700" aria-label="Ordner">${fd.map(f=>`<option value="${f.id}" ${f.id===M.folder?'selected':''}>${esc(f.name)}${cnt(f)?' ('+cnt(f)+')':''}</option>`).join('')}</select><button type="button" class="btn primary sm" data-ml="new" aria-label="Neue E-Mail">${IC.plus}</button></div>
+     <label class="search" style="flex:none">${IC.search}<input id="ml-q" type="search" placeholder="In „${esc(cur.name)}“ suchen" value="${esc(M.q)}"></label>
+     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><button type="button" class="chip" style="min-height:34px;font-size:14px" data-ml="unread" aria-pressed="${M.unread}">Nur ungelesene</button><button type="button" class="linkbtn" data-ml="refresh">Aktualisieren</button></div>
+    </div>
+    <ul class="ml-items">${mlListHTML()}</ul>
+   </section>
+   <section class="mail-read ${M.sel?'':'m-hide'}" aria-label="Nachricht lesen">${mlReadHTML()}</section>
+  </div>`;
+}
+
+/* Verfassen */
+function mlCompose(o={}){
+  UI.mlc={ref:o.ref||null,mode:o.mode||null,files:o.files||[],draft:o.draft||null};
+  const title=o.mode==='reply'?'Antworten':o.mode==='replyAll'?'Allen antworten':o.mode==='forward'?'Weiterleiten':'Neue E-Mail';
+  const row=(id,l,v,extra='')=>`<label class="mc-row"><span>${l}</span><input id="${id}" type="text" value="${esc(v||'')}" list="ml-recent" autocomplete="off" ${id==='ml-subj'?'style="font-weight:600"':'placeholder="name@…de; weitere mit Semikolon"'}>${extra}</label>`;
+  const recent=[...new Set(mlBox().msgs.flatMap(m=>[m.from.a,...m.to.map(t=>t.a)]).filter(a=>a&&a!==ME_MAIL))];
+  openSheet(`<span class="mc-wide" hidden></span><div class="sheet-h"><div><h2>${title}</h2><p class="hint">Testpostfach: Die Nachricht wird nicht wirklich versendet.</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+   <datalist id="ml-recent">${recent.map(a=>`<option value="${esc(a)}">`).join('')}</datalist>
+   <div>${row('ml-to','An',o.to,o.cc?'':'<button type="button" class="linkbtn" data-ml="showcc">Cc/Bcc</button>')}<div id="ml-ccrow" ${o.cc?'':'hidden'}>${row('ml-cc','Cc',o.cc)}${row('ml-bcc','Bcc','')}</div>${row('ml-subj','Betreff',o.subject)}</div>
+   <div class="mc-tools" role="toolbar" aria-label="Formatierung"><button type="button" class="btn sm" data-ml="fmt" data-c="bold" style="font-weight:800" title="Fett">F</button><button type="button" class="btn sm" data-ml="fmt" data-c="italic" style="font-style:italic" title="Kursiv">K</button><button type="button" class="btn sm" data-ml="fmt" data-c="underline" style="text-decoration:underline" title="Unterstrichen">U</button><button type="button" class="btn sm" data-ml="fmt" data-c="insertUnorderedList">• Liste</button><button type="button" class="btn sm" data-ml="fmt" data-c="insertOrderedList">1. Liste</button><button type="button" class="btn sm" data-ml="fmt" data-c="removeFormat">Ohne Format</button></div>
+   <div id="ml-ed" class="mail-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Nachricht">${o.html||'<p><br></p>'}</div>
+   ${o.mode?`<p class="hint">${o.mode==='forward'?'Die ursprüngliche Nachricht mit ihren Anhängen wird automatisch angehängt.':'Der bisherige Verlauf wird automatisch unter Ihren Text gesetzt.'}</p>`:''}
+   <div id="ml-atts">${mlAttsHTML()}</div>
+   <div class="err" id="ml-err" hidden></div>
+   <div style="display:flex;flex-wrap:wrap;gap:10px"><button type="button" class="btn primary" data-ml="send" style="min-width:120px">Senden</button><button type="button" class="btn" data-ml="savedraft">Als Entwurf speichern</button><button type="button" class="btn" data-act="close" style="margin-left:auto">Verwerfen</button></div>`);
+}
+function mlAttsHTML(){const f=UI.mlc?UI.mlc.files:[];const tot=f.reduce((n,x)=>n+x.size,0);
+  return `${f.length?`<ul class="mail-atts">${f.map((a,i)=>`<li class="mail-att">${IC.clip}<b>${esc(a.n)}</b><span>${mlSize(a.size)}</span><button type="button" class="x" style="width:30px;height:30px" data-ml="rmfile" data-i="${i}" aria-label="${esc(a.n)} entfernen">${IC.x}</button></li>`).join('')}</ul>`:''}
+   <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px"><label class="btn sm" style="cursor:pointer">${IC.clip}Datei anhängen<input id="ml-file" type="file" multiple hidden></label><span class="hint">${f.length?`${f.length} Anhang/Anhänge, ${mlSize(tot)} von 25 MB`:'Alle Dateitypen, zusammen bis 25 MB'}</span></div>`}
+function mlAddrs(v){return String(v||'').split(/[;,\s]+/).map(x=>x.trim()).filter(Boolean)}
+function mlSend(draft){
+  const b=mlBox(),C=UI.mlc,val=id=>(document.getElementById(id)||{}).value||'';
+  const to=mlAddrs(val('ml-to')),cc=mlAddrs(val('ml-cc')),bcc=mlAddrs(val('ml-bcc'));const err=document.getElementById('ml-err');
+  const bad=[...to,...cc,...bcc].find(a=>!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(a));
+  const fail=t=>{err.hidden=false;err.textContent=t};
+  if(bad)return fail(`„${bad}“ ist keine gültige E-Mail-Adresse.`);
+  if(!draft&&!to.length&&!cc.length&&!bcc.length)return fail('Bitte mindestens einen Empfänger eingeben.');
+  let html=document.getElementById('ml-ed').innerHTML,files=C.files.slice();
+  if(C.ref){const o=b.msgs.find(x=>x.id===C.ref);if(o){html=`<div>${html}</div><br><hr><p><b>Von:</b> ${esc(o.from.n)} &lt;${esc(o.from.a)}&gt;<br><b>Gesendet:</b> ${mlWhen(o.date,true)}<br><b>Betreff:</b> ${esc(o.subject)}</p>${o.html}`;if(C.mode==='forward')files=[...o.att,...files]}}
+  const A=l=>l.map(a=>{const k=b.msgs.flatMap(m=>[m.from,...m.to]).find(x=>x.a.toLowerCase()===a.toLowerCase());return {n:k?k.n:a,a}});
+  const msg={id:'m'+(++b.seq),f:draft?'drafts':'sentitems',from:{n:ME.name,a:ME_MAIL},to:A(to),cc:A(cc),subject:val('ml-subj')||'(ohne Betreff)',html,date:Date.now(),read:true,flag:false,imp:'normal',att:files};
+  b.msgs.push(msg);
+  if(C.draft)b.msgs=b.msgs.filter(x=>x.id!==C.draft);
+  if(!draft&&[...to,...cc,...bcc].some(a=>a.toLowerCase()===ME_MAIL))b.msgs.push(Object.assign({},msg,{id:'m'+(++b.seq),f:'inbox',read:false}));
+  save();closeSheet();toast(draft?'Entwurf gespeichert':'Gesendet (Testpostfach)');
+  if(UI.view==='post'){if(C.draft)UI.ml.sel=null;render()}else render();
+}
+function mlReply(mode){
+  const b=mlBox(),m=b.msgs.find(x=>x.id===UI.ml.sel);if(!m)return;
+  const pre=mode==='forward'?'WG: ':'AW: ';const subj=/^(AW|WG|RE|FW):/i.test(m.subject)&&!(mode==='forward'&&/^(AW|RE):/i.test(m.subject))?m.subject:pre+m.subject;
+  let to='',cc='';if(mode==='reply')to=m.from.a;if(mode==='replyAll'){to=[m.from.a,...m.to.map(t=>t.a)].filter((a,i,l)=>a&&a!==ME_MAIL&&l.indexOf(a)===i).join('; ');cc=m.cc.map(t=>t.a).filter(a=>a!==ME_MAIL).join('; ')}
+  mlCompose({ref:m.id,mode,to,cc,subject:subj});
+}
+function mlRefreshList(){const ul=document.querySelector('.ml-items');if(ul)ul.innerHTML=mlListHTML()}
+
+/* Kalender */
+function kalenderView(){
+  const b=mlBox(),w=UI.cal.week,td=iso(new Date()),WD=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const dm=k=>k.slice(8,10)+'.'+k.slice(5,7)+'.';
+  const th=new Date(addDaysISO(w,3)+'T12:00'),y1=new Date(th.getFullYear(),0,1),kw=Math.ceil(((th-y1)/864e5+1)/7);
+  const days=Array.from({length:7},(_,i)=>addDaysISO(w,i));
+  return `<div class="page-head"><div><div class="sub">${ME_MAIL}</div><h1>Kalender</h1></div>${postTabs('kalender')}</div>
+  <div class="note-info">Testkalender: Alle Termine sind erfunden. Im echten System erscheint hier der Outlook-Kalender des angemeldeten Mitarbeiters.</div>
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><button type="button" class="btn sm" data-ml="wk" data-v="-7" aria-label="Vorige Woche">${IC.back}</button><button type="button" class="btn sm" data-ml="wk" data-v="0">Heute</button><button type="button" class="btn sm" data-ml="wk" data-v="7" aria-label="Nächste Woche">${IC.fwdArrow}</button><b style="font-size:18px;margin-left:4px">KW ${kw} · ${dm(w)} – ${dm(addDaysISO(w,6))}${w.slice(0,4)}</b><button type="button" class="btn sm primary" style="margin-left:auto" data-ml="newev" data-v="${td>=w&&td<addDaysISO(w,7)?td:w}">${IC.plus}Neuer Termin</button></div>
+  <div class="cal-week">${days.map((d,i)=>{const l=b.events.filter(e=>e.start.slice(0,10)===d).sort((a,c)=>a.start<c.start?-1:1);
+   return `<section class="card cal-day ${d===td?'today':''} ${i>4?'we':''}"><h3><span>${WD[i]} ${dm(d)}</span><button type="button" class="cal-add" data-ml="newev" data-v="${d}" aria-label="Termin am ${dm(d)} anlegen">+</button></h3>
+    ${l.map(e=>`<button type="button" class="cal-ev ${e.allDay?'allday':''}" data-ml="ev" data-id="${e.id}"><b>${e.allDay?'Ganztägig':e.start.slice(11,16)+'–'+e.end.slice(11,16)}</b><span>${esc(e.subject)}</span>${e.loc?`<small>${esc(e.loc)}</small>`:''}</button>`).join('')||'<span class="cal-none">Keine Termine</span>'}</section>`}).join('')}</div>`;
+}
+function mlEventSheet(id){const e=mlBox().events.find(x=>x.id===id);if(!e)return;const dm=k=>k.slice(8,10)+'.'+k.slice(5,7)+'.';
+  openSheet(`<div class="sheet-h"><div><h2>${esc(e.subject)}</h2><p class="hint">${dm(e.start)} · ${e.allDay?'ganztägig':e.start.slice(11,16)+' – '+e.end.slice(11,16)+' Uhr'}</p></div><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <dl class="cal-dl">${e.loc?`<dt>Ort</dt><dd>${esc(e.loc)}</dd>`:''}${e.org?`<dt>Organisator</dt><dd>${esc(e.org)}</dd>`:''}${e.att.length?`<dt>Teilnehmer</dt><dd>${esc(e.att.join(', '))}</dd>`:''}${e.note?`<dt>Notiz</dt><dd style="white-space:pre-wrap">${esc(e.note)}</dd>`:''}</dl>
+  <div style="display:flex;flex-wrap:wrap;gap:10px">${e.online?`<button type="button" class="btn primary" data-ml="teams">Teams-Besprechung öffnen</button>`:''}<button type="button" class="btn danger" data-ml="delev" data-id="${e.id}">Termin löschen</button></div>`)}
+function mlNewEvent(day){
+  openSheet(`<div class="sheet-h"><h2>Neuer Termin</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>
+  <label class="f">Titel<input id="ev-subj" type="text" placeholder="z. B. Übergabe Spätschicht"></label>
+  <div class="ev-grid"><label class="f">Datum<input id="ev-date" type="date" value="${day}"></label><label class="f ev-t">Von<input id="ev-from" type="time" value="09:00"></label><label class="f ev-t">Bis<input id="ev-to" type="time" value="09:30"></label></div>
+  <label style="display:flex;gap:10px;align-items:center;font-weight:600"><input id="ev-allday" type="checkbox" style="width:20px;height:20px;accent-color:var(--accent)">Ganztägig</label>
+  <label class="f">Ort<input id="ev-loc" type="text" placeholder="z. B. Büro H12"></label>
+  <label class="f">Teilnehmer<input id="ev-att" type="text" placeholder="E-Mail-Adressen, mit Semikolon getrennt"><span class="hint" style="font-weight:400">Teilnehmer bekommen automatisch eine Einladung.</span></label>
+  <label style="display:flex;gap:10px;align-items:center;font-weight:600"><input id="ev-teams" type="checkbox" style="width:20px;height:20px;accent-color:var(--accent)">Als Teams-Besprechung</label>
+  <label class="f">Notiz<textarea id="ev-note"></textarea></label>
+  <div class="err" id="ev-err" hidden></div>
+  <button type="button" class="btn primary" data-ml="saveev">Termin speichern</button>`)}
+function mlSaveEvent(){const v=id=>document.getElementById(id),err=v('ev-err'),fail=t=>{err.hidden=false;err.textContent=t};
+  const subj=v('ev-subj').value.trim(),d=v('ev-date').value,all=v('ev-allday').checked,f=v('ev-from').value,t=v('ev-to').value;
+  if(!subj)return fail('Bitte einen Titel eingeben.');if(!d)return fail('Bitte ein Datum wählen.');if(!all&&(!f||!t||t<=f))return fail('Das Ende muss nach dem Beginn liegen.');
+  const att=mlAddrs(v('ev-att').value);const bad=att.find(a=>!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a));if(bad)return fail(`„${bad}“ ist keine gültige E-Mail-Adresse.`);
+  const b=mlBox();b.events.push({id:'e'+(++b.seq),subject:subj,start:d+'T'+(all?'00:00':f),end:d+'T'+(all?'23:59':t),allDay:all,loc:v('ev-loc').value.trim(),online:v('ev-teams').checked,org:ME.name,att,note:v('ev-note').value.trim()});
+  UI.cal.week=mondayISO(new Date(d+'T12:00'));save();closeSheet();render();toast(att.length?'Termin angelegt, Einladungen verschickt (Test)':'Termin angelegt')}
+
+document.addEventListener('click',e=>{const t=e.target.closest('[data-ml]');if(!t)return;const b=mlBox(),M=UI.ml,a=t.dataset.ml;const m=b.msgs.find(x=>x.id===M.sel);
+  switch(a){
+   case 'folder':M.folder=t.dataset.v;M.sel=null;M.q='';render();break;
+   case 'open':{M.sel=t.dataset.id;const x=b.msgs.find(y=>y.id===M.sel);if(x&&!x.read){x.read=true;save()}render();break}
+   case 'back':M.sel=null;render();break;
+   case 'unread':M.unread=!M.unread;render();break;
+   case 'refresh':render();toast('Aktualisiert');break;
+   case 'new':mlCompose();break;
+   case 'reply':mlReply(t.dataset.v);break;
+   case 'editdraft':if(m)mlCompose({draft:m.id,to:m.to.map(x=>x.a).join('; '),cc:m.cc.map(x=>x.a).join('; '),subject:m.subject==='(ohne Betreff)'?'':m.subject,html:m.html,files:m.att.slice()});break;
+   case 'read':if(m){m.read=!m.read;save();render();toast(m.read?'Als gelesen markiert':'Als ungelesen markiert')}break;
+   case 'flag':if(m){m.flag=!m.flag;save();render()}break;
+   case 'del':if(m){if(m.f==='deleteditems'){b.msgs=b.msgs.filter(x=>x!==m);toast('Endgültig gelöscht')}else{m.f='deleteditems';toast('In „Gelöschte Elemente“ verschoben')}M.sel=null;save();render()}break;
+   case 'dl':{if(!m)break;const at=m.att[+t.dataset.i];const blob=new Blob([at.content?'﻿'+at.content:'Demo-Datei: Der Inhalt wird in der Vorführung nicht gespeichert.'],{type:at.content?(at.type||'text/plain'):'text/plain'});const u=URL.createObjectURL(blob),l=document.createElement('a');l.href=u;l.download=at.content?at.n:at.n+'.txt';l.click();setTimeout(()=>URL.revokeObjectURL(u),2000);break}
+   case 'newfolder':openSheet(`<div class="sheet-h"><h2>Neuer Ordner</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div><label class="f">Name<input id="ml-fname" type="text"></label><button type="button" class="btn primary" data-ml="savefolder">Anlegen</button>`);break;
+   case 'savefolder':{const n=(document.getElementById('ml-fname').value||'').trim();if(!n)break;b.folders.push({id:'f'+(++b.seq),name:n});save();closeSheet();render();toast('Ordner angelegt');break}
+   case 'showcc':document.getElementById('ml-ccrow').hidden=false;t.remove();break;
+   case 'fmt':e.preventDefault();document.getElementById('ml-ed').focus();document.execCommand(t.dataset.c,false);break;
+   case 'rmfile':UI.mlc.files.splice(+t.dataset.i,1);document.getElementById('ml-atts').innerHTML=mlAttsHTML();break;
+   case 'send':mlSend(false);break;
+   case 'savedraft':mlSend(true);break;
+   case 'wk':UI.cal.week=t.dataset.v==='0'?mondayISO(new Date()):addDaysISO(UI.cal.week,+t.dataset.v);render();break;
+   case 'newev':mlNewEvent(t.dataset.v);break;
+   case 'saveev':mlSaveEvent();break;
+   case 'ev':mlEventSheet(t.dataset.id);break;
+   case 'delev':b.events=b.events.filter(x=>x.id!==t.dataset.id);save();closeSheet();render();toast('Termin gelöscht');break;
+   case 'teams':toast('Öffnet im echten System die Teams-Besprechung');break;
+  }
+});
+document.addEventListener('mousedown',e=>{if(e.target.closest('[data-ml="fmt"]'))e.preventDefault()});
+document.addEventListener('input',e=>{if(e.target.id==='ml-q'){UI.ml.q=e.target.value;mlRefreshList()}});
+document.addEventListener('change',e=>{const id=e.target.id,b=mlBox();
+  if(id==='ml-fsel'){UI.ml.folder=e.target.value;UI.ml.sel=null;render()}
+  if(id==='ml-move'&&e.target.value){const m=b.msgs.find(x=>x.id===UI.ml.sel);if(m){m.f=e.target.value;UI.ml.sel=null;save();render();toast('Verschoben')}}
+  if(id==='ml-file'){const add=[...e.target.files].map(f=>({n:f.name,size:f.size,type:f.type}));const tot=[...UI.mlc.files,...add].reduce((n,x)=>n+x.size,0);
+    if(tot>25*1048576){const er=document.getElementById('ml-err');er.hidden=false;er.textContent='Die Anhänge dürfen zusammen höchstens 25 MB groß sein.'}else UI.mlc.files.push(...add);document.getElementById('ml-atts').innerHTML=mlAttsHTML()}
+  if(id==='ev-allday')document.querySelectorAll('.ev-t').forEach(x=>x.hidden=e.target.checked);
+});
+
 function openSheet(html){document.getElementById('sheet-root').innerHTML=`<div class="scrim" data-act="closeScrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;const f=document.querySelector('.sheet button, .sheet select');if(f)f.focus()}
 function closeSheet(){document.getElementById('sheet-root').innerHTML=''}
 let MV={};
@@ -1569,7 +1843,7 @@ function otherSheet(q){const p=person(q);openSheet(`<div class="sheet-h"><div><h
 
 function toast(t){const r=document.getElementById('toast-root');r.innerHTML=`<div class="toast">${esc(t)}</div>`;clearTimeout(toast.h);toast.h=setTimeout(()=>{r.innerHTML=''},2600)}
 function go(v){if(location.hash==='#'+v)route();else location.hash=v}
-function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen','vorfall','vorlagen','protokoll','kleiderkammer'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
+function route(){const h=(location.hash||'').slice(1);UI.view=['uebersicht','belegung','anwesenheit','technik','neuaufnahme','akte','berichte','verwaltung','sachen','vorfall','vorlagen','protokoll','kleiderkammer','post','kalender'].includes(h)?h:'uebersicht';if(UI.view==='akte'&&!UI.akte)UI.view='belegung';render();window.scrollTo(0,0)}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -1616,7 +1890,7 @@ document.addEventListener('click',e=>{
    case 'nasave':{const n=UI.na;const b=bed(n.bed);const q=n.qmm.trim();
       S.people[q]={om:(n.om||'').trim(),qmm:q,name:n.name.trim(),vorname:n.vorname.trim(),geb:n.geb||'2000-01-01',nat:n.nat||NATS[0],lang:n.lang||LANGS[NATS[0]],g:n.g||'Männlich',since:iso(today),active:true,bed:b.id,lastSeen:0,other:null};
       b.status='Belegt';b.qmm=q;addLog('NEUAUFNAHME',q,'Aufgenommen in '+bedLabel(S.beds,b.id));UI.na={};save();UI.akte=q;toast('Aufgenommen – Bett '+bedLabel(S.beds,b.id));go('akte');break}
-   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
+   case 'more':e.preventDefault();openSheet(`<div class="sheet-h"><h2>Mehr</h2><button type="button" class="x" data-act="close" aria-label="Schließen">${IC.x}</button></div>${[['post','Postfach'+(mlUnread()?' ('+mlUnread()+')':''),IC.mail],['vorlagen','Vorlagen',IC.doc],['technik','Technik',IC.tool],['sachen','Bewohnersachen',IC.box],['kleiderkammer','Kleiderkammer',IC.shirt],['neuaufnahme','Neuaufnahme',IC.plus],['berichte','Statistik',IC.chart],['protokoll','Protokoll',IC.list],['verwaltung','Einrichtungen verwalten',IC.cog]].map(([id,l,ic])=>`<a class="btn block" style="justify-content:flex-start" href="#${id}" data-act="close">${ic}${l}</a>`).join('')}`);break;
    case 'per':UI.per=+t.dataset.d;render();break;
    case 'todoArea':UI.attArea=t.dataset.area;UI.attFilter='offen';break;
    case 'todoF':UI.attFilter=t.dataset.f;break;
@@ -1630,7 +1904,7 @@ document.addEventListener('click',e=>{
    case 'incSave':{const N=UI.inc;const x={id:'i'+(S.nextId++),tpl:N.tpl,res:N.resList[0]||null,resList:N.resList,when:N.when,created:N.created,shift:N.shift,by:ME.name,camp:S.camp,vals:N.vals};S.incidents.push(x);const tn=(S.templates.find(y=>y.id===N.tpl)||{}).name;N.resList.forEach(r=>addLog('BERICHT',r.qmm,tn+(N.vals.art?': '+[].concat(N.vals.art).join(', '):'')));if(!N.resList.length)addLog('BERICHT',null,tn);save();closeSheet();UI.incF='alle';if(UI.view!=='vorfall')go('vorfall');else render();toast('Bericht gespeichert');break}
    case 'incView':openSheet(incDoc(S.incidents.find(y=>y.id===t.dataset.id)));break;
    case 'incPdf':case 'printsheet':printSheet();break;
-   case 'incMail':{const x=S.incidents.find(y=>y.id===t.dataset.id);location.href=incMailto(x);break}
+   case 'incMail':{const x=S.incidents.find(y=>y.id===t.dataset.id);const u=new URL(incMailto(x).replace('mailto:?','https://x/?'));const body=u.searchParams.get('body')||'';mlCompose({subject:u.searchParams.get('subject')||'',html:body.split('\n\n').map(y=>'<p>'+esc(y).replace(/\n/g,'<br>')+'</p>').join('')});break}
    case 'thSet':{const x=S.things.find(y=>y.id==t.dataset.id);x.state=t.dataset.s;addLog('SACHEN',x.qmm,'Sachen '+x.state+': '+x.items);save();render();toast('Als „'+x.state+'“ markiert');break}
    case 'thAdd':{const N=UI.thNew;if(!N.name.trim()||!N.items.trim()){toast('Bitte Name und Sachen angeben');break}const ar=areasCur()[0];S.things.push({id:S.nextId++,name:N.name.trim(),qmm:'',area:ar?ar.id:'',room:N.room.trim()||'–',reason:N.reason,items:N.items.trim(),store:N.store||('Lager '+(ar?ar.name:'')),t:Date.now(),state:'eingelagert',photo:N.photo||null,camp:S.camp});UI.thNew=null;UI.thF='eingelagert';save();render();toast('Sachen eingelagert');break}
    case 'attOpen':UI.attArea=t.dataset.area;UI.attFilter='alle';go('anwesenheit');break;
@@ -1665,7 +1939,7 @@ document.addEventListener('click',e=>{
    case 'prpage':UI.pr.page=+t.dataset.p;render();break;
    case 'prreset':UI.pr=null;render();break;
    case 'bstand':openSheet(bstandHTML(true));break;
-   case 'bsmail':{const d=bstandData();location.href='mailto:?subject='+encodeURIComponent('Belegungsstand '+campName(S.camp)+' – '+fmtT(Date.now()))+'&body='+encodeURIComponent(bstandText(d));break}
+   case 'bsmail':{const d=bstandData(),txt=bstandText(d),p=x=>x.split('\n\n').map(y=>'<p>'+esc(y).replace(/\n/g,'<br>')+'</p>').join('');mlCompose({subject:'Belegungsstand '+campName(S.camp)+' – '+fmtT(Date.now()),html:p('Hallo,\n\nhier der aktuelle Belegungsstand:')+p(txt),files:[{n:'Belegungsstand.csv',size:txt.length+200,type:'text/csv'}]});break}
    case 'bscopy':{const d=bstandData();try{navigator.clipboard.writeText(bstandText(d));toast('Text kopiert – z. B. in Teams einfügen')}catch(_){toast('Kopieren nicht möglich')}break}
    case 'bscsv':{const d=bstandData();const rows=[['Gebäude','Belegung für','Belegt','Freie Betten','Leere Zimmer','Aufteilung (Zimmer × freie Betten)']];d.rows.forEach(r=>rows.push([r.name,r.zg,r.belegt,r.frei,r.leer,r.gruppen.map(([k,n])=>n+'×'+k).join(' | ')]));rows.push(['Gesamt','',d.belegt,d.frei,d.leer,'']);
      const u=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download='Belegungsstand_'+iso(today)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('CSV-Datei heruntergeladen');break}
